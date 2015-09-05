@@ -5,3 +5,6 @@
 .DS_Store
 /build
 /captures
+*.db
+app/src/main/res/drawable/Thumbs.db
+*.db
