@@ -1,4 +1,4 @@
-package com.example.gowrav.cardviewtest;
+package com.geeksynergy.airpaper;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

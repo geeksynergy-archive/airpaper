@@ -29,6 +29,7 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
     private List<Person> persons;
     private RecyclerView rv;
 
+    
     private MenuItem mi_startStop = null;
     private MenuItem mi_demodulationMode = null;
     private MenuItem mi_record = null;
