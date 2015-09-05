@@ -1,0 +1,12 @@
+{
+  "weatherinfo":
+  {
+    "temperature": "28°",
+    "status": "Very Hot",
+    "date": "15th",
+    "day": "Saturday",
+    "time": "2:15 pm",
+    "city": "New Delhi",
+    "state": "Delhi"
+  }
+}
