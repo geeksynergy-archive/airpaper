@@ -8,3 +8,4 @@
 *.db
 app/src/main/res/drawable/Thumbs.db
 *.db
+app/app.iml

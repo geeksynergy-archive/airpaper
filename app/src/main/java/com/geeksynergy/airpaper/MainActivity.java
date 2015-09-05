@@ -102,7 +102,7 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
         }
 
         // Get references to the GUI components:
-//        fl_analyzerFrame = (FrameLayout) findViewById(R.id.fl_analyzerFrame);
+        fl_analyzerFrame = (FrameLayout) findViewById(R.id.fl_analyzerFrame);
 //
 //        // Create a analyzer surface:
         analyzerSurface = new AnalyzerSurface(this,this);
@@ -117,7 +117,7 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
         analyzerSurface.setShowDebugInformation(preferences.getBoolean(getString(R.string.pref_showDebugInformation), false));
 
         // Put the analyzer surface in the analyzer frame of the layout:
-//        fl_analyzerFrame.addView(analyzerSurface);
+        fl_analyzerFrame.addView(analyzerSurface);
 
         // Restore / Initialize the running state and the demodulator mode:
         if(savedInstanceState != null) {
@@ -230,6 +230,7 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
                 return true;
             case R.id.create_pdf:
                 PdfCreator creator = new PdfCreator();
+                creator.createPdf(this,getApplicationContext());
             default:
                 return super.onOptionsItemSelected(item);
         }
