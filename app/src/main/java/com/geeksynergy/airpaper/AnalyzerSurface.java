@@ -26,7 +26,7 @@ import android.view.SurfaceView;
  * @author Dennis Mantz
  *
  * Copyright (C) 2014 Dennis Mantz
- * License: http://www.gnu.org/licenses/gpl.html GPL version 2 or higher
+ * License:   GPL version 2 or higher
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -85,7 +85,7 @@ public class AnalyzerSurface extends SurfaceView implements SurfaceHolder.Callba
 	public static final int COLORMAP_OLD = 3;		// from version 1.00 :)
 	public static final int COLORMAP_GQRX = 4;		// from https://github.com/csete/gqrx  -> qtgui/plotter.cpp
 
-	private int fftDrawingType = FFT_DRAWING_TYPE_LINE;	// Indicates how the fft should be drawn
+	private int fftDrawingType = FFT_DRAWING_TYPE_BAR;	// Indicates how the fft should be drawn
 	public static final int FFT_DRAWING_TYPE_BAR = 1;	// draw as bars
 	public static final int FFT_DRAWING_TYPE_LINE = 2;	// draw as line
 
@@ -145,21 +145,21 @@ public class AnalyzerSurface extends SurfaceView implements SurfaceHolder.Callba
 		this.callbackHandler = callbackHandler;
 		this.defaultPaint = new Paint();
 		this.blackPaint = new Paint();
-		this.blackPaint.setColor(Color.BLACK);
+		this.blackPaint.setColor(Color.WHITE);
 		this.fftPaint = new Paint();
-		this.fftPaint.setColor(Color.BLUE);
+		this.fftPaint.setColor(Color.BLACK);
 		this.fftPaint.setStyle(Paint.Style.FILL);
 		this.peakHoldPaint = new Paint();
-		this.peakHoldPaint.setColor(Color.YELLOW);
+		this.peakHoldPaint.setColor(Color.BLACK);
 		this.textPaint = new Paint();
-		this.textPaint.setColor(Color.WHITE);
+		this.textPaint.setColor(Color.BLACK);
 		this.textPaint.setAntiAlias(true);
 		this.textSmallPaint = new Paint();
-		this.textSmallPaint.setColor(Color.WHITE);
+		this.textSmallPaint.setColor(Color.BLACK);
 		this.textSmallPaint.setAntiAlias(true);
 		this.waterfallLinePaint = new Paint();
 		this.demodSelectorPaint = new Paint();
-		this.demodSelectorPaint.setColor(Color.WHITE);
+		this.demodSelectorPaint.setColor(Color.GRAY);
 		this.squelchPaint = new Paint();
 		this.squelchPaint.setColor(Color.RED);
 

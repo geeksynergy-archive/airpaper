@@ -65,7 +65,7 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
         jsonFileReader.getJSONData(this, getApplicationContext());
 
 
-        MySource = RTLSDR_SOURCE;
+        MySource = FILE_SOURCE;
 
 
         // Set default Settings on first run:

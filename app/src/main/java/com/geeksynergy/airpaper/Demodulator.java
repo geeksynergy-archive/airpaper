@@ -84,6 +84,11 @@ public class Demodulator extends Thread {
 	// AUDIO OUTPUT
 	private AudioSink audioSink = null;		// Will do QUADRATURE_RATE --> AUDIO_RATE and audio output
 
+	// My band pass filter in the code
+	private ComplexFirFilter fm_bandPassfilter = null;	// used for SSB demodulation
+
+
+
 	/**
 	 * Constructor. Creates a new demodulator block reading its samples from the given input queue and
 	 * returning the buffers to the given output queue. Expects input samples to be at baseband (mixing
@@ -231,6 +236,9 @@ public class Demodulator extends Thread {
 				default:
 					Log.e(LOGTAG, "run: invalid demodulationMode: " + demodulationMode);
 			}
+
+			// lets band pass filter this
+			// We have to (re-)create the band pass filter:
 
 			// play audio		[sample rate is QUADRATURE_RATE]
 			audioSink.enqueuePacket(audioBuffer);
