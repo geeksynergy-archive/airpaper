@@ -17,23 +17,32 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import java.io.File;
 import java.util.List;
 
 public class MainActivity extends Activity implements IQSourceInterface.Callback, AnalyzerSurface.CallbackInterface {
 
+    public static final int RTL2832U_RESULT_CODE = 1234;    // arbitrary value, used when sending intent to RTL2832U
+    private static final String LOGTAG = "MainActivity";
+    private static final String RECORDING_DIR = "RFAnalyzer";
+    private static final int FILE_SOURCE = 0;
+    private static final int HACKRF_SOURCE = 1;
+    private static final int RTLSDR_SOURCE = 2;
+    private static final String[] SOURCE_NAMES = new String[]{"filesource", "hackrf", "rtlsdr"};
     private List<Person> persons;
     private RecyclerView rv;
-
-    
     private MenuItem mi_startStop = null;
     private MenuItem mi_demodulationMode = null;
     private MenuItem mi_record = null;
-    private FrameLayout fl_analyzerFrame = null;
+    private LinearLayout fl_analyzerFrame = null;
     private AnalyzerSurface analyzerSurface = null;
     private AnalyzerProcessingLoop analyzerProcessingLoop = null;
     private IQSourceInterface source = null;
@@ -45,16 +54,9 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
     private boolean running = true; // by default this is false
     private File recordingFile = null;
     private int demodulationMode = Demodulator.DEMODULATION_WFM;
-
     private int MySource;
+    private Tracker mTracker;
 
-    private static final String LOGTAG = "MainActivity";
-    private static final String RECORDING_DIR = "RFAnalyzer";
-    public static final int RTL2832U_RESULT_CODE = 1234;	// arbitrary value, used when sending intent to RTL2832U
-    private static final int FILE_SOURCE = 0;
-    private static final int HACKRF_SOURCE = 1;
-    private static final int RTLSDR_SOURCE = 2;
-    private static final String[] SOURCE_NAMES = new String[] {"filesource", "hackrf", "rtlsdr"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,18 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
         JSONFileReader jsonFileReader = new JSONFileReader();
         jsonFileReader.getJSONData(this, getApplicationContext());
 
+
+        // Google Analytics Begins Here
+
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        mTracker = application.getDefaultTracker();
+
+        mTracker.send(new HitBuilders.EventBuilder()
+                .setCategory("Action")
+                .setAction("Open")
+                .build());
+
+        // Google Analytics Ends Here
 
         MySource = FILE_SOURCE;
 
@@ -75,7 +89,7 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         // Overwrite defaults for file paths in the preferences:
-        String extStorage = Environment.getExternalStorageDirectory().getAbsolutePath();	// get the path to the ext. storage
+        String extStorage = Environment.getExternalStorageDirectory().getAbsolutePath();    // get the path to the ext. storage
         // File Source file:
         String defaultFile = getString(R.string.pref_filesource_file_default);
         if (preferences.getString(getString(R.string.pref_filesource_file), "").equals(defaultFile))
@@ -86,45 +100,45 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
             preferences.edit().putString(getString(R.string.pref_logfile), extStorage + "/" + defaultFile).apply();
 
         // Start logging if enabled:
-        if(preferences.getBoolean(getString(R.string.pref_logging), false)) {
+        if (preferences.getBoolean(getString(R.string.pref_logging), false)) {
             try {
                 File logfile = new File(preferences.getString(getString(R.string.pref_logfile), ""));
-                logfile.getParentFile().mkdir();	// Create folder
+                logfile.getParentFile().mkdir();    // Create folder
                 logcat = Runtime.getRuntime().exec("logcat -f " + logfile);
                 Log.i("MainActivity", "onCreate: started logcat (" + logcat.toString() + ") to " + logfile);
-                Toast.makeText(MainActivity.this,"onCreate: started logcat",Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "onCreate: started logcat", Toast.LENGTH_SHORT).show();
 
             } catch (Exception e) {
                 Log.e("MainActivity", "onCreate: Failed to start logging!");
-                Toast.makeText(MainActivity.this,"onCreate: Failed to start logging",Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "onCreate: Failed to start logging", Toast.LENGTH_SHORT).show();
 
             }
         }
 
         // Get references to the GUI components:
-        fl_analyzerFrame = (FrameLayout) findViewById(R.id.fl_analyzerFrame);
+        fl_analyzerFrame = (LinearLayout) findViewById(R.id.fl_analyzerFrame);
 //
 //        // Create a analyzer surface:
-        analyzerSurface = new AnalyzerSurface(this,this);
+        analyzerSurface = new AnalyzerSurface(this, this);
         analyzerSurface.setVerticalScrollEnabled(preferences.getBoolean(getString(R.string.pref_scrollDB), true));
         analyzerSurface.setVerticalZoomEnabled(preferences.getBoolean(getString(R.string.pref_zoomDB), true));
         analyzerSurface.setDecoupledAxis(preferences.getBoolean(getString(R.string.pref_decoupledAxis), false));
         analyzerSurface.setDisplayRelativeFrequencies(preferences.getBoolean(getString(R.string.pref_relativeFrequencies), false));
-        analyzerSurface.setWaterfallColorMapType(Integer.valueOf(preferences.getString(getString(R.string.pref_colorMapType),"4")));
-        analyzerSurface.setFftDrawingType(Integer.valueOf(preferences.getString(getString(R.string.pref_fftDrawingType),"2")));
+        analyzerSurface.setWaterfallColorMapType(Integer.valueOf(preferences.getString(getString(R.string.pref_colorMapType), "4")));
+        analyzerSurface.setFftDrawingType(Integer.valueOf(preferences.getString(getString(R.string.pref_fftDrawingType), "2")));
         analyzerSurface.setFftRatio(Float.valueOf(preferences.getString(getString(R.string.pref_spectrumWaterfallRatio), "0.5")));
-        analyzerSurface.setFontSize(Integer.valueOf(preferences.getString(getString(R.string.pref_fontSize),"2")));
+        analyzerSurface.setFontSize(Integer.valueOf(preferences.getString(getString(R.string.pref_fontSize), "2")));
         analyzerSurface.setShowDebugInformation(preferences.getBoolean(getString(R.string.pref_showDebugInformation), false));
 
         // Put the analyzer surface in the analyzer frame of the layout:
         fl_analyzerFrame.addView(analyzerSurface);
 
         // Restore / Initialize the running state and the demodulator mode:
-        if(savedInstanceState != null) {
+        if (savedInstanceState != null) {
             running = savedInstanceState.getBoolean(getString(R.string.save_state_running));
             demodulationMode = savedInstanceState.getInt(getString(R.string.save_state_demodulatorMode));
             demodulationMode = Demodulator.DEMODULATION_WFM;
-			/* BUGFIX / WORKAROUND:
+            /* BUGFIX / WORKAROUND:
 			 * The RTL2832U driver will not allow to close the socket and immediately start the driver
 			 * again to reconnect after an orientation change / app kill + restart.
 			 * It will report back in onActivityResult() with a -1 (not specified).
@@ -136,29 +150,29 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
 
             //    Toast.makeText(MainActivity.this,"Stopping and restarting may take time",Toast.LENGTH_SHORT).show();
 //
-                if (running && Integer.valueOf(preferences.getString(getString(R.string.pref_sourceType), "1")) == RTLSDR_SOURCE
-                        && !preferences.getBoolean(getString(R.string.pref_rtlsdr_externalServer), false)) {
-                    // 1) don't start Analyzer immediately
-                    running = false;
+            if (running && Integer.valueOf(preferences.getString(getString(R.string.pref_sourceType), "1")) == RTLSDR_SOURCE
+                    && !preferences.getBoolean(getString(R.string.pref_rtlsdr_externalServer), false)) {
+                // 1) don't start Analyzer immediately
+                running = false;
 
-                    // Just inform the user about what is going on (why does this take so long? ...)
+                // Just inform the user about what is going on (why does this take so long? ...)
 //                Toast.makeText(MainActivity.this,"Stopping and restarting RTL2832U driver...",Toast.LENGTH_SHORT).show();
 
-                    // 2) Delayed start of the Analyzer:
-                    Thread timer = new Thread() {
-                        @Override
-                        public void run() {
-                            try {
-                                Thread.sleep(1500);
+                // 2) Delayed start of the Analyzer:
+                Thread timer = new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(1500);
 //                            Toast.makeText(MainActivity.this,"Waited for a second and Half",Toast.LENGTH_SHORT).show();
-                                startAnalyzer();
-                            } catch (InterruptedException e) {
-                                Log.e(LOGTAG, "onCreate: (timer thread): Interrupted while sleeping.");
-                            }
+                            startAnalyzer();
+                        } catch (InterruptedException e) {
+                            Log.e(LOGTAG, "onCreate: (timer thread): Interrupted while sleeping.");
                         }
-                    };
-                    timer.start();
-                }
+                    }
+                };
+                timer.start();
+            }
 
         } else {
             // Set running to true if autostart is enabled (this will start the analyzer in onStart() )
@@ -176,17 +190,15 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
     }
 
 
-
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         // close source
-        if(source != null && source.isOpen())
+        if (source != null && source.isOpen())
             source.close();
 
         // stop logging:
-        if(logcat != null) {
+        if (logcat != null) {
             try {
                 logcat.destroy();
                 logcat.waitFor();
@@ -197,11 +209,11 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
         }
 
         // shut down RTL2832U driver if running:
-        if(running && Integer.valueOf(preferences.getString(getString(R.string.pref_sourceType), "1")) == RTLSDR_SOURCE
-                && !preferences.getBoolean(getString(R.string.pref_rtlsdr_externalServer),false)) {
+        if (running && Integer.valueOf(preferences.getString(getString(R.string.pref_sourceType), "1")) == RTLSDR_SOURCE
+                && !preferences.getBoolean(getString(R.string.pref_rtlsdr_externalServer), false)) {
             try {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("iqsrc://-x"));	// -x is invalid. will cause the driver to shut down (if running)
+                intent.setData(Uri.parse("iqsrc://-x"));    // -x is invalid. will cause the driver to shut down (if running)
                 startActivity(intent);
             } catch (ActivityNotFoundException e) {
                 Log.e(LOGTAG, "onDestroy: RTL2832U is not installed");
@@ -221,22 +233,53 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
+            case R.id.restart_airpaper:
+                //newGame();
+                startAnalyzer();
+                Toast.makeText(MainActivity.this, "startedAnalyzer()", Toast.LENGTH_LONG).show();
+                return true;
             case R.id.action_settings:
                 //newGame();
+                return true;
+            case R.id.reload_json:
                 JSONFileReader fileReader = new JSONFileReader();
                 fileReader.getJSONData(this, getApplicationContext());
-                startAnalyzer();
-                Toast.makeText(MainActivity.this,"startedAnalyzer()",Toast.LENGTH_LONG).show();
                 return true;
+            case R.id.Show_Analyzer:
+                if (item.getTitle().equals("Show Analyzer")) {
+                    item.setTitle("Hide Analyzer");
+                    fl_analyzerFrame.setVisibility(View.VISIBLE);
+                } else {
+                    item.setTitle("Show Analyzer");
+                    fl_analyzerFrame.setVisibility(View.INVISIBLE);
+                }
+                return true;
+
             case R.id.create_pdf:
                 PdfCreator creator = new PdfCreator();
-                creator.createPdf(this,getApplicationContext());
+                creator.createPdf(this, getApplicationContext());
+                return true;
+            case R.id.record_sound:
+                Thread stoprecorder = new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            SoundRecording testFile = new SoundRecording();
+                            testFile.startRecording();
+                            Thread.sleep(100000);
+                            testFile.stopRecording();
+                        } catch (InterruptedException e) {
+                            Log.e(LOGTAG, "onCreate: (timer thread): Interrupted while sleeping.");
+                        }
+                    }
+                };
+                stoprecorder.start();
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-
-
 
 
     /**
@@ -320,14 +363,14 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
         // Check if the user changed the preferences:
         checkForChangedPreferences();
 
-        running=true; // Lets override the settings here GS
+        running = true; // Lets override the settings here GS
         // Start the analyzer if running is true:
         if (running)
             startAnalyzer();
 
         // on the first time after the app was killed by the system, savedInstanceState will be
         // non-null and we restore the settings:
-        if(savedInstanceState != null) {
+        if (savedInstanceState != null) {
             analyzerSurface.setVirtualFrequency(savedInstanceState.getLong(getString(R.string.save_state_virtualFrequency)));
             analyzerSurface.setVirtualSampleRate(savedInstanceState.getInt(getString(R.string.save_state_virtualSampleRate)));
             analyzerSurface.setDBScale(savedInstanceState.getFloat(getString(R.string.save_state_minDB)),
@@ -335,7 +378,7 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
             analyzerSurface.setChannelFrequency(savedInstanceState.getLong(getString(R.string.save_state_channelFrequency)));
             analyzerSurface.setChannelWidth(savedInstanceState.getInt(getString(R.string.save_state_channelWidth)));
             analyzerSurface.setSquelch(savedInstanceState.getFloat(getString(R.string.save_state_squelch)));
-            if(demodulator != null && scheduler != null) {
+            if (demodulator != null && scheduler != null) {
                 demodulator.setChannelWidth(savedInstanceState.getInt(getString(R.string.save_state_channelWidth)));
                 scheduler.setChannelFrequency(savedInstanceState.getLong(getString(R.string.save_state_channelFrequency)));
             }
@@ -346,19 +389,18 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
     @Override
     protected void onStop() {
         super.onStop();
-        boolean runningSaved = running;	// save the running state, to restore it after the app re-starts...
-        stopAnalyzer();					// will stop the processing loop, scheduler and source
-        running = runningSaved;			// running will be saved in onSaveInstanceState()
+        boolean runningSaved = running;    // save the running state, to restore it after the app re-starts...
+        stopAnalyzer();                    // will stop the processing loop, scheduler and source
+        running = runningSaved;            // running will be saved in onSaveInstanceState()
 
         // safe preferences:
-        if(source != null) {
+        if (source != null) {
             SharedPreferences.Editor edit = preferences.edit();
             edit.putLong(getString(R.string.pref_frequency), source.getFrequency());
             edit.putInt(getString(R.string.pref_sampleRate), source.getSampleRate());
             edit.commit();
         }
     }
-
 
 
     @Override
@@ -384,16 +426,16 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
                     int errorId = -1;
                     int exceptionCode = 0;
                     String detailedDescription = null;
-                    if(data != null) {
+                    if (data != null) {
                         errorId = data.getIntExtra("marto.rtl_tcp_andro.RtlTcpExceptionId", -1);
                         exceptionCode = data.getIntExtra("detailed_exception_code", 0);
                         detailedDescription = data.getStringExtra("detailed_exception_message");
                     }
                     String errorMsg = "ERROR NOT SPECIFIED";
-                    if(errorId >= 0 && errorId < rtlsdrErrInfo.length)
+                    if (errorId >= 0 && errorId < rtlsdrErrInfo.length)
                         errorMsg = rtlsdrErrInfo[errorId];
 
-                    Log.e(LOGTAG, "onActivityResult: RTL2832U driver returned with error: " + errorMsg + " ("+errorId+")"
+                    Log.e(LOGTAG, "onActivityResult: RTL2832U driver returned with error: " + errorMsg + " (" + errorId + ")"
                             + (detailedDescription != null ? ": " + detailedDescription + " (" + exceptionCode + ")" : ""));
 
                     if (source != null && source instanceof RtlsdrSource) {
@@ -407,7 +449,7 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
     }
 
     @Override
-    public void onIQSourceReady(IQSourceInterface source) {	// is called after source.open()
+    public void onIQSourceReady(IQSourceInterface source) {    // is called after source.open()
         if (running)
             startAnalyzer();    // will start the processing loop, scheduler and source
     }
@@ -422,7 +464,7 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
         });
         stopAnalyzer();
 
-        if(this.source != null && this.source.isOpen())
+        if (this.source != null && this.source.isOpen())
             this.source.close();
     }
 
@@ -433,14 +475,13 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
         // Source Type (this is pretty complex as we have to check each type individually):
         int sourceType = Integer.valueOf(preferences.getString(getString(R.string.pref_sourceType), "1"));
         sourceType = MySource;
-        if(source != null) {
+        if (source != null) {
             switch (sourceType) {
                 case FILE_SOURCE:
-                    if(!(source instanceof FileIQSource)) {
+                    if (!(source instanceof FileIQSource)) {
                         source.close();
                         createSource();
-                    }
-                    else {
+                    } else {
                         long freq = Integer.valueOf(preferences.getString(getString(R.string.pref_filesource_frequency), "97000000"));
                         int sampRate = Integer.valueOf(preferences.getString(getString(R.string.pref_filesource_sampleRate), "2000000"));
                         String fileName = preferences.getString(getString(R.string.pref_filesource_file), "");
@@ -456,41 +497,39 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
                     }
                     break;
                 case HACKRF_SOURCE:
-                    if(!(source instanceof HackrfSource)) {
+                    if (!(source instanceof HackrfSource)) {
                         source.close();
                         createSource();
-                    }
-                    else {
+                    } else {
                         // overwrite hackrf source settings if changed:
                         boolean amp = preferences.getBoolean(getString(R.string.pref_hackrf_amplifier), false);
                         boolean antennaPower = preferences.getBoolean(getString(R.string.pref_hackrf_antennaPower), false);
                         int frequencyShift = Integer.valueOf(preferences.getString(getString(R.string.pref_hackrf_frequencyShift), "0"));
-                        if(((HackrfSource)source).isAmplifierOn() != amp)
-                            ((HackrfSource)source).setAmplifier(amp);
-                        if(((HackrfSource)source).isAntennaPowerOn() != antennaPower)
-                            ((HackrfSource)source).setAntennaPower(antennaPower);
-                        if(((HackrfSource)source).getFrequencyShift() != frequencyShift)
-                            ((HackrfSource)source).setFrequencyShift(frequencyShift);
+                        if (((HackrfSource) source).isAmplifierOn() != amp)
+                            ((HackrfSource) source).setAmplifier(amp);
+                        if (((HackrfSource) source).isAntennaPowerOn() != antennaPower)
+                            ((HackrfSource) source).setAntennaPower(antennaPower);
+                        if (((HackrfSource) source).getFrequencyShift() != frequencyShift)
+                            ((HackrfSource) source).setFrequencyShift(frequencyShift);
                     }
                     break;
                 case RTLSDR_SOURCE:
-                    if(!(source instanceof RtlsdrSource)) {
+                    if (!(source instanceof RtlsdrSource)) {
                         source.close();
                         createSource();
-                    }
-                    else {
+                    } else {
                         // Check if ip or port has changed and recreate source if necessary:
                         String ip = preferences.getString(getString(R.string.pref_rtlsdr_ip), "");
                         int port = Integer.valueOf(preferences.getString(getString(R.string.pref_rtlsdr_port), "1234"));
                         boolean externalServer = preferences.getBoolean(getString(R.string.pref_rtlsdr_externalServer), false);
-                        if(externalServer) {
-                            if(!ip.equals(((RtlsdrSource) source).getIpAddress()) || port != ((RtlsdrSource) source).getPort()) {
+                        if (externalServer) {
+                            if (!ip.equals(((RtlsdrSource) source).getIpAddress()) || port != ((RtlsdrSource) source).getPort()) {
                                 source.close();
                                 createSource();
                                 return;
                             }
                         } else {
-                            if(!((RtlsdrSource) source).getIpAddress().equals("127.0.0.1") || 1234 != ((RtlsdrSource) source).getPort()) {
+                            if (!((RtlsdrSource) source).getIpAddress().equals("127.0.0.1") || 1234 != ((RtlsdrSource) source).getPort()) {
                                 source.close();
                                 createSource();
                                 return;
@@ -500,42 +539,42 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
                         // otherwise just overwrite rtl-sdr source settings if changed:
                         int frequencyCorrection = Integer.valueOf(preferences.getString(getString(R.string.pref_rtlsdr_frequencyCorrection), "0"));
                         int frequencyShift = Integer.valueOf(preferences.getString(getString(R.string.pref_rtlsdr_frequencyShift), "0"));
-                        if(frequencyCorrection != ((RtlsdrSource) source).getFrequencyCorrection())
+                        if (frequencyCorrection != ((RtlsdrSource) source).getFrequencyCorrection())
                             ((RtlsdrSource) source).setFrequencyCorrection(frequencyCorrection);
-                        if(((RtlsdrSource)source).getFrequencyShift() != frequencyShift)
-                            ((RtlsdrSource)source).setFrequencyShift(frequencyShift);
+                        if (((RtlsdrSource) source).getFrequencyShift() != frequencyShift)
+                            ((RtlsdrSource) source).setFrequencyShift(frequencyShift);
                     }
                     break;
                 default:
             }
         }
 
-        if(analyzerSurface != null) {
+        if (analyzerSurface != null) {
             // All GUI settings will just be overwritten:
             analyzerSurface.setVerticalScrollEnabled(preferences.getBoolean(getString(R.string.pref_scrollDB), true));
             analyzerSurface.setVerticalZoomEnabled(preferences.getBoolean(getString(R.string.pref_zoomDB), true));
             analyzerSurface.setDecoupledAxis(preferences.getBoolean(getString(R.string.pref_decoupledAxis), false));
             analyzerSurface.setDisplayRelativeFrequencies(preferences.getBoolean(getString(R.string.pref_relativeFrequencies), false));
-            analyzerSurface.setWaterfallColorMapType(Integer.valueOf(preferences.getString(getString(R.string.pref_colorMapType),"4")));
-            analyzerSurface.setFftDrawingType(Integer.valueOf(preferences.getString(getString(R.string.pref_fftDrawingType),"2")));
-            analyzerSurface.setAverageLength(Integer.valueOf(preferences.getString(getString(R.string.pref_averaging),"0")));
+            analyzerSurface.setWaterfallColorMapType(Integer.valueOf(preferences.getString(getString(R.string.pref_colorMapType), "4")));
+            analyzerSurface.setFftDrawingType(Integer.valueOf(preferences.getString(getString(R.string.pref_fftDrawingType), "2")));
+            analyzerSurface.setAverageLength(Integer.valueOf(preferences.getString(getString(R.string.pref_averaging), "0")));
             analyzerSurface.setPeakHoldEnabled(preferences.getBoolean(getString(R.string.pref_peakHold), false));
             analyzerSurface.setFftRatio(Float.valueOf(preferences.getString(getString(R.string.pref_spectrumWaterfallRatio), "0.5")));
-            analyzerSurface.setFontSize(Integer.valueOf(preferences.getString(getString(R.string.pref_fontSize),"2")));
+            analyzerSurface.setFontSize(Integer.valueOf(preferences.getString(getString(R.string.pref_fontSize), "2")));
             analyzerSurface.setShowDebugInformation(preferences.getBoolean(getString(R.string.pref_showDebugInformation), false));
         }
 
         // Screen Orientation:
         String screenOrientation = preferences.getString(getString(R.string.pref_screenOrientation), "auto");
-        if(screenOrientation.equals("auto"))
+        if (screenOrientation.equals("auto"))
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
-        else if(screenOrientation.equals("landscape"))
+        else if (screenOrientation.equals("landscape"))
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        else if(screenOrientation.equals("portrait"))
+        else if (screenOrientation.equals("portrait"))
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        else if(screenOrientation.equals("reverse_landscape"))
+        else if (screenOrientation.equals("reverse_landscape"))
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
-        else if(screenOrientation.equals("reverse_portrait"))
+        else if (screenOrientation.equals("reverse_portrait"))
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
     }
 
@@ -576,7 +615,7 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
                 fileFormat = 1; //gs
                 boolean repeat = preferences.getBoolean(getString(R.string.pref_filesource_repeat), false);
                 repeat = true; // gs
-                sampleRate=1000000;
+                sampleRate = 1000000;
 
 
                 source = new FileIQSource(filename, sampleRate, frequency, 16384, repeat, fileFormat);
@@ -584,18 +623,18 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
             case HACKRF_SOURCE:
                 // Create HackrfSource
                 source = new HackrfSource();
-                source.setFrequency(preferences.getLong(getString(R.string.pref_frequency),97000000));
+                source.setFrequency(preferences.getLong(getString(R.string.pref_frequency), 97000000));
                 source.setSampleRate(preferences.getInt(getString(R.string.pref_sampleRate), HackrfSource.MAX_SAMPLERATE));
-                ((HackrfSource) source).setVgaRxGain(preferences.getInt(getString(R.string.pref_hackrf_vgaRxGain), HackrfSource.MAX_VGA_RX_GAIN/2));
-                ((HackrfSource) source).setLnaGain(preferences.getInt(getString(R.string.pref_hackrf_lnaGain), HackrfSource.MAX_LNA_GAIN/2));
+                ((HackrfSource) source).setVgaRxGain(preferences.getInt(getString(R.string.pref_hackrf_vgaRxGain), HackrfSource.MAX_VGA_RX_GAIN / 2));
+                ((HackrfSource) source).setLnaGain(preferences.getInt(getString(R.string.pref_hackrf_lnaGain), HackrfSource.MAX_LNA_GAIN / 2));
                 ((HackrfSource) source).setAmplifier(preferences.getBoolean(getString(R.string.pref_hackrf_amplifier), false));
                 ((HackrfSource) source).setAntennaPower(preferences.getBoolean(getString(R.string.pref_hackrf_antennaPower), false));
-                ((HackrfSource)source).setFrequencyShift(Integer.valueOf(
+                ((HackrfSource) source).setFrequencyShift(Integer.valueOf(
                         preferences.getString(getString(R.string.pref_hackrf_frequencyShift), "0")));
                 break;
             case RTLSDR_SOURCE:
                 // Create RtlsdrSource
-                if(preferences.getBoolean(getString(R.string.pref_rtlsdr_externalServer), false))
+                if (preferences.getBoolean(getString(R.string.pref_rtlsdr_externalServer), false))
                     source = new RtlsdrSource(preferences.getString(getString(R.string.pref_rtlsdr_ip), ""),
                             Integer.valueOf(preferences.getString(getString(R.string.pref_rtlsdr_port), "1234")));
                 else {
@@ -603,25 +642,26 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
                     source = new RtlsdrSource("127.0.0.1", 1234);
                 }
 
-                frequency = preferences.getLong(getString(R.string.pref_frequency),93500000);
+                frequency = preferences.getLong(getString(R.string.pref_frequency), 93500000);
                 frequency = 93500000;
                 sampleRate = preferences.getInt(getString(R.string.pref_sampleRate), source.getMaxSampleRate());
-                if(sampleRate > 2000000)	// might be the case after switching over from HackRF
+                if (sampleRate > 2000000)    // might be the case after switching over from HackRF
                     sampleRate = 2000000;
                 source.setFrequency(frequency);
                 source.setSampleRate(sampleRate);
 
                 ((RtlsdrSource) source).setFrequencyCorrection(Integer.valueOf(preferences.getString(getString(R.string.pref_rtlsdr_frequencyCorrection), "0")));
-                ((RtlsdrSource)source).setFrequencyShift(Integer.valueOf(
+                ((RtlsdrSource) source).setFrequencyShift(Integer.valueOf(
                         preferences.getString(getString(R.string.pref_rtlsdr_frequencyShift), "0")));
-                ((RtlsdrSource)source).setManualGain(preferences.getBoolean(getString(R.string.pref_rtlsdr_manual_gain), false));
-                ((RtlsdrSource)source).setAutomaticGainControl(preferences.getBoolean(getString(R.string.pref_rtlsdr_agc), false));
-                if(((RtlsdrSource)source).isManualGain()) {
+                ((RtlsdrSource) source).setManualGain(preferences.getBoolean(getString(R.string.pref_rtlsdr_manual_gain), false));
+                ((RtlsdrSource) source).setAutomaticGainControl(preferences.getBoolean(getString(R.string.pref_rtlsdr_agc), false));
+                if (((RtlsdrSource) source).isManualGain()) {
                     ((RtlsdrSource) source).setGain(preferences.getInt(getString(R.string.pref_rtlsdr_gain), 0));
                     ((RtlsdrSource) source).setIFGain(preferences.getInt(getString(R.string.pref_rtlsdr_ifGain), 0));
                 }
                 break;
-            default:	Log.e(LOGTAG, "createSource: Invalid source type: " + sourceType);
+            default:
+                Log.e(LOGTAG, "createSource: Invalid source type: " + sourceType);
                 return false;
         }
 
@@ -694,7 +734,7 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
                             return false;
                         }
                     }
-                    boolean status_rtlOpen =  source.open(this, this);
+                    boolean status_rtlOpen = source.open(this, this);
                     return status_rtlOpen;
 
                 } else {
@@ -715,22 +755,22 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
      */
     public void stopAnalyzer() {
         // Stop the Scheduler if running:
-        if(scheduler != null) {
+        if (scheduler != null) {
             // Stop recording in case it is running:
             stopRecording();
             scheduler.stopScheduler();
         }
 
         // Stop the Processing Loop if running:
-        if(analyzerProcessingLoop != null)
+        if (analyzerProcessingLoop != null)
             analyzerProcessingLoop.stopLoop();
 
         // Stop the Demodulator if running:
-        if(demodulator != null)
+        if (demodulator != null)
             demodulator.stopDemodulator();
 
         // Wait for the scheduler to stop:
-        if(scheduler != null && !scheduler.getName().equals(Thread.currentThread().getName())) {
+        if (scheduler != null && !scheduler.getName().equals(Thread.currentThread().getName())) {
             try {
                 scheduler.join();
             } catch (InterruptedException e) {
@@ -739,7 +779,7 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
         }
 
         // Wait for the processing loop to stop
-        if(analyzerProcessingLoop != null) {
+        if (analyzerProcessingLoop != null) {
             try {
                 analyzerProcessingLoop.join();
             } catch (InterruptedException e) {
@@ -748,7 +788,7 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
         }
 
         // Wait for the demodulator to stop
-        if(demodulator != null) {
+        if (demodulator != null) {
             try {
                 demodulator.join();
             } catch (InterruptedException e) {
@@ -776,7 +816,7 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
      * processing loop.
      */
     public void startAnalyzer() {
-        this.stopAnalyzer();	// Stop if running; This assures that we don't end up with multiple instances of the thread loops
+        this.stopAnalyzer();    // Stop if running; This assures that we don't end up with multiple instances of the thread loops
 
         // Retrieve fft size and frame rate from the preferences
         int fftSize = Integer.valueOf(preferences.getString(getString(R.string.pref_fftSize), "1024"));
@@ -785,28 +825,28 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
 
         running = true;
 
-        if(source == null) {
-            if(!this.createSource())
+        if (source == null) {
+            if (!this.createSource())
                 return;
         }
 
         // check if the source is open. if not, open it!
-        if(!source.isOpen()) {
+        if (!source.isOpen()) {
             if (!openSource()) {
                 Toast.makeText(MainActivity.this, "Source not available (" + source.getName() + ")", Toast.LENGTH_SHORT).show();
                 running = false;
                 return;
             }
-            return;	// we have to wait for the source to become ready... onIQSourceReady() will call startAnalyzer() again...
+            return;    // we have to wait for the source to become ready... onIQSourceReady() will call startAnalyzer() again...
         }
         // Create a new instance of Scheduler and Processing Loop:
         scheduler = new Scheduler(fftSize, source);
         analyzerProcessingLoop = new AnalyzerProcessingLoop(
-                analyzerSurface, 			// Reference to the Analyzer Surface
-                fftSize,					// FFT size
+                analyzerSurface,            // Reference to the Analyzer Surface
+                fftSize,                    // FFT size
                 scheduler.getFftOutputQueue(), // Reference to the input queue for the processing loop
                 scheduler.getFftInputQueue()); // Reference to the buffer-pool-return queue
-        if(dynamicFrameRate)
+        if (dynamicFrameRate)
             analyzerProcessingLoop.setDynamicFrameRate(true);
         else {
             analyzerProcessingLoop.setDynamicFrameRate(false);
@@ -843,7 +883,7 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
      * Will pop up a dialog to let the user choose a demodulation mode.
      */
     private void showDemodulationDialog() {
-        if(scheduler == null || demodulator == null || source == null) {
+        if (scheduler == null || demodulator == null || source == null) {
             Toast.makeText(MainActivity.this, "Analyzer must be running to change modulation mode", Toast.LENGTH_LONG).show();
             return;
         }
@@ -863,20 +903,19 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
      * Will set the modulation mode to the given value. Takes care of adjusting the
      * scheduler and the demodulator respectively and updates the action bar menu item.
      *
-     * @param mode	Demodulator.DEMODULATION_OFF, *_AM, *_NFM, *_WFM
+     * @param mode Demodulator.DEMODULATION_OFF, *_AM, *_NFM, *_WFM
      */
     public void setDemodulationMode(int mode) {
-        if(scheduler == null || demodulator == null || source == null) {
-            Log.e(LOGTAG,"setDemodulationMode: scheduler/demodulator/source is null");
+        if (scheduler == null || demodulator == null || source == null) {
+            Log.e(LOGTAG, "setDemodulationMode: scheduler/demodulator/source is null");
             return;
         }
 
         // (de-)activate demodulation in the scheduler and set the sample rate accordingly:
-        if(mode == Demodulator.DEMODULATION_OFF) {
+        if (mode == Demodulator.DEMODULATION_OFF) {
             scheduler.setDemodulationActivated(false);
-        }
-        else {
-            if(recordingFile != null && source.getSampleRate() != Demodulator.INPUT_RATE) {
+        } else {
+            if (recordingFile != null && source.getSampleRate() != Demodulator.INPUT_RATE) {
                 // We are recording at an incompatible sample rate right now.
                 Log.i(LOGTAG, "setDemodulationMode: Recording is running at " + source.getSampleRate() + " Sps. Can't start demodulation.");
                 runOnUiThread(new Runnable() {
@@ -892,12 +931,12 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
             source.setSampleRate(Demodulator.INPUT_RATE);
 
             // Verify that the source supports the sample rate:
-            if(source.getSampleRate() != Demodulator.INPUT_RATE) {
-                Log.e(LOGTAG,"setDemodulationMode: cannot adjust source sample rate!");
+            if (source.getSampleRate() != Demodulator.INPUT_RATE) {
+                Log.e(LOGTAG, "setDemodulationMode: cannot adjust source sample rate!");
                 Toast.makeText(MainActivity.this, "Source does not support the sample rate necessary for demodulation (" +
-                        Demodulator.INPUT_RATE/1000000 + " Msps)", Toast.LENGTH_LONG).show();
+                        Demodulator.INPUT_RATE / 1000000 + " Msps)", Toast.LENGTH_LONG).show();
                 scheduler.setDemodulationActivated(false);
-                mode = Demodulator.DEMODULATION_OFF;	// deactivate demodulation...
+                mode = Demodulator.DEMODULATION_OFF;    // deactivate demodulation...
             } else {
                 scheduler.setDemodulationActivated(true);
             }
@@ -905,14 +944,14 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
 
         // set demodulation mode in demodulator:
         demodulator.setDemodulationMode(mode);
-        this.demodulationMode = mode;	// save the setting
+        this.demodulationMode = mode;    // save the setting
 
         // disable/enable demodulation view in surface:
-        if(mode == Demodulator.DEMODULATION_OFF) {
+        if (mode == Demodulator.DEMODULATION_OFF) {
             analyzerSurface.setDemodulationEnabled(false);
 
         } else {
-            analyzerSurface.setDemodulationEnabled(true);	// will re-adjust channel freq, width and squelch,
+            analyzerSurface.setDemodulationEnabled(true);    // will re-adjust channel freq, width and squelch,
             // if they are outside the current viewport and update the
             // demodulator via callbacks.
 //            analyzerSurface.setShowLowerBand(mode != Demodulator.DEMODULATION_USB);		// show lower side band if not USB
@@ -931,7 +970,7 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
      * in Hz.
      */
     private void tuneToFrequency() {
-        if(source == null)
+        if (source == null)
             return;
 
         // calculate max frequency of the source in MHz:
@@ -1018,7 +1057,7 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
      * Will pop up a dialog to let the user adjust gain settings
      */
     private void adjustGain() {
-        if(source == null)
+        if (source == null)
             return;
 
         int sourceType = Integer.valueOf(preferences.getString(getString(R.string.pref_sourceType), "1"));
@@ -1457,12 +1496,12 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
     }
 
     public void stopRecording() {
-        if(scheduler.isRecording()) {
+        if (scheduler.isRecording()) {
             scheduler.stopRecording();
         }
-        if(recordingFile != null) {
+        if (recordingFile != null) {
             final String filename = recordingFile.getAbsolutePath();
-            final long filesize = recordingFile.length()/1000000;	// file size in MB
+            final long filesize = recordingFile.length() / 1000000;    // file size in MB
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -1472,18 +1511,19 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
             recordingFile = null;
             updateActionBar();
         }
-        if(analyzerSurface != null)
+        if (analyzerSurface != null)
             analyzerSurface.setRecordingEnabled(false);
     }
 
     /**
      * Called by the analyzer surface after the user changed the channel width
-     * @param newChannelWidth    new channel width (single sided) in Hz
+     *
+     * @param newChannelWidth new channel width (single sided) in Hz
      * @return true if channel width is valid; false if out of range
      */
     @Override
     public boolean onUpdateChannelWidth(int newChannelWidth) {
-        if(demodulator != null)
+        if (demodulator != null)
             return demodulator.setChannelWidth(newChannelWidth);
         else
             return false;
@@ -1491,19 +1531,19 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
 
     @Override
     public void onUpdateChannelFrequency(long newChannelFrequency) {
-        if(scheduler != null)
+        if (scheduler != null)
             scheduler.setChannelFrequency(newChannelFrequency);
     }
 
     @Override
     public void onUpdateSquelchSatisfied(boolean squelchSatisfied) {
-        if(scheduler != null)
+        if (scheduler != null)
             scheduler.setSquelchSatisfied(squelchSatisfied);
     }
 
     @Override
     public int onCurrentChannelWidthRequested() {
-        if(demodulator != null)
+        if (demodulator != null)
             return demodulator.getChannelWidth();
         else
             return -1;

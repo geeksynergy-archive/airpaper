@@ -1,12 +1,42 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
-    <item android:id="@+id/create_pdf"
-        android:title="@string/convert_pdf"
-        android:orderInCategory="100"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+    <item
+        android:id="@+id/create_pdf"
         android:icon="@drawable/pdf"
-        android:showAsAction="ifRoom" />
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
+        android:orderInCategory="100"
+        android:showAsAction="ifRoom"
+        android:title="@string/convert_pdf" />
+
+    <item
+        android:id="@+id/restart_airpaper"
         android:orderInCategory="200"
-        android:showAsAction="never" />
+        android:showAsAction="never"
+        android:title="Restart AiRpaper" />
+
+    <item
+        android:id="@+id/reload_json"
+        android:orderInCategory="200"
+        android:showAsAction="never"
+        android:title="Refresh AiRpaper" />
+
+    <item
+        android:id="@+id/record_sound"
+        android:orderInCategory="300"
+        android:showAsAction="never"
+        android:title="Record Sound" />
+
+    <item
+        android:id="@+id/Show_Analyzer"
+        android:orderInCategory="500"
+        android:showAsAction="ifRoom"
+        android:title="Show Analyzer" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="900"
+        android:showAsAction="never"
+        android:title="@string/action_settings" />
+
+
 </menu>

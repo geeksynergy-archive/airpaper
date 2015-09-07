@@ -36,8 +36,7 @@ public class PdfCreator {
             document.writeTo(out);
             document.close();
             out.close();
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
