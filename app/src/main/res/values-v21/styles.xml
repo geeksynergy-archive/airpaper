@@ -1,5 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppTheme" parent="android:Theme.Material.Light"></style>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="colorPrimary">@color/ColorPrimary</item>
+        <item name="colorPrimaryDark">@color/ColorPrimaryDark</item>
+        <!-- Customize your theme here. -->
+    </style>
+
+    <style name="AppCompatTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="windowActionBar">false</item>
+    </style>
 </resources>

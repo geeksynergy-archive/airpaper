@@ -27,10 +27,6 @@ public class SoundRecording {
 
     public SoundRecording() {
 
-        bufferSize = AudioRecord.getMinBufferSize(8000,
-                AudioFormat.CHANNEL_CONFIGURATION_MONO,
-                AudioFormat.ENCODING_PCM_16BIT);
-
     }
 
 
@@ -61,7 +57,29 @@ public class SoundRecording {
         return (file.getAbsolutePath() + "/" + AUDIO_RECORDER_TEMP_FILE);
     }
 
+
+    public void getValidSampleRates() {
+        for (int rate : new int[] {8000, 11025, 16000, 22050, 44100}) {  // add the rates you wish to check against
+            int bufferSize = AudioRecord.getMinBufferSize(rate, AudioFormat.CHANNEL_CONFIGURATION_DEFAULT, AudioFormat.ENCODING_PCM_16BIT);
+            if (bufferSize > 0) {
+                // buffer size is valid, Sample rate supported
+
+            }
+        }
+    }
+
     public void startRecording() {
+
+        for (int rate : new int[] {8000, 11025, 16000, 22050, 44100}) {  // add the rates you wish to check against
+            int tempbufsize = AudioRecord.getMinBufferSize(rate, AudioFormat.CHANNEL_CONFIGURATION_DEFAULT, AudioFormat.ENCODING_PCM_16BIT);
+            if (tempbufsize > 0) {
+                // buffer size is valid, Sample rate supported
+
+
+            }
+        }
+
+
         recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
                 RECORDER_SAMPLERATE, RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING, bufferSize);
 

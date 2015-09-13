@@ -1,8 +1,16 @@
 package com.geeksynergy.airpaper;
 
 
+import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
@@ -75,6 +83,8 @@ public class Demodulator extends Thread {
     private SamplePacket quadratureSamples;
     // DEMODULATION
     private SamplePacket demodulatorHistory;    // used for FM demodulation
+    private ComplexFirFilter mybandPassFilter = null;    // used for SSB demodulation
+
     private float lastMax = 0;    // used for gain control in AM / SSB demodulation
     private ComplexFirFilter bandPassFilter = null;    // used for SSB demodulation
     // AUDIO OUTPUT
@@ -175,6 +185,7 @@ public class Demodulator extends Thread {
     public void run() {
         SamplePacket inputSamples = null;
         SamplePacket audioBuffer = null;
+        SamplePacket zaudioBuffer = null;
 
         Log.i(LOGTAG, "Demodulator started. (Thread: " + this.getName() + ")");
 
@@ -203,6 +214,7 @@ public class Demodulator extends Thread {
 
             // get buffer from audio sink
             audioBuffer = audioSink.getPacketBuffer(1000);
+            zaudioBuffer = new SamplePacket(new float[audioBuffer.size()],new float[audioBuffer.size()],250000,audioBuffer.size());
 
             // demodulate		[sample rate is QUADRATURE_RATE]
             switch (demodulationMode) {
@@ -219,6 +231,8 @@ public class Demodulator extends Thread {
 
                 case DEMODULATION_WFM:
                     demodulateFM(quadratureSamples, audioBuffer, 75000);
+                   // mydemodulateFM(audioBuffer, zaudioBuffer);
+                    /* no-op */
                     break;
 
                 case DEMODULATION_LSB:
@@ -235,7 +249,6 @@ public class Demodulator extends Thread {
 
             // lets band pass filter this
             // We have to (re-)create the band pass filter:
-
             // play audio		[sample rate is QUADRATURE_RATE]
             audioSink.enqueuePacket(audioBuffer);
         }
@@ -290,6 +303,7 @@ public class Demodulator extends Thread {
      * @param output outgoing (demodulated) samples
      */
     private void demodulateFM(SamplePacket input, SamplePacket output, int maxDeviation) {
+
         float[] reIn = input.re();
         float[] imIn = input.im();
         float[] reOut = output.re();
@@ -307,17 +321,90 @@ public class Demodulator extends Thread {
         reOut[0] = reIn[0] * demodulatorHistory.re(0) + imIn[0] * demodulatorHistory.im(0);
         imOut[0] = imIn[0] * demodulatorHistory.re(0) - reIn[0] * demodulatorHistory.im(0);
         reOut[0] = quadratureGain * (float) Math.atan2(imOut[0], reOut[0]);
+
+
         for (int i = 1; i < inputSize; i++) {
             reOut[i] = reIn[i] * reIn[i - 1] + imIn[i] * imIn[i - 1];
             imOut[i] = imIn[i] * reIn[i - 1] - reIn[i] * imIn[i - 1];
             reOut[i] = quadratureGain * (float) Math.atan2(imOut[i], reOut[i]);
+            imOut[i] = 0;
 //			Log.e(LOGTAG, (Float.toString(reOut[i])) + " " + Float.toString(imOut[i]));
         }
         demodulatorHistory.re()[0] = reIn[inputSize - 1];
         demodulatorHistory.im()[0] = imIn[inputSize - 1];
         output.setSize(inputSize);
         output.setSampleRate(QUADRATURE_RATE[demodulationMode]);
+
     }
+
+        private void mydemodulateFM(SamplePacket input, SamplePacket output) {
+
+        // Take the Input and apply a band pass filter
+
+        // complex band pass:
+        if (mybandPassFilter == null) {
+
+            // We have to (re-)create the band pass filter:
+            mybandPassFilter = ComplexFirFilter.createBandPass(1,        // Decimate by 2; => AUDIO_RATE
+                    1,
+                    input.getSampleRate(),
+                    50000f ,
+                    60000f ,
+                    input.getSampleRate() * 0.01f,
+                    10);
+            if (mybandPassFilter == null) {
+                Log.d(LOGTAG, "input samples changed rate or demodulation was turned off. ");
+                return;    // This may happen if input samples changed rate or demodulation was turned off. Just skip the filtering.
+            }
+            Log.d(LOGTAG, "FSK_Demod: created new band pass filter with " + mybandPassFilter.getNumberOfTaps()
+                    + " taps. Decimation=" + mybandPassFilter.getDecimation() + " Low-Cut-Off=" + mybandPassFilter.getLowCutOffFrequency()
+                    + " High-Cut-Off=" + mybandPassFilter.getHighCutOffFrequency() + " transition=" + mybandPassFilter.getTransitionWidth());
+        }
+         output.setSize(0);    // mark buffer as empty
+        if (mybandPassFilter.filter(input, output, 0,input.size()) < input.size()) {
+            Log.e(LOGTAG, "FSK_Demod: could not filter  all samples from input packet.");
+        }
+
+
+            output = input;
+
+            try{
+                String sFileName = "DumpFilteredData";
+
+                File root = new File(Environment.getExternalStorageDirectory(), "Notes");
+                    if (!root.exists()) {
+                        root.mkdirs();
+                    }
+
+                File myFile = new File(root , "DumpedVal.csv");
+
+                if(myFile.exists())
+                {
+                    try
+                    {
+                        FileOutputStream fOut = new FileOutputStream(myFile);
+                        OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
+//                        myOutWriter.append(",output.size:"+output.size()+",output.capacity:"+output.capacity()+
+//                                "="+Arrays.toString(output.re()));
+
+                        myOutWriter.append(Arrays.toString(output.re()));
+                        myOutWriter.close();
+                        fOut.close();
+                    } catch(Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+                else
+                {
+                    myFile.createNewFile();
+                }
+            }
+
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
     /**
      * Will AM demodulate the samples in input.

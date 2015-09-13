@@ -22,13 +22,21 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
 import java.io.File;
 import java.util.List;
 
-public class MainActivity extends Activity implements IQSourceInterface.Callback, AnalyzerSurface.CallbackInterface {
+public class MainActivity extends AppCompatActivity implements IQSourceInterface.Callback, AnalyzerSurface.CallbackInterface {
 
     public static final int RTL2832U_RESULT_CODE = 1234;    // arbitrary value, used when sending intent to RTL2832U
     private static final String LOGTAG = "MainActivity";
@@ -57,16 +65,47 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
     private int MySource;
     private Tracker mTracker;
 
+    Toolbar toolbar;
+    ViewPager pager;
+    ViewPagerAdapter adapter;
+    SlidingTabLayout tabs;
+    CharSequence Titles[]={"नवीनतम","कृषिಿ", "स्वास्थ्य सेवा", "मौसम पूर्वानुमान", "खेल", "मनोरंजन", "व्यापार"};
+    int Numboftabs = 7;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        JSONFileReader jsonFileReader = new JSONFileReader();
-        jsonFileReader.getJSONData(this, getApplicationContext());
+
+        toolbar = (Toolbar) findViewById(R.id.tool_bar);
+        setSupportActionBar(toolbar);
 
 
+        // Creating The ViewPagerAdapter and Passing Fragment Manager, Titles for the Tabs and Number Of Tabs.
+        adapter =  new ViewPagerAdapter(getSupportFragmentManager(), Titles, Numboftabs);
+
+        // Assigning ViewPager View and setting the adapter
+        pager = (ViewPager) findViewById(R.id.pager);
+        pager.setAdapter(adapter);
+
+        // Assiging the Sliding Tab Layout View
+        tabs = (SlidingTabLayout) findViewById(R.id.tabs);
+        tabs.setDistributeEvenly(false); // To make the Tabs Fixed set this true, This makes the tabs Space Evenly in Available width
+
+        // Setting Custom Color for the Scroll bar indicator of the Tab View
+        tabs.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
+            @Override
+            public int getIndicatorColor(int position) {
+                return getResources().getColor(R.color.tabsScrollColor);
+            }
+        });
+
+        // Setting the ViewPager For the SlidingTabsLayout
+        tabs.setViewPager(pager);
+		
+		
         // Google Analytics Begins Here
 
         AnalyticsApplication application = (AnalyticsApplication) getApplication();
@@ -79,7 +118,7 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
 
         // Google Analytics Ends Here
 
-        MySource = FILE_SOURCE;
+        MySource = RTLSDR_SOURCE;
 
 
         // Set default Settings on first run:
@@ -184,9 +223,6 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
         // Set the hardware volume keys to work on the music audio stream:
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        // Hide application title in action bar (takes too much space)
-        getActionBar().setDisplayShowTitleEnabled(false);
-
     }
 
 
@@ -227,10 +263,16 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
         return true;
+		//Other Way
+		//getMenuInflater().inflate(R.menu.menu_main, menu);
+        //return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+        SoundRecording testFile = new SoundRecording();
+
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.restart_airpaper:
@@ -239,7 +281,8 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
                 Toast.makeText(MainActivity.this, "startedAnalyzer()", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.action_settings:
-                //newGame();
+                testFile.stopRecording();
+                // do some other action here
                 return true;
             case R.id.reload_json:
                 JSONFileReader fileReader = new JSONFileReader();
@@ -260,20 +303,23 @@ public class MainActivity extends Activity implements IQSourceInterface.Callback
                 creator.createPdf(this, getApplicationContext());
                 return true;
             case R.id.record_sound:
-                Thread stoprecorder = new Thread() {
-                    @Override
-                    public void run() {
-                        try {
-                            SoundRecording testFile = new SoundRecording();
-                            testFile.startRecording();
-                            Thread.sleep(100000);
-                            testFile.stopRecording();
-                        } catch (InterruptedException e) {
-                            Log.e(LOGTAG, "onCreate: (timer thread): Interrupted while sleeping.");
-                        }
-                    }
-                };
-                stoprecorder.start();
+//                Thread stoprecorder = new Thread() {
+//                    @Override
+//                    public void run() {
+//                        try {
+//                            SoundRecording testFile = new SoundRecording();
+//                            testFile.startRecording();
+//                            Thread.sleep(100000);
+//                            testFile.stopRecording();
+//                        } catch (InterruptedException e) {
+//                            Log.e(LOGTAG, "onCreate: (timer thread): Interrupted while sleeping.");
+//                        }
+//                    }
+//                };
+//                stoprecorder.start();
+
+
+                testFile.startRecording();
                 return true;
 
             default:

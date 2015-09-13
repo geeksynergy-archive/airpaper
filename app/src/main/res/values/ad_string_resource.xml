@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ad_title"><u>Hotels</u></string>
+    <string name="ad_link"><a href="www.geeksynergy.com" style="text-decoration:none;">http://www.geeksynergy.com</a></string>
+    <string name="ad_info">Special rates until the end of the month. No booking fees, book your room now!.</string>
+</resources>

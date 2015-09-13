@@ -2,6 +2,7 @@ package com.geeksynergy.airpaper;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.widget.TextView;
 
 import org.json.JSONObject;
@@ -36,7 +37,7 @@ public class JSONFileReader {
 
             bufferedReader = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(R.raw.weather)));
 
-            for (String line = null; (line = bufferedReader.readLine()) != null; ) {
+            for (String line = null; (line = bufferedReader.readLine()) != null;) {
                 builder.append(line).append("\n");
             }
 
@@ -59,7 +60,7 @@ public class JSONFileReader {
             displayCity.setText(city);
             displayState.setText(state);
 
-        } catch (Exception ex) {
+        }catch (Exception ex) {
             ex.printStackTrace();
         }
     }

@@ -6,7 +6,7 @@
         android:icon="@drawable/pdf"
         android:orderInCategory="100"
         android:showAsAction="ifRoom"
-        android:title="@string/convert_pdf" />
+        android:title="@string/action_pdf" />
 
     <item
         android:id="@+id/restart_airpaper"

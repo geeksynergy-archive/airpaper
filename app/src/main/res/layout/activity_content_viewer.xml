@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/tool_bar"
+        layout="@layout/tool_bar" />
+
+    <include
+        android:id="@+id/ad_bar"
+        layout="@layout/ad_bar" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/titleText"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center"
+                android:text="AiRpaper made by GeekSynergy"
+                android:textSize="24sp"
+                 />
+
+            <ImageView
+                android:id="@+id/content_image"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/titleText"
+                android:src="@drawable/bg" />
+
+            <TextView
+                android:id="@+id/recievedTimeText"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/content_image"
+                android:text="SUN, 06 Sep 2015 10pm"
+                android:textAppearance="?android:textAppearanceSmall"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/info_text"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="left"
+                android:layout_below="@+id/recievedTimeText"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textSize="20sp" />
+
+        </RelativeLayout>
+    </ScrollView>
+
+
+</LinearLayout>

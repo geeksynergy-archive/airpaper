@@ -167,6 +167,8 @@ public class ComplexFirFilter {
         return new ComplexFirFilter(tapsReal, tapsImag, decimation, gain, sampling_freq, low_cutoff_freq, high_cutoff_freq, transition_width, attenuation_dB);
     }
 
+
+
     /**
      * Creates a Blackman Window for a FIR Filter
      *
