@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -49,6 +50,7 @@ public class Demodulator extends Thread {
     public static final int DEMODULATION_WFM = 3;
     public static final int DEMODULATION_LSB = 4;
     public static final int DEMODULATION_USB = 5;
+    public static final int DEMODULATION_FSK = 6;
     private static final String LOGTAG = "Demodulator";
     private static final int AUDIO_RATE = 31250;    // Even though this is not a proper audio rate, the Android system can
     // handle it properly and it is a integer fraction of the input rate (1MHz).
@@ -58,7 +60,9 @@ public class Demodulator extends Thread {
             2 * AUDIO_RATE,    // nFM
             8 * AUDIO_RATE,    // wFM
             2 * AUDIO_RATE,    // LSB
-            2 * AUDIO_RATE};    // USB
+            2 * AUDIO_RATE, // USB
+            8 * AUDIO_RATE // FSK
+    };
     // FILTERING (This is the channel filter controlled by the user)
     private static final int USER_FILTER_ATTENUATION = 20;
     private static final int[] MIN_USER_FILTER_WIDTH = {0,        // off
@@ -66,13 +70,15 @@ public class Demodulator extends Thread {
             3000,    // nFM
             50000,    // wFM
             1500,    // LSB
-            1500};    // USB
+            1500,   // USB
+            50000};    // USB
     private static final int[] MAX_USER_FILTER_WIDTH = {0,        // off
             15000,    // AM
             15000,    // nFM
             120000,    // wFM
             5000,    // LSB
-            5000};  // USB
+            5000,  // USB
+            120000};  // FSK
     private static final int BAND_PASS_ATTENUATION = 40;
     public int demodulationMode;
     private boolean stopRequested = true;
@@ -92,6 +98,101 @@ public class Demodulator extends Thread {
 
     // My band pass filter in the code
     private ComplexFirFilter fm_bandPassfilter = null;    // used for SSB demodulation
+
+    static private String Stream_Data= "";
+
+    private String Stream_Bin_Data = "0100000101101001010100" +
+            "1001110000011000010111000001100101011100100010000001" +
+            "1010010111001100100000011000010010000001100100011010" +
+            "0101100111011010010111010001100001011011000010000001" +
+            "1001000110000101110100011000010010000001100100011010" +
+            "0101110011011101000111001001101001011000100111010101" +
+            "1101000110100101101111011011100010000001110000011011" +
+            "0001100001011101000110011001101111011100100110110100" +
+            "1000000110001001110101011010010110110001110100001000" +
+            "0001101111011011100010000001110100011010000110010100" +
+            "1000000111000001110010011001010110110101101001011100" +
+            "1101100101001000000110111101100110001000000100100101" +
+            "1011100110010001101001011000010111001100100000010100" +
+            "0001101111011101110110010101110010011001100111010101" +
+            "1011000010000001110010011000010110010001101001011011" +
+            "1100100000011011100110010101110100011101110110111101" +
+            "1100100110101100100000011001100110111101110010001000" +
+            "0001100111011011110111011001100101011100100110111001" +
+            "1011010110010101101110011101000010000001110100011011" +
+            "1100100000011100100110010101100001011000110110100000" +
+            "1000000110001101101001011101000110100101111010011001" +
+            "0101101110011100110010000001100101011001100110011001" +
+            "1001010110001101110100011010010111011001100101011011" +
+            "0001111001001011100010000001001001011101000010000001" +
+            "1011000110010101110110011001010111001001100001011001" +
+            "1101100101011100110010000001101111011011100010000001" +
+            "1101000110100001100101001000000111010101110011011000" +
+            "0101100111011001010010000001101111011001100010000001" +
+            "1101010110111001110101011100110110010101100100001000" +
+            "0001110011011100000110010101100011011101000111001001" +
+            "1101010110110100100000011011110110011000100000011101" +
+            "0001101000011001010010000001000110010011010010000001" +
+            "1000100111001001101111011000010110010001100011011000" +
+            "0101110011011101000010000001110100011011110010000001" +
+            "1000110110000101110010011100100111100100100000011101" +
+            "0001100101011110000111010001110101011000010110110000" +
+            "1000000110000101101110011001000010000001110000011010" +
+            "0101100011011101000110111101110010011010010110000101" +
+            "1011000010000001100100011000010111010001100001001000" +
+            "0001101001011011100010000001110010011001010110011101" +
+            "1010010110111101101110011000010110110000100000011000" +
+            "0101101110011001000010000001101110011000010111010001" +
+            "1010010110111101101110011000010110110000100000011011" +
+            "0001100001011011100110011101110101011000010110011101" +
+            "1001010111001100100000011101000110111100100000011101" +
+            "0001101000011001010010000001100011011011110110110101" +
+            "1011010110111101101110001000000110110101100001011011" +
+            "1000101110000011010000101000001101000010100100000101" +
+            "1010010101001001110000011000010111000001100101011100" +
+            "1000100000011000010110100101101101011100110010000001" +
+            "1101000110111100100000011010110110010101100101011100" +
+            "0000100000011101000110100001100101001000000110001101" +
+            "1010010111010001101001011110100110010101101110011100" +
+            "1100100000011011110110011000100000010010010110111001" +
+            "1001000110100101100001001000000110100101101110011001" +
+            "1001101111011100100110110101100101011001000010000001" +
+            "1011110110111000100000011101100110000101110010011010" +
+            "0101101111011101010111001100100000011001110110111101" +
+            "1101100111010000100000011100110110001101101000011001" +
+            "0101101101011001010111001100101100001000000111000001" +
+            "1011110110110001101001011000110110100101100101011100" +
+            "1100100000011000010110111001100100001000000110010001" +
+            "1001010111011001100101011011000110111101110000011011" +
+            "0101100101011011100111010000100000011000010110001101" +
+            "1101000110100101110110011010010111010001101001011001" +
+            "0101110011001011000010000001110100011010000110000101" +
+            "1101000010000001110100011010000110010100100000011001" +
+            "1101101111011101100110010101110010011011100110110101" +
+            "1001010110111001110100001000000110100001100001011100" +
+            "1100100000011100100110111101101100011011000110010101" +
+            "1001000010000001101111011101010111010000100000011010" +
+            "0101101110001000000111001001100101011000010110110000" +
+            "1000000111010001101001011011010110010100101100001000" +
+            "0001100001011011100110010000100000011000010110110001" +
+            "1011000010000001110100011010000110010101110011011001" +
+            "0100100000011010010110111001100110011011110111001001" +
+            "1011010110000101110100011010010110111101101110001000" +
+            "0001101001011100110010000001110000011100100110111101" +
+            "1101100110100101100100011001010110010000100000011001" +
+            "1001101111011100100010000001100110011100100110010101" +
+            "1001010010000001110100011011110010000001110100011010" +
+            "0001100101001000000110001101101001011101000110100101" +
+            "1110100110010101101110011100110010000001101001011011" +
+            "1000100000011001010110000101100011011010000010000001" +
+            "1000010110111001100100001000000110010101110110011001" +
+            "0101110010011110010010000001100011011011110111001001" +
+            "1011100110010101110010001000000110111101100110001000" +
+            "0001110100011010000110010100100000011000110110111101" +
+            "1101010110111001110100011100100111100100100000011101" +
+            "1101101001011101000110100001101111011101010111010000" +
+            "1000000110100101101110011101000110010101110010011011" +
+            "100110010101110100001011100000110100001010";
 
 
     /**
@@ -134,7 +235,7 @@ public class Demodulator extends Thread {
      * @param demodulationMode Demodulation Mode (DEMODULATION_OFF, *_AM, *_NFM, *_WFM, ...)
      */
     public void setDemodulationMode(int demodulationMode) {
-        if (demodulationMode > 5 || demodulationMode < 0) {
+        if (demodulationMode > 6 || demodulationMode < 0) {
             Log.e(LOGTAG, "setDemodulationMode: invalid mode: " + demodulationMode);
             return;
         }
@@ -195,6 +296,7 @@ public class Demodulator extends Thread {
         // Start decimator thread:
         decimator.start();
 
+        boolean continue_while = false;
         while (!stopRequested) {
 
             // Get downsampled packet from the decimator:
@@ -235,6 +337,12 @@ public class Demodulator extends Thread {
                     /* no-op */
                     break;
 
+                case DEMODULATION_FSK:
+                    demodulateFM_FSK(quadratureSamples, audioBuffer, 75000);
+                    /* no-op */
+                   // continue_while=true;
+                    break;
+
                 case DEMODULATION_LSB:
                     demodulateSSB(quadratureSamples, audioBuffer, false);
                     break;
@@ -246,6 +354,10 @@ public class Demodulator extends Thread {
                 default:
                     Log.e(LOGTAG, "run: invalid demodulationMode: " + demodulationMode);
             }
+
+            if(continue_while)
+                continue; // If FSK don't Play the Sound
+
 
             // lets band pass filter this
             // We have to (re-)create the band pass filter:
@@ -291,6 +403,184 @@ public class Demodulator extends Thread {
         if (userFilter.filter(input, output, 0, input.size()) < input.size()) {
             Log.e(LOGTAG, "applyUserFilter: could not filter all samples from input packet.");
         }
+    }
+
+
+    public static String bytesToString(String bytes){
+        int i = bytes.length()/8;
+        int pos = 0;
+        String result = "";
+        byte[] buffer = new byte[i];
+        for(int j=0; j<i; j++){
+            String temp = bytes.substring(pos,pos+8);
+            buffer[j] = (byte) Integer.parseInt(temp, 2);
+            pos+=8;
+        }
+        try {
+            result = new String(buffer, "ISO-8859-1");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Result: " + result);
+        return result;
+    }
+
+    /**
+     *
+     * FSK Direct Demodulation
+     *
+     *
+     *
+     *
+     *
+     */
+    private void demodulateFM_FSK(SamplePacket input, SamplePacket output, int maxDeviation) {
+
+        float[] reIn = input.re();
+        float[] imIn = input.im();
+        float[] reOut = output.re();
+        float[] imOut = output.im();
+        int inputSize = input.size();
+        float quadratureGain = QUADRATURE_RATE[demodulationMode] / (2 * (float) Math.PI * maxDeviation);
+
+        if (demodulatorHistory == null) {
+            demodulatorHistory = new SamplePacket(1);
+            demodulatorHistory.re()[0] = reIn[0];
+            demodulatorHistory.im()[0] = reOut[0];
+        }
+
+        // Quadrature demodulation:
+        reOut[0] = reIn[0] * demodulatorHistory.re(0) + imIn[0] * demodulatorHistory.im(0);
+        imOut[0] = imIn[0] * demodulatorHistory.re(0) - reIn[0] * demodulatorHistory.im(0);
+        reOut[0] = quadratureGain * (float) Math.atan2(imOut[0], reOut[0]);
+
+
+        for (int i = 1; i < inputSize; i++) {
+            reOut[i] = reIn[i] * reIn[i - 1] + imIn[i] * imIn[i - 1];
+            imOut[i] = imIn[i] * reIn[i - 1] - reIn[i] * imIn[i - 1];
+            reOut[i] = quadratureGain * (float) Math.atan2(imOut[i], reOut[i]);
+            imOut[i] = 0;
+//			Log.e(LOGTAG, (Float.toString(reOut[i])) + " " + Float.toString(imOut[i]));
+        }
+        demodulatorHistory.re()[0] = reIn[inputSize - 1];
+        demodulatorHistory.im()[0] = imIn[inputSize - 1];
+        output.setSize(inputSize);
+        output.setSampleRate(QUADRATURE_RATE[demodulationMode]);
+
+
+//        Acknowledge last cut off and create non-drifting window for the averaging to calculate
+//        the bit value in the stream...
+        // while zero crossing start the window and take samples...
+        // decimate - lpf the values
+        // store the bit streams
+        // decode the data back...
+
+        int i;
+        byte[] stream_bits_smp = new byte[inputSize];
+
+        for (i = 0; i < inputSize; i++) {
+            if (output.re()[i] > 0)
+                stream_bits_smp[i] = 1;
+            else
+                stream_bits_smp[i] = 0;
+        }
+
+//        int startpoint = 0;
+//        // resample data to represent just right amount of bits and their values.
+//        for (i = 5; i < inputSize - 5; i++) {
+//            if (stream_bits_smp[i - 5] & stream_bits_smp[i - 4] & stream_bits_smp[i - 3] & stream_bits_smp[i - 2] & stream_bits_smp[i - 1])
+//                if (!stream_bits_smp[i + 5] & !stream_bits_smp[i + 4] & !stream_bits_smp[i + 3] & !stream_bits_smp[i + 2] & !stream_bits_smp[i + 1]) {
+//                    startpoint = i;
+//                    break;
+//                }
+//            if (!stream_bits_smp[i - 5] & !stream_bits_smp[i - 4] & !stream_bits_smp[i - 3] & !stream_bits_smp[i - 2] & !stream_bits_smp[i - 1])
+//                if (stream_bits_smp[i + 5] & stream_bits_smp[i + 4] & stream_bits_smp[i + 3] & stream_bits_smp[i + 2] & stream_bits_smp[i + 1]) {
+//                    startpoint = i;
+//                    break;
+//                }
+//
+//        }
+
+//        Log.e(LOGTAG, "Start Point in the stream : " + Arrays.toString(stream_bits_smp) + " .");
+
+        Stream_Data = "";
+//        int j;
+//        for(j=0;j<Stream_Bin_Data.length();j=j+8)
+//        {
+//            byte charCode = (byte) Integer.parseInt(Stream_Bin_Data.substring(j, j + 7), 2);
+//            Stream_Data = Stream_Data + new Character((char)charCode).toString();
+//        }
+//
+//        Log.e(LOGTAG, "Decrypted Text : " + Stream_Data + " .");
+//
+//        byte[] bytes = "Any String you want".getBytes();
+//
+//        String text = "empty";
+//        try {
+//            text = new String(bytes, 0, bytes.length, "ASCII");
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }
+//
+////        Stream_Data += "";
+
+
+//        Stream_Data = bytesToString(Stream_Bin_Data);
+        try {
+            Stream_Data = new String(stream_bits_smp, "ASCII"); // for UTF-8 encoding
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        if(true)
+        {
+            try {
+            String sFileName = "DumpedVal_FSK.txt";
+
+            File root = new File(Environment.getExternalStorageDirectory(), "Notes");
+            if (!root.exists()) {
+                root.mkdirs();
+            }
+
+            File myFile = new File(root, sFileName);
+
+            if (myFile.exists()) {
+                try {
+                    FileOutputStream fOut = new FileOutputStream(myFile);
+                    OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
+//                        myOutWriter.append(",output.size:"+output.size()+",output.capacity:"+output.capacity()+
+//                                "="+Arrays.toString(output.re()));
+
+                    myOutWriter.append(Arrays.toString(stream_bits_smp));
+//                    myOutWriter.append(Stream_Data);
+//                    myOutWriter.append(text);
+
+                    myOutWriter.close();
+                    fOut.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                myFile.createNewFile();
+                try {
+                    FileOutputStream fOut = new FileOutputStream(myFile);
+                    OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
+//                        myOutWriter.append(",output.size:"+output.size()+",output.capacity:"+output.capacity()+
+//                                "="+Arrays.toString(output.re()));
+
+                    myOutWriter.append(Arrays.toString(stream_bits_smp));
+                    myOutWriter.close();
+                    fOut.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     }
 
     /**
@@ -348,8 +638,8 @@ public class Demodulator extends Thread {
             mybandPassFilter = ComplexFirFilter.createBandPass(1,        // Decimate by 2; => AUDIO_RATE
                     1,
                     input.getSampleRate(),
-                    50000f ,
-                    60000f ,
+                    58000f ,
+                    78000f ,
                     input.getSampleRate() * 0.01f,
                     10);
             if (mybandPassFilter == null) {
@@ -404,6 +694,9 @@ public class Demodulator extends Thread {
             catch (IOException e) {
                 e.printStackTrace();
             }
+
+
+
         }
 
     /**

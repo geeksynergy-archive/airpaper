@@ -61,9 +61,10 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
     private Process logcat = null;
     private boolean running = true; // by default this is false
     private File recordingFile = null;
-    private int demodulationMode = Demodulator.DEMODULATION_WFM;
+    private int demodulationMode = Demodulator.DEMODULATION_FSK;
     private int MySource;
     private Tracker mTracker;
+    private String selected_File;
 
     Toolbar toolbar;
     ViewPager pager;
@@ -118,8 +119,9 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
 
         // Google Analytics Ends Here
 
-        MySource = RTLSDR_SOURCE;
-
+        MySource = FILE_SOURCE;
+//        selected_File= "/sdcard/RFAnalyzer/2015-09-14-20-46-41_rtlsdr_108000000Hz_1000000Sps.iq";
+        selected_File= "/sdcard/RFAnalyzer/2015-09-15-14-41-00_rtlsdr_106968064Hz_1000000Sps.iq";
 
         // Set default Settings on first run:
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
@@ -225,6 +227,13 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
 
     }
 
+    public native String stringFromJNI();
+
+    static {
+        System.loadLibrary("QPSK_Decoder");
+    }
+
+
 
     @Override
     protected void onDestroy() {
@@ -288,6 +297,18 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
                 JSONFileReader fileReader = new JSONFileReader();
                 fileReader.getJSONData(this, getApplicationContext());
                 return true;
+
+            case R.id.Source:
+                if (item.getTitle().equals("RTL_SDR SRC")) {
+                    item.setTitle("IQ_FILE SRC");
+                    MySource = RTLSDR_SOURCE;
+                } else {
+                    item.setTitle("RTL_SDR SRC");
+                    MySource = FILE_SOURCE;
+                }
+                onStart();
+                return true;
+
             case R.id.Show_Analyzer:
                 if (item.getTitle().equals("Show Analyzer")) {
                     item.setTitle("Hide Analyzer");
@@ -317,9 +338,10 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
 //                    }
 //                };
 //                stoprecorder.start();
+//                testFile.startRecording();
+                String str = stringFromJNI();
+                item.setTitle(str);
 
-
-                testFile.startRecording();
                 return true;
 
             default:
@@ -655,7 +677,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
                 }
 
                 String filename = preferences.getString(getString(R.string.pref_filesource_file), "");
-                filename = "/sdcard/RFAnalyzer/2015-08-29-19-24-54_rtlsdr_98300000Hz_1000000Sps.iq";
+                filename = selected_File;
                 //   "/sdcard/RFAnalyzer/2015-08-29-19-24-54_rtlsdr_98300000Hz_1000000Sps.iq"
                 int fileFormat = Integer.valueOf(preferences.getString(getString(R.string.pref_filesource_format), "0"));
                 fileFormat = 1; //gs

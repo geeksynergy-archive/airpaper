@@ -21,6 +21,12 @@
         android:title="Refresh AiRpaper" />
 
     <item
+        android:id="@+id/Source"
+        android:orderInCategory="200"
+        android:showAsAction="never"
+        android:title="RTL_SDR SRC" />
+
+    <item
         android:id="@+id/record_sound"
         android:orderInCategory="300"
         android:showAsAction="never"
