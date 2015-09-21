@@ -10,14 +10,4 @@
 
     </android.support.v7.widget.RecyclerView>
 
-
-    <!--<TextView-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:textAppearance="?android:attr/textAppearanceMedium"-->
-        <!--android:text="You Are In Tab 2"-->
-        <!--android:id="@+id/agriText"-->
-        <!--android:layout_centerVertical="true"-->
-        <!--android:layout_centerHorizontal="true" />-->
-
 </RelativeLayout>

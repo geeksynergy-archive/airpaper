@@ -11,7 +11,7 @@ public class Latest extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v =inflater.inflate(R.layout.latest,container,false);
+        View v = inflater.inflate(R.layout.latest, container, false);
         return v;
     }
 }

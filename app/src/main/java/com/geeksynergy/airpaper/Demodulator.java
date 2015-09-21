@@ -3,11 +3,9 @@ package com.geeksynergy.airpaper;
 
 import android.os.Environment;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
@@ -80,6 +78,7 @@ public class Demodulator extends Thread {
             5000,  // USB
             120000};  // FSK
     private static final int BAND_PASS_ATTENUATION = 40;
+    static private String Stream_Data = "";
     public int demodulationMode;
     private boolean stopRequested = true;
     // DECIMATION
@@ -90,17 +89,12 @@ public class Demodulator extends Thread {
     // DEMODULATION
     private SamplePacket demodulatorHistory;    // used for FM demodulation
     private ComplexFirFilter mybandPassFilter = null;    // used for SSB demodulation
-
     private float lastMax = 0;    // used for gain control in AM / SSB demodulation
     private ComplexFirFilter bandPassFilter = null;    // used for SSB demodulation
     // AUDIO OUTPUT
     private AudioSink audioSink = null;        // Will do QUADRATURE_RATE --> AUDIO_RATE and audio output
-
     // My band pass filter in the code
     private ComplexFirFilter fm_bandPassfilter = null;    // used for SSB demodulation
-
-    static private String Stream_Data= "";
-
     private String Stream_Bin_Data = "0100000101101001010100" +
             "1001110000011000010111000001100101011100100010000001" +
             "1010010111001100100000011000010010000001100100011010" +
@@ -220,6 +214,25 @@ public class Demodulator extends Thread {
         this.decimator = new Decimator(QUADRATURE_RATE[demodulationMode], packetSize, inputQueue, outputQueue);
     }
 
+    public static String bytesToString(String bytes) {
+        int i = bytes.length() / 8;
+        int pos = 0;
+        String result = "";
+        byte[] buffer = new byte[i];
+        for (int j = 0; j < i; j++) {
+            String temp = bytes.substring(pos, pos + 8);
+            buffer[j] = (byte) Integer.parseInt(temp, 2);
+            pos += 8;
+        }
+        try {
+            result = new String(buffer, "ISO-8859-1");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Result: " + result);
+        return result;
+    }
+
     /**
      * @return Demodulation Mode (DEMODULATION_OFF, *_AM, *_NFM, *_WFM, ...)
      */
@@ -316,7 +329,7 @@ public class Demodulator extends Thread {
 
             // get buffer from audio sink
             audioBuffer = audioSink.getPacketBuffer(1000);
-            zaudioBuffer = new SamplePacket(new float[audioBuffer.size()],new float[audioBuffer.size()],250000,audioBuffer.size());
+            zaudioBuffer = new SamplePacket(new float[audioBuffer.size()], new float[audioBuffer.size()], 250000, audioBuffer.size());
 
             // demodulate		[sample rate is QUADRATURE_RATE]
             switch (demodulationMode) {
@@ -333,14 +346,14 @@ public class Demodulator extends Thread {
 
                 case DEMODULATION_WFM:
                     demodulateFM(quadratureSamples, audioBuffer, 75000);
-                   // mydemodulateFM(audioBuffer, zaudioBuffer);
+                    // mydemodulateFM(audioBuffer, zaudioBuffer);
                     /* no-op */
                     break;
 
                 case DEMODULATION_FSK:
                     demodulateFM_FSK(quadratureSamples, audioBuffer, 75000);
                     /* no-op */
-                   // continue_while=true;
+                    // continue_while=true;
                     break;
 
                 case DEMODULATION_LSB:
@@ -355,7 +368,7 @@ public class Demodulator extends Thread {
                     Log.e(LOGTAG, "run: invalid demodulationMode: " + demodulationMode);
             }
 
-            if(continue_while)
+            if (continue_while)
                 continue; // If FSK don't Play the Sound
 
 
@@ -405,34 +418,8 @@ public class Demodulator extends Thread {
         }
     }
 
-
-    public static String bytesToString(String bytes){
-        int i = bytes.length()/8;
-        int pos = 0;
-        String result = "";
-        byte[] buffer = new byte[i];
-        for(int j=0; j<i; j++){
-            String temp = bytes.substring(pos,pos+8);
-            buffer[j] = (byte) Integer.parseInt(temp, 2);
-            pos+=8;
-        }
-        try {
-            result = new String(buffer, "ISO-8859-1");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Result: " + result);
-        return result;
-    }
-
     /**
-     *
      * FSK Direct Demodulation
-     *
-     *
-     *
-     *
-     *
      */
     private void demodulateFM_FSK(SamplePacket input, SamplePacket output, int maxDeviation) {
 
@@ -532,53 +519,52 @@ public class Demodulator extends Thread {
             e.printStackTrace();
         }
 
-        if(true)
-        {
+        if (true) {
             try {
-            String sFileName = "DumpedVal_FSK.txt";
+                String sFileName = "DumpedVal_FSK.txt";
 
-            File root = new File(Environment.getExternalStorageDirectory(), "Notes");
-            if (!root.exists()) {
-                root.mkdirs();
-            }
+                File root = new File(Environment.getExternalStorageDirectory(), "Notes");
+                if (!root.exists()) {
+                    root.mkdirs();
+                }
 
-            File myFile = new File(root, sFileName);
+                File myFile = new File(root, sFileName);
 
-            if (myFile.exists()) {
-                try {
-                    FileOutputStream fOut = new FileOutputStream(myFile);
-                    OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
+                if (myFile.exists()) {
+                    try {
+                        FileOutputStream fOut = new FileOutputStream(myFile);
+                        OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
 //                        myOutWriter.append(",output.size:"+output.size()+",output.capacity:"+output.capacity()+
 //                                "="+Arrays.toString(output.re()));
 
-                    myOutWriter.append(Arrays.toString(stream_bits_smp));
+                        myOutWriter.append(Arrays.toString(stream_bits_smp));
 //                    myOutWriter.append(Stream_Data);
 //                    myOutWriter.append(text);
 
-                    myOutWriter.close();
-                    fOut.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else {
-                myFile.createNewFile();
-                try {
-                    FileOutputStream fOut = new FileOutputStream(myFile);
-                    OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
+                        myOutWriter.close();
+                        fOut.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    myFile.createNewFile();
+                    try {
+                        FileOutputStream fOut = new FileOutputStream(myFile);
+                        OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
 //                        myOutWriter.append(",output.size:"+output.size()+",output.capacity:"+output.capacity()+
 //                                "="+Arrays.toString(output.re()));
 
-                    myOutWriter.append(Arrays.toString(stream_bits_smp));
-                    myOutWriter.close();
-                    fOut.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                        myOutWriter.append(Arrays.toString(stream_bits_smp));
+                        myOutWriter.close();
+                        fOut.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-    }
 
 
     }
@@ -627,7 +613,7 @@ public class Demodulator extends Thread {
 
     }
 
-        private void mydemodulateFM(SamplePacket input, SamplePacket output) {
+    private void mydemodulateFM(SamplePacket input, SamplePacket output) {
 
         // Take the Input and apply a band pass filter
 
@@ -638,8 +624,8 @@ public class Demodulator extends Thread {
             mybandPassFilter = ComplexFirFilter.createBandPass(1,        // Decimate by 2; => AUDIO_RATE
                     1,
                     input.getSampleRate(),
-                    58000f ,
-                    78000f ,
+                    58000f,
+                    78000f,
                     input.getSampleRate() * 0.01f,
                     10);
             if (mybandPassFilter == null) {
@@ -650,54 +636,46 @@ public class Demodulator extends Thread {
                     + " taps. Decimation=" + mybandPassFilter.getDecimation() + " Low-Cut-Off=" + mybandPassFilter.getLowCutOffFrequency()
                     + " High-Cut-Off=" + mybandPassFilter.getHighCutOffFrequency() + " transition=" + mybandPassFilter.getTransitionWidth());
         }
-         output.setSize(0);    // mark buffer as empty
-        if (mybandPassFilter.filter(input, output, 0,input.size()) < input.size()) {
+        output.setSize(0);    // mark buffer as empty
+        if (mybandPassFilter.filter(input, output, 0, input.size()) < input.size()) {
             Log.e(LOGTAG, "FSK_Demod: could not filter  all samples from input packet.");
         }
 
 
-            output = input;
+        output = input;
 
-            try{
-                String sFileName = "DumpFilteredData";
+        try {
+            String sFileName = "DumpFilteredData";
 
-                File root = new File(Environment.getExternalStorageDirectory(), "Notes");
-                    if (!root.exists()) {
-                        root.mkdirs();
-                    }
+            File root = new File(Environment.getExternalStorageDirectory(), "Notes");
+            if (!root.exists()) {
+                root.mkdirs();
+            }
 
-                File myFile = new File(root , "DumpedVal.csv");
+            File myFile = new File(root, "DumpedVal.csv");
 
-                if(myFile.exists())
-                {
-                    try
-                    {
-                        FileOutputStream fOut = new FileOutputStream(myFile);
-                        OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
+            if (myFile.exists()) {
+                try {
+                    FileOutputStream fOut = new FileOutputStream(myFile);
+                    OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
 //                        myOutWriter.append(",output.size:"+output.size()+",output.capacity:"+output.capacity()+
 //                                "="+Arrays.toString(output.re()));
 
-                        myOutWriter.append(Arrays.toString(output.re()));
-                        myOutWriter.close();
-                        fOut.close();
-                    } catch(Exception e)
-                    {
-                        e.printStackTrace();
-                    }
+                    myOutWriter.append(Arrays.toString(output.re()));
+                    myOutWriter.close();
+                    fOut.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                else
-                {
-                    myFile.createNewFile();
-                }
+            } else {
+                myFile.createNewFile();
             }
-
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-
-
-
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+
+    }
 
     /**
      * Will AM demodulate the samples in input.

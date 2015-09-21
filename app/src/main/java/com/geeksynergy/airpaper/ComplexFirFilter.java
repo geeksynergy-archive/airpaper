@@ -168,7 +168,6 @@ public class ComplexFirFilter {
     }
 
 
-
     /**
      * Creates a Blackman Window for a FIR Filter
      *

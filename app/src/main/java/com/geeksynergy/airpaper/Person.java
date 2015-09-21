@@ -1,13 +1,13 @@
 package com.geeksynergy.airpaper;
 
 class Person {
-    String name;
-    String age;
+    String title;
+    String date;
     int photoId;
 
-    Person(String name, String age, int photoId) {
-        this.name = name;
-        this.age = age;
+    Person(String title, String date, int photoId) {
+        this.title = title;
+        this.date = date;
         this.photoId = photoId;
     }
 }

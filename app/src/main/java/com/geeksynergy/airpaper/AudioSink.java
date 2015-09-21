@@ -5,6 +5,10 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.util.Log;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -38,6 +42,8 @@ import java.util.concurrent.TimeUnit;
  *         Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 public class AudioSink extends Thread {
+    public final static String sdrPATH = "/data/data/com.geeksynergy.airpaper/sdr_pipe";
+    public final static String TAG = "SDR_PIPE";
     private static final int QUEUE_SIZE = 2;    // This results in a double buffer. see Scheduler...
     private static final String LOGTAG = "AudioSink";
     private AudioTrack audioTrack = null;        // AudioTrack object that is used to pass audio samples to the Android system
@@ -49,6 +55,8 @@ public class AudioSink extends Thread {
     private FirFilter audioFilter1 = null;        // Filter used to decimate the incoming signal rate
     private FirFilter audioFilter2 = null;        // Cascaded filter for high incoming signal rates
     private SamplePacket tmpAudioSamples;        // tmp buffer for audio filters.
+    private boolean sdr_demod = true; //for SDR debug
+
 
     /**
      * Constructor. Will create a new AudioSink.
@@ -172,6 +180,28 @@ public class AudioSink extends Thread {
                 floatPacket = filteredPacket.re();
                 for (int i = 0; i < filteredPacket.size(); i++) {
                     shortPacket[i] = (short) (floatPacket[i] * 32767);
+                }
+
+                // Interpolate here and put the data to Decomon
+                if (!sdr_demod) {
+                    new Thread() {
+                        public void run() {
+                            try {
+                                FileOutputStream fileOut = new FileOutputStream(sdrPATH);
+                                ObjectOutputStream out = new ObjectOutputStream(fileOut);
+                                // out.writeObject(shortPacket);
+                                out.close();
+                                out.flush();
+                                fileOut.close();
+                                System.out.println("\nSerialization Successful... Checkout your specified output file..\n");
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }.start();
+
                 }
 
                 // Write it to the audioTrack:

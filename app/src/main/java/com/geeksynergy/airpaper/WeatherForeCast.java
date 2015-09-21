@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 public class WeatherForeCast extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.weather_forecast,container,false);
+        View v = inflater.inflate(R.layout.weather_forecast, container, false);
         return v;
     }
 }

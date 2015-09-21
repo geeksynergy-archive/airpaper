@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="lightgray" type="color">#6d7c7f</item>
-    <color name="ColorPrimary">#e62117</color>
-    <color name="ColorPrimaryDark">#c31c13</color>
-    <color name="tabsScrollColor">#8a140e</color>
+    <color name="ColorPrimary">#42A5F5</color>
+    <color name="ColorPrimaryDark">#1E88E5</color>
+    <color name="tabsScrollColor">#1565C0</color>
 </resources>

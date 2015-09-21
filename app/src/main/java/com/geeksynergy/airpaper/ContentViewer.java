@@ -3,41 +3,81 @@ package com.geeksynergy.airpaper;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 public class ContentViewer extends AppCompatActivity implements View.OnClickListener {
 
     TextView infoText;
+    TextView titleText;
+    TextView dateText;
+
     Toolbar toolbar;
     Toolbar adBar;
     TextView adLink;
 
-    private ShareActionProvider shareActionProvider = null;
-    Intent intent = new Intent(Intent.ACTION_SEND);
+    BufferedReader bufferedReader = null;
+    StringBuilder stringBuilder = new StringBuilder();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_content_viewer);
 
-        intent.setType("text/plain");
+        titleText = (TextView) findViewById(R.id.titleText);
+        dateText = (TextView) findViewById(R.id.dateTimeText);
+        infoText = (TextView) findViewById(R.id.info_text);
+
+        Intent intent = getIntent();
+        String mTitle = intent.getStringExtra("titleInfo");
+        String mDate = intent.getStringExtra("dateInfo");
+        String mPageTitle = intent.getStringExtra("pageTitleInfo");
+
+        String listTitle;
+
+        titleText.setText(mTitle);
+        dateText.setText(mDate);
+
+        try {
+            bufferedReader = new BufferedReader(new InputStreamReader(this.getResources().openRawResource(getResources().getIdentifier(mPageTitle, "raw", getPackageName()))));
+            for (String line = null; (line = bufferedReader.readLine()) != null; ) {
+                stringBuilder.append(line).append("\n");
+            }
+
+            JSONObject jsonRootObject = new JSONObject(stringBuilder.toString());
+            JSONArray jsonArray = jsonRootObject.optJSONArray(mPageTitle);
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                listTitle = jsonObject.optString("title").toString();
+                if (listTitle.compareTo(mTitle) == 0) {
+                    infoText.setText(jsonObject.optString("info").toString());
+                    break;
+                }
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         adLink = (TextView) findViewById(R.id.ad_link);
         adBar = (Toolbar) findViewById(R.id.ad_bar);
         adBar.setOnClickListener(this);
 
-        infoText = (TextView) findViewById(R.id.info_text);
-        infoText.setText(Html.fromHtml(getString(R.string.information_text)));
+
         toolbar = (Toolbar) findViewById(R.id.tool_bar);
-        toolbar.setTitle("Intent");
+        toolbar.setTitle(titleText.getText());
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -47,8 +87,7 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_content_viewer, menu);
-        MenuItem menuItem = menu.findItem(R.id.action_share);
-        shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+
         return true;
     }
 

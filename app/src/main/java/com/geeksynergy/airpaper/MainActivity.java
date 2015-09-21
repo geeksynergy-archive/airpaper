@@ -1,6 +1,5 @@
 package com.geeksynergy.airpaper;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
@@ -11,40 +10,66 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
+import net.ab0oo.aprs.parser.Parser;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements IQSourceInterface.Callback, AnalyzerSurface.CallbackInterface {
-
+public class MainActivity extends AppCompatActivity implements IQSourceInterface.Callback, AnalyzerSurface.CallbackInterface, PacketCallback {
     public static final int RTL2832U_RESULT_CODE = 1234;    // arbitrary value, used when sending intent to RTL2832U
+
+//        static {
+//            System.loadLibrary("MyLib");
+//        }
     private static final String LOGTAG = "MainActivity";
     private static final String RECORDING_DIR = "RFAnalyzer";
     private static final int FILE_SOURCE = 0;
     private static final int HACKRF_SOURCE = 1;
     private static final int RTLSDR_SOURCE = 2;
     private static final String[] SOURCE_NAMES = new String[]{"filesource", "hackrf", "rtlsdr"};
+    public static String LOG_TAG = "AirPaperMultimonDroid";
+    Toolbar toolbar;
+    ViewPager pager;
+    ViewPagerAdapter adapter;
+    SlidingTabLayout tabs;
+    String tabTitles[];
+    int NumbOfTabs = 8;
+    private String PIPE_PATH = "/data/data/com.geksynergy.airpaper/pipe";
+    private AudioBufferProcessor abp = null;
+    private TextView decod_tv;
+    private final Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            Log.d(LOG_TAG, "GOT MESSAGE FROM FILE READER!");
+            decod_tv.append(msg.getData().getString("line") + "\n");
+        }
+    };
+    private Button readButton, stopButton;
     private List<Person> persons;
     private RecyclerView rv;
     private MenuItem mi_startStop = null;
@@ -65,14 +90,30 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
     private int MySource;
     private Tracker mTracker;
     private String selected_File;
+    private View.OnClickListener onClickReadButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Log.d(LOG_TAG, "START: Monitor");
+            startMonitor();
 
-    Toolbar toolbar;
-    ViewPager pager;
-    ViewPagerAdapter adapter;
-    SlidingTabLayout tabs;
-    CharSequence Titles[]={"नवीनतम","कृषिಿ", "स्वास्थ्य सेवा", "मौसम पूर्वानुमान", "खेल", "मनोरंजन", "व्यापार"};
-    int Numboftabs = 7;
+            //Log.d(LOG_TAG, "START: PipeReader");
+            //startPipeRead();
 
+            v.setEnabled(false);
+            stopButton.setEnabled(true);
+        }
+    };
+
+    private View.OnClickListener onClickStopButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Log.d(LOG_TAG, "STOP: Monitor");
+            stopMonitor();
+
+            v.setEnabled(false);
+            readButton.setEnabled(true);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,17 +121,29 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
         setContentView(R.layout.activity_main);
 
 
+        readButton = (Button) findViewById(R.id.startbutton);
+        readButton.setOnClickListener(onClickReadButtonListener);
+
+        stopButton = (Button) findViewById(R.id.stopbutton);
+        stopButton.setOnClickListener(onClickStopButtonListener);
+
+        decod_tv = (TextView) findViewById(R.id.decoder_tv);
+
+        Log.d(LOG_TAG, "Decomon: OnCreate");
+
+
+        tabTitles = getResources().getStringArray(R.array.tabTitles);
+
         toolbar = (Toolbar) findViewById(R.id.tool_bar);
         setSupportActionBar(toolbar);
-
+        toolbar.setNavigationIcon(R.mipmap.ic_launcher);
 
         // Creating The ViewPagerAdapter and Passing Fragment Manager, Titles for the Tabs and Number Of Tabs.
-        adapter =  new ViewPagerAdapter(getSupportFragmentManager(), Titles, Numboftabs);
+        adapter = new ViewPagerAdapter(getSupportFragmentManager(), tabTitles, NumbOfTabs);
 
         // Assigning ViewPager View and setting the adapter
         pager = (ViewPager) findViewById(R.id.pager);
         pager.setAdapter(adapter);
-
         // Assiging the Sliding Tab Layout View
         tabs = (SlidingTabLayout) findViewById(R.id.tabs);
         tabs.setDistributeEvenly(false); // To make the Tabs Fixed set this true, This makes the tabs Space Evenly in Available width
@@ -105,8 +158,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
 
         // Setting the ViewPager For the SlidingTabsLayout
         tabs.setViewPager(pager);
-		
-		
+
         // Google Analytics Begins Here
 
         AnalyticsApplication application = (AnalyticsApplication) getApplication();
@@ -121,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
 
         MySource = FILE_SOURCE;
 //        selected_File= "/sdcard/RFAnalyzer/2015-09-14-20-46-41_rtlsdr_108000000Hz_1000000Sps.iq";
-        selected_File= "/sdcard/RFAnalyzer/2015-09-15-14-41-00_rtlsdr_106968064Hz_1000000Sps.iq";
+        selected_File = "/sdcard/RFAnalyzer/2015-09-15-14-41-00_rtlsdr_106968064Hz_1000000Sps.iq";
 
         // Set default Settings on first run:
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
@@ -180,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
             demodulationMode = savedInstanceState.getInt(getString(R.string.save_state_demodulatorMode));
             demodulationMode = Demodulator.DEMODULATION_WFM;
             /* BUGFIX / WORKAROUND:
-			 * The RTL2832U driver will not allow to close the socket and immediately start the driver
+             * The RTL2832U driver will not allow to close the socket and immediately start the driver
 			 * again to reconnect after an orientation change / app kill + restart.
 			 * It will report back in onActivityResult() with a -1 (not specified).
 			 *
@@ -227,12 +279,69 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
 
     }
 
-    public native String stringFromJNI();
-
-    static {
-        System.loadLibrary("QPSK_Decoder");
+    private void startMonitor() {
+        if (abp == null) {
+            abp = new AudioBufferProcessor(this);
+            abp.start();
+        } else {
+            abp.startRecording();
+        }
     }
 
+    private void stopMonitor() {
+        abp.stopRecording();
+    }
+
+    private void startPipeRead() {
+        Thread t = new Thread(null, new Runnable() {
+            public void run() {
+                try {
+                    BufferedReader in = new BufferedReader(new FileReader(PIPE_PATH));
+                    String line;
+                    while (true) {
+                        line = in.readLine();
+                        if (line != null) {
+                            Log.d(LOG_TAG, line);
+                            Message msg = Message.obtain();
+                            msg.what = 0;
+                            Bundle bundle = new Bundle();
+                            bundle.putString("line", line);
+                            msg.setData(bundle);
+                            handler.sendMessage(msg);
+                        }
+
+                    }
+                } catch (FileNotFoundException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+            }
+        });
+        t.start();
+
+    }
+
+
+    // PacketCallback interface
+    public void received(byte[] data) {
+        //Log.d(MainActivity.LOG_TAG, "received packets : " + Arrays.toString(data));
+        Message msg = Message.obtain();
+        msg.what = 0;
+        Bundle bundle = new Bundle();
+        String packet;
+        try {
+            packet = Parser.parseAX25(data).toString();
+        } catch (Exception e) {
+            packet = ">> " + new String(data);
+        }
+        bundle.putString("line", packet);
+        msg.setData(bundle);
+        handler.sendMessage(msg);
+    }
 
 
     @Override
@@ -272,8 +381,8 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
         return true;
-		//Other Way
-		//getMenuInflater().inflate(R.menu.menu_main, menu);
+        //Other Way
+        //getMenuInflater().inflate(R.menu.menu_main, menu);
         //return true;
     }
 
@@ -339,8 +448,6 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
 //                };
 //                stoprecorder.start();
 //                testFile.startRecording();
-                String str = stringFromJNI();
-                item.setTitle(str);
 
                 return true;
 

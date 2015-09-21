@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:context=".MainActivity">>
+        tools:context=".MainActivity">
 
  <include
         android:id="@+id/tool_bar"
@@ -50,15 +50,46 @@
     <!--</FrameLayout>-->
     <!--</ListView>-->
 
-    <ListView
+    <LinearLayout
         android:id="@+id/right_drawer"
         android:layout_width="320dp"
         android:layout_height="match_parent"
         android:layout_gravity="end"
-        android:background="#111"
+        android:background="@android:color/white"
         android:choiceMode="singleChoice"
+        android:orientation="vertical"
         android:divider="@android:color/transparent"
-        android:dividerHeight="0dp" />
+        android:dividerHeight="0dp">
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="450dp"
+            android:background="@android:color/white"
+            android:textColor="@android:color/black"
+            android:text="Your message will pop here:\n"
+            android:id="@+id/decoder_tv"
+            />
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start"
+            android:id="@+id/startbutton"
+            />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Stop"
+            android:enabled="false"
+            android:id="@+id/stopbutton"
+            />
+        </LinearLayout>
+
+    </LinearLayout>
 
 
 </android.support.v4.widget.DrawerLayout>

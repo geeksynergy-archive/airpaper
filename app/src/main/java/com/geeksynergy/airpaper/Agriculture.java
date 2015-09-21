@@ -3,23 +3,30 @@ package com.geeksynergy.airpaper;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Agriculture extends Fragment {
 
-    private List<Person> persons;
+    BufferedReader bufferedReader = null;
+    StringBuilder builder = new StringBuilder();
+    private List<Person> agriItems;
     private RecyclerView rv;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.agriculture,container,false);
+        View v = inflater.inflate(R.layout.agriculture, container, false);
 
         rv = (RecyclerView) v.findViewById(R.id.rv);
         RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL);
@@ -35,15 +42,32 @@ public class Agriculture extends Fragment {
         return v;
     }
 
-    private void initializeData(){
-        persons = new ArrayList<>();
-        persons.add(new Person("Tomato Harvesting", "Often confused as a vegetable tomato...", R.drawable.ic_launcher));
-        persons.add(new Person("Grape Cultivation", "The creepy climber grapes ...", R.drawable.grape));
-        persons.add(new Person("Mixed Farming", "Looking for increasing the yield ....", R.drawable.mixed));
+    private void initializeData() {
+        agriItems = new ArrayList<>();
+        try {
+            bufferedReader = new BufferedReader(new InputStreamReader(this.getResources().openRawResource(R.raw.agriculture)));
+
+            for (String line = null; (line = bufferedReader.readLine()) != null; ) {
+                builder.append(line).append("\n");
+            }
+
+            JSONObject jsonRootObject = new JSONObject(builder.toString());
+            JSONArray jsonArray = jsonRootObject.optJSONArray("agriculture");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                String listTitle = jsonObject.optString("title").toString();
+                String listDate = jsonObject.optString("date").toString();
+                String listTime = jsonObject.optString("time").toString();
+                agriItems.add(new Person(listTitle, listDate + "  " + listTime, R.mipmap.ic_launcher));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private void initializeAdapter(){
-        RecyclerViewAdapter adapter = new RecyclerViewAdapter(persons);
+    private void initializeAdapter() {
+        AgricultureRVAdapter adapter = new AgricultureRVAdapter(agriItems);
         rv.setAdapter(adapter);
     }
 
