@@ -40,8 +40,8 @@ public class AudioBufferProcessor extends Thread {
     private int fbuf_cnt = 0;
     private int overlap = 22; // overlap 18 for AFSK DEMOD (FREQSAMP / BAUDRATE) //AFSK needs 18
     private boolean writeAudioBuffer = false; // for debug
-    private boolean direct_audio = false; //for raw debug
-    private boolean sdr_demod = true; //for SDR debug
+    private boolean direct_audio = true; //for raw debug
+    private boolean sdr_demod = false; //for SDR debug
 
     public AudioBufferProcessor(PacketCallback cb) {
         super("AudioBufferProcessor");

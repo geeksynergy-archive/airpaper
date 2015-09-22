@@ -1,2 +1,2 @@
 APP_ABI := all
-APP_PLATFORM := 23
+APP_PLATFORM := 20
