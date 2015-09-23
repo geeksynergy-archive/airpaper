@@ -2,7 +2,8 @@
     <string name="app_name">AiRpaper</string>
     <string name="hello_world">Hello world!</string>
     <string name="smallText">This is a small text</string>
-    <string name="splash_text">Information access to Everyone</string>
+    <string name="splash_text">Information to Everyone.Everywhere</string>
+    <string name="geeky_text">Brought to you by GeekSynergy</string>
     <string name="action_settings">Settings</string>
     <string name="action_share">Share</string>
     <string name="action_pdf">Print to PDF</string>

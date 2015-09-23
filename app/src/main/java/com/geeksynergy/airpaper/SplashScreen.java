@@ -22,8 +22,8 @@ public class SplashScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
 
-        WebView webView = (WebView) findViewById(R.id.webView);
-        webView.loadUrl("file:///android_asset/airpaper.gif");
+//        WebView webView = (WebView) findViewById(R.id.webView);
+//        webView.loadUrl("file:///android_asset/airpaper.gif");
 
         new Handler().postDelayed(new Runnable() {
 
