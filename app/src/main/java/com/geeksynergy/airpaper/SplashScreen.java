@@ -10,25 +10,22 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
 
+import java.io.IOException;
 import java.net.URI;
 
 public class SplashScreen extends AppCompatActivity {
 
-    private static int SPLASH_TIME_OUT = 2000;
+    private static int SPLASH_TIME_OUT = 3000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(new GIFView(this));
+        setContentView(R.layout.activity_splash_screen);
 
-//        WebView webView = (WebView) findViewById(R.id.webView);
-//        webView.loadUrl(this.getResources().openRawResource(R.raw.airpaper).toString());
+        WebView webView = (WebView) findViewById(R.id.webView);
+        webView.loadUrl("file:///android_asset/airpaper.gif");
+
         new Handler().postDelayed(new Runnable() {
-
-            /*
-             * Showing splash screen with a timer. This will be useful when you
-             * want to show case your app logo / company
-             */
 
             @Override
             public void run() {
