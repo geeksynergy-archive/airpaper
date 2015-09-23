@@ -6,5 +6,13 @@ package com.geeksynergy.airpaper;
 public class buffer_packet {
 
        // create a data for this container
+       public short[] payload;
+       private int payloadlength;
+       buffer_packet()
+       {
+           this.payloadlength = 8192;
+           this.payload=  new short[payloadlength];
+       }
+
 
 }

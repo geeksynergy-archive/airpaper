@@ -17,6 +17,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -39,13 +40,14 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 public class MainActivity extends AppCompatActivity implements IQSourceInterface.Callback, AnalyzerSurface.CallbackInterface, PacketCallback {
     public static final int RTL2832U_RESULT_CODE = 1234;    // arbitrary value, used when sending intent to RTL2832U
 
-//        static {
-//            System.loadLibrary("MyLib");
-//        }
+    static ArrayBlockingQueue<buffer_packet> bQueue = new ArrayBlockingQueue<buffer_packet>(1); // 1 array of short ???
+
     private static final String LOGTAG = "MainActivity";
     private static final String RECORDING_DIR = "RFAnalyzer";
     private static final int FILE_SOURCE = 0;
@@ -67,8 +69,11 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
         public void handleMessage(Message msg) {
             Log.d(LOG_TAG, "GOT MESSAGE FROM FILE READER!");
             decod_tv.append(msg.getData().getString("line") + "\n");
+            Latest.latesttext.append(msg.getData().getString("line") + "\n");
         }
     };
+
+
     private Button readButton, stopButton;
     private List<Person> persons;
     private RecyclerView rv;
@@ -86,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
     private Process logcat = null;
     private boolean running = true; // by default this is false
     private File recordingFile = null;
-    private int demodulationMode = Demodulator.DEMODULATION_FSK;
+    private int demodulationMode = Demodulator.DEMODULATION_NFM;
     private int MySource;
     private Tracker mTracker;
     private String selected_File;
@@ -120,7 +125,6 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         readButton = (Button) findViewById(R.id.startbutton);
         readButton.setOnClickListener(onClickReadButtonListener);
 
@@ -128,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
         stopButton.setOnClickListener(onClickStopButtonListener);
 
         decod_tv = (TextView) findViewById(R.id.decoder_tv);
+        decod_tv.setMovementMethod(new ScrollingMovementMethod());
 
         Log.d(LOG_TAG, "Decomon: OnCreate");
 
@@ -173,7 +178,8 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
 
         MySource = FILE_SOURCE;
 //        selected_File= "/sdcard/RFAnalyzer/2015-09-14-20-46-41_rtlsdr_108000000Hz_1000000Sps.iq";
-        selected_File = "/sdcard/RFAnalyzer/2015-09-15-14-41-00_rtlsdr_106968064Hz_1000000Sps.iq";
+//        selected_File = "/sdcard/RFAnalyzer/2015-09-15-14-41-00_rtlsdr_106968064Hz_1000000Sps.iq";
+        selected_File = "/sdcard/RFAnalyzer/aio_trans.iq";
 
         // Set default Settings on first run:
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
@@ -432,6 +438,17 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
                 PdfCreator creator = new PdfCreator();
                 creator.createPdf(this, getApplicationContext());
                 return true;
+            case R.id.FM_MOD:
+                if (item.getTitle().equals("WideBandFM")) {
+                    item.setTitle("NarrowBandFM");
+                    setDemodulationMode(Demodulator.DEMODULATION_WFM);
+                } else {
+                    item.setTitle("WideBandFM");
+                    setDemodulationMode(Demodulator.DEMODULATION_NFM);
+                }
+                onStart();
+
+                return  true;
             case R.id.record_sound:
 //                Thread stoprecorder = new Thread() {
 //                    @Override
@@ -657,7 +674,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
                         source.close();
                         createSource();
                     } else {
-                        long freq = Integer.valueOf(preferences.getString(getString(R.string.pref_filesource_frequency), "97000000"));
+                        long freq = Integer.valueOf(preferences.getString(getString(R.string.pref_filesource_frequency), "88495003"));
                         int sampRate = Integer.valueOf(preferences.getString(getString(R.string.pref_filesource_sampleRate), "2000000"));
                         String fileName = preferences.getString(getString(R.string.pref_filesource_file), "");
                         int fileFormat = Integer.valueOf(preferences.getString(getString(R.string.pref_filesource_format), "0"));
@@ -771,7 +788,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
             case FILE_SOURCE:
                 // Create IQ Source (filesource)
                 try {
-                    frequency = Integer.valueOf(preferences.getString(getString(R.string.pref_filesource_frequency), "97000000"));
+                    frequency = Integer.valueOf(preferences.getString(getString(R.string.pref_filesource_frequency), "88495003"));
                     sampleRate = Integer.valueOf(preferences.getString(getString(R.string.pref_filesource_sampleRate), "1000000"));
                 } catch (NumberFormatException e) {
                     this.runOnUiThread(new Runnable() {
@@ -798,7 +815,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
             case HACKRF_SOURCE:
                 // Create HackrfSource
                 source = new HackrfSource();
-                source.setFrequency(preferences.getLong(getString(R.string.pref_frequency), 97000000));
+                source.setFrequency(preferences.getLong(getString(R.string.pref_frequency), 88495003));
                 source.setSampleRate(preferences.getInt(getString(R.string.pref_sampleRate), HackrfSource.MAX_SAMPLERATE));
                 ((HackrfSource) source).setVgaRxGain(preferences.getInt(getString(R.string.pref_hackrf_vgaRxGain), HackrfSource.MAX_VGA_RX_GAIN / 2));
                 ((HackrfSource) source).setLnaGain(preferences.getInt(getString(R.string.pref_hackrf_lnaGain), HackrfSource.MAX_LNA_GAIN / 2));

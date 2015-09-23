@@ -3,4 +3,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@android:color/white"
+        android:textColor="@android:color/black"
+        android:text="Your message will pop here:\n"
+        android:id="@+id/decoder_tvz"
+        android:maxLines = "40000"
+        android:scrollbars = "vertical"
+        />
+
 </RelativeLayout>

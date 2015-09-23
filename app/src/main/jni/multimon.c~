@@ -13,7 +13,7 @@
 #include "multimon.h"
 
 
-static const struct demod_param *dem[] = {  &demod_poc24 }; //&demod_afsk1200, &demod_poc5 , &demod_poc24 ,  &demod_poc12, &demod_morse &demod_dtmf {original} &demod_afsk1200
+static const struct demod_param *dem[] = {  ALL_DEMOD }; //&demod_afsk1200, &demod_poc5 , &demod_poc24 ,  &demod_poc12, &demod_morse &demod_dtmf {original} &demod_afsk1200
 
 #define NUMDEMOD (sizeof(dem)/sizeof(dem[0]))
 
@@ -51,15 +51,14 @@ static void process_buffer(float *buf, unsigned int len)
 //  int i;
  // for (i = 0; i < NUMDEMOD; i++) {
     //LOGD(" DEM: %s", dem[i]->name);
-    dem[0]->demod(dem_st + 0, buf, len);
+ //   dem[i]->demod(dem_st + 0, buf, len);
 //  }
-
-
-//for (int i = 0; (unsigned int) i <  NUMDEMOD; i++)
-//        if (MASK_ISSET(i) && dem[i]->demod)
-//        {
- //           dem[i]->demod(dem_st+i, buf, len);
-//        }
+for (int i = 0; (unsigned int) i <  NUMDEMOD; i++)
+        if (MASK_ISSET(i) && dem[i]->demod)
+        {
+            buffer_t buffer = {short_buf, float_buf};
+            dem[i]->demod(dem_st+i, buffer, len);
+        }
 }
 
 

@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
+import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -28,7 +30,8 @@ public class AudioBufferProcessor extends Thread {
 
     private final LinkedBlockingQueue<short[]> queue;
     private final LinkedBlockingQueue<char[]> charqueue;
-    float[] fbuf = new float[16384];
+    float[] fbuf = new float[54000]; //    float[] fbuf = new float[16384];
+
     int _dumpCount = 1024;
     // for debugging the caputured samples
     // sox -e signed -r 22050 -b 16 sambombo.raw output2.wav
@@ -38,10 +41,10 @@ public class AudioBufferProcessor extends Thread {
     private PacketCallback callback;
     private boolean inited = false;
     private int fbuf_cnt = 0;
-    private int overlap = 22; // overlap 18 for AFSK DEMOD (FREQSAMP / BAUDRATE) //AFSK needs 18
+    private int overlap = 18; // overlap 18 for AFSK DEMOD (FREQSAMP / BAUDRATE) //AFSK needs 18
     private boolean writeAudioBuffer = false; // for debug
-    private boolean direct_audio = true; //for raw debug
-    private boolean sdr_demod = false; //for SDR debug
+    private boolean direct_audio = false; //for raw debug
+    private boolean sdr_demod = true; //for SDR debug
 
     public AudioBufferProcessor(PacketCallback cb) {
         super("AudioBufferProcessor");
@@ -171,6 +174,8 @@ public class AudioBufferProcessor extends Thread {
                             Thread.sleep(100);
                             continue;
                         }
+
+
                         int nRead = 0;
                         short[] buffer = buffers[ix++ % buffers.length];
 
@@ -186,46 +191,57 @@ public class AudioBufferProcessor extends Thread {
                     Log.w(MainActivity.LOG_TAG, "Error reading audio", x);
                 }
             } else if (sdr_demod) {
+
+
                 try {
 
-                    FileInputStream fileIn = new FileInputStream(sdrPATH);
-                    ObjectInputStream inobj = new ObjectInputStream(fileIn);
+                    recorder.startRecording();
+
+                    Log.w(MainActivity.LOG_TAG, "sdr_direct_decodeStarted");
+                    File sdcard = Environment.getExternalStorageDirectory();
+                    FileChannel out = new FileOutputStream(new File(sdcard, "airpaper_rx_direct.raw")).getChannel();
+
+
+                    int concat_packets = 0;
                     while (true) {
 
-                        byte[] buffer_bytes = bytes_buffers[ix++ % bytes_buffers.length];
-                        int size = buffer_bytes.length;
-                        if (inobj.available() >= size) {
-                            int nRead = inobj.read(buffer_bytes, 0, buffer_bytes.length);
-                            if (nRead < 0)
-                                Thread.sleep(5);
-                            short[] shorts = new short[size / 2];
-                            //   to turn bytes to shorts as either big endian or little endian.
-                            ByteBuffer.wrap(buffer_bytes).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shorts);
-                            Log.d(MainActivity.LOG_TAG, "ShortsRead :" + nRead / 2 + " : " + Arrays.toString(shorts));
-                            queue.put(shorts);
-                            System.out.println("\nDeSerialization Successful... Checkout your specified output file..\n");
-                        } else {
-                            Thread.sleep(50);
+                        if (!MainActivity.bQueue.isEmpty())
+                        {
+                            buffer_packet samp_pack = MainActivity.bQueue.take();
+                            queue.put(samp_pack.payload);
                         }
+
                         if (false) // never happening
                             break;
                     }
-                    inobj.close();
-                    fileIn.close();
+                    out.close();
+
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            } else {
+            }
+
+            else {
+
+
+                recorder.startRecording();
 
                 try {
                     Log.w(MainActivity.LOG_TAG, "Transcoding Raw Data Now");
 
-                    recorder.startRecording();
+                   //recorder.startRecording();
                     File sdcard = Environment.getExternalStorageDirectory();
                     //Get the file currently static
-                    File file = new File(sdcard, "poc1200_triple_quick.raw"); // this goes to storage/emulated/0/poc1200_triple_quick.raw  other files AFSK_1200_baud.raw , speedcall-dtmf.raw
+                    //File file = new File(sdcard, "poc1200_triple_quick.raw"); // this goes to storage/emulated/0/poc1200_triple_quick.raw  other files AFSK_1200_baud.raw , speedcall-dtmf.raw
+                    File file = new File(sdcard, "airpaper_rx_raw31250.raw"); // this goes to storage/emulated/0/poc1200_triple_quick.raw  other files AFSK_1200_baud.raw , speedcall-dtmf.raw
+//                    File file = new File(sdcard, "airpaper_rx_raw2.raw"); // this goes to storage/emulated/0/poc1200_triple_quick.raw  other files AFSK_1200_baud.raw , speedcall-dtmf.raw
+//                    File file = new File(sdcard, "airpaper_rx_raw3.raw"); // this goes to storage/emulated/0/poc1200_triple_quick.raw  other files AFSK_1200_baud.raw , speedcall-dtmf.raw
+//                    File file = new File(sdcard, "aio_trans_441_IT.raw"); // this goes to storage/emulated/0/poc1200_triple_quick.raw  other files AFSK_1200_baud.raw , speedcall-dtmf.raw
+                    // File file = new File(sdcard, "poc1200_triple_quick.raw"); // lets implement 2400baud airpaper_rx_raw.raw
 
                     FileInputStream fis = new FileInputStream(file);
+                    FileChannel out = new FileOutputStream(new File(sdcard, "airpaper_rx_raw2_recoded.raw")).getChannel();
 
                     while (true) {
 
@@ -237,16 +253,27 @@ public class AudioBufferProcessor extends Thread {
                         short[] shorts = new short[buffer_bytes.length / 2];
                         //   to turn bytes to shorts as either big endian or little endian.
                         ByteBuffer.wrap(buffer_bytes).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shorts);
-                        Log.d(MainActivity.LOG_TAG, "ShortsRead :" + nRead / 2 + " : " + Arrays.toString(shorts));
+                        // Log.d(MainActivity.LOG_TAG, "ShortsRead :" + nRead / 2 + " : " + Arrays.toString(shorts));
 
+
+                        ByteBuffer myByteBuffer = ByteBuffer.allocate(shorts.length * 2);
+                        myByteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+                        ShortBuffer myShortBuffer = myByteBuffer.asShortBuffer();
+                        myShortBuffer.put(shorts);
+                        out.position(out.size());
+                        out.write(myByteBuffer);
                         queue.put(shorts);
                     }
+                    out.close();
+
+
                     Log.w(MainActivity.LOG_TAG, "Data Transcoding Ended");
 
                     //process(buffer);
                 } catch (Exception x) {
                     Log.w(MainActivity.LOG_TAG, x.toString());
                 }
+
             }
 
         }

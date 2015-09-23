@@ -58,11 +58,42 @@
 /* ---------------------------------------------------------------------- */
 
 int pocsag_mode = 0;
-int pocsag_invert_input = 1; // this tries the inverted signal
+int pocsag_invert_input = 0; // this tries the inverted signal
 int pocsag_error_correction = 2;
 int pocsag_show_partial_decodes = 0;
 int pocsag_heuristic_pruning = 0;
 int pocsag_prune_empty = 0;
+//"Usage: %s [file] [file] [file] ...\n"
+//"  If no [file] is given, input will be read from your default sound\n"
+//"  hardware. A filename of \"-\" denotes standard input.\n"
+//"  -t <type>  : Input file type (any other type than raw requires sox)\n"
+//"  -a <demod> : Add demodulator\n"
+//"  -s <demod> : Subtract demodulator\n"
+//"  -c         : Remove all demodulators (must be added with -a <demod>)\n"
+//"  -q         : Quiet\n"
+//"  -v <level> : Level of verbosity (e.g. '-v 3')\n"
+//"               For POCSAG and MORSE_CW '-v1' prints decoding statistics.\n"
+//"  -h         : This help\n"
+//"  -A         : APRS mode (TNC2 text output)\n"
+//"  -m         : Mute SoX warnings\n"
+//"  -r         : Call SoX in repeatable mode (e.g. fixed random seed for dithering)\n"
+//"  -n         : Don't flush stdout, increases performance.\n"
+//"  -e         : POCSAG: Hide empty messages.\n"
+//"  -u         : POCSAG: Heuristically prune unlikely decodes.\n"
+//"  -i         : POCSAG: Inverts the input samples. Try this if decoding fails.\n"
+//"  -p         : POCSAG: Show partially received messages.\n"
+//"  -f <mode>  : POCSAG: Disables auto-detection and forces decoding of data as <mode>\n"
+//"                       (<mode> can be 'numeric', 'alpha' and 'skyper')\n"
+//"  -b <level> : POCSAG: BCH bit error correction level. Set 0 to disable, default is 2.\n"
+//"                       Lower levels increase performance and lower false positives.\n"
+//"  -o         : CW: Set threshold for dit detection (default: 500)\n"
+//"  -d         : CW: Dit length in ms (default: 50)\n"
+//"  -g         : CW: Gap length in ms (default: 50)\n"
+//"  -x         : CW: Disable auto threshold detection\n"
+//"  -y         : CW: Disable auto timing detection\n"
+//"   Raw input requires one channel, 16 bit, signed integer (platform-native)\n"
+//"   samples at the demodulator's input sampling rate, which is\n"
+//"   usually 22050 Hz. Raw input is assumed and required if piped input is used.\n";
 
 /* ---------------------------------------------------------------------- */
 
@@ -588,8 +619,7 @@ void pocsag_deinit(struct demod_state *s)
     fflush(stdout);
 }
 
-static unsigned int
-transpose_n(int n, unsigned int *matrix)
+static unsigned int transpose_n(int n, unsigned int *matrix)
 {
     unsigned int out = 0;
     int j;
@@ -604,8 +634,7 @@ transpose_n(int n, unsigned int *matrix)
 
 #define ONE 0xffffffff
 
-static unsigned int *
-transpose_clone(unsigned int src, unsigned int *out)
+static unsigned int *transpose_clone(unsigned int src, unsigned int *out)
 {
     int i;
     if (!out)
@@ -621,8 +650,7 @@ transpose_clone(unsigned int src, unsigned int *out)
     return out;
 }
 
-static void
-bitslice_syndrome(unsigned int *slices)
+static void bitslice_syndrome(unsigned int *slices)
 {
     const int firstBit = BCH_N - 1;
     int i, n;
@@ -844,8 +872,11 @@ static inline bool is_idle(const unsigned int * const rx_data)
 
 static void do_one_bit(struct demod_state *s, unsigned int rx_data)
 {
+
     // LOGD("Im in ...do_one_bit....oho..!");
     s->l2.pocsag.pocsag_total_bits_received++;
+    //LOGD("Current Bit: %u", rx_data);
+
 
     switch(s->l2.pocsag.state & SYNC)
     {
@@ -925,14 +956,16 @@ static void do_one_bit(struct demod_state *s, unsigned int rx_data)
 
                 if(rx_data & POCSAG_MESSAGE_DETECTION)
                 {
-                   // LOGD("Got a message:: %u", rx_data);
+                    LOGD("Got a message:: %u", rx_data);
+                    LOGD( "Message: %u\n", rx_data);
+
                     verbprintf(4, "Got a message: %u\n", rx_data);
                     s->l2.pocsag.function = -2;
                     s->l2.pocsag.address  = -2;
                     s->l2.pocsag.state = MESSAGE;
                     break; // Performing partial decode
                 }
-               // LOGD("Got a message:: %u", rx_data);
+                LOGD("Got a message:: %u", rx_data);
                 verbprintf(4, "Got an address: %u\n", rx_data);
                 s->l2.pocsag.function = (rx_data >> 11) & 3;
                 s->l2.pocsag.address  = ((rx_data >> 10) & 0x1ffff8) | ((rxword >> 1) & 7);
@@ -945,7 +978,7 @@ static void do_one_bit(struct demod_state *s, unsigned int rx_data)
                 if(rx_data & POCSAG_MESSAGE_DETECTION)
                 {
                     verbprintf(4, "Got a message: %u\n", rx_data);
-                   // LOGD("Got a message:: %u", rx_data);
+                    LOGD("Got a message:: %u", rx_data);
                 }
                 else
                 {
@@ -976,14 +1009,14 @@ static void do_one_bit(struct demod_state *s, unsigned int rx_data)
                     bp[2] = data << 4;
                 }
                 s->l2.pocsag.numnibbles += 5;
-               // LOGD("We received something");
+                LOGD("We received something");
                 verbprintf(5, "We received something!\n");
                 return;
             }
 
             case END_OF_MESSAGE:
             {
-               // LOGD("End of message");
+                LOGD("End of message");
                 verbprintf(4, "End of message!\n");
                 pocsag_printmessage(s, true);
                 s->l2.pocsag.numnibbles = 0;
@@ -1010,6 +1043,7 @@ static void do_one_bit(struct demod_state *s, unsigned int rx_data)
 
 void pocsag_rxbit(struct demod_state *s, int bit)
 {
+
     s->l2.pocsag.rx_data <<= 1;
     s->l2.pocsag.rx_data |= !bit;
     verbprintf(9, " %c ", '1'-(s->l2.pocsag.rx_data & 1));

@@ -98,7 +98,6 @@ struct demod_state {
 			unsigned int dcd_shreg;
 			unsigned int sphase;
 			unsigned int subsamp;
-
 		} poc24;
 
 		struct l1_state_afsk12 {
