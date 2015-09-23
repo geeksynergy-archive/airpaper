@@ -2,7 +2,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context="com.geeksynergy.airpaper.SplashScreen">
 
     <!--<WebView-->
@@ -13,18 +12,18 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:src="@drawable/airpaper"
-        android:layout_marginTop="143dp"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="216dp" />
 
     <TextView
         android:id="@+id/splashText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="10dp"
         android:text="@string/splash_text"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:layout_below="@+id/imageView"
@@ -34,7 +33,6 @@
         android:id="@+id/geekyText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="10dp"
         android:text="@string/geeky_text"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:layout_below="@+id/splashText"

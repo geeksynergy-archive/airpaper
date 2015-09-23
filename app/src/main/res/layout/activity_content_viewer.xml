@@ -56,7 +56,16 @@
                 android:textAppearance="?android:textAppearanceMedium"
                 android:textSize="16sp" />
 
+            <RatingBar
+                android:id="@+id/ratingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/info_text"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"/>
+
         </RelativeLayout>
+
     </ScrollView>
 
 
