@@ -1,35 +1,12 @@
 <resources>
-<string name="app_name">AiRpaper</string>
+    <string name="app_name">AiRpaper</string>
     <string name="hello_world">Hello world!</string>
     <string name="smallText">This is a small text</string>
+    <string name="splash_text">Information to Everyone</string>
+    <string name="geeky_text">Brought to you by GeekSynergy</string>
     <string name="action_settings">Settings</string>
     <string name="action_share">Share</string>
     <string name="action_pdf">Print to PDF</string>
-    <string name="information_text">
-
-        <html>
-        <p>AiRpaper is a digital data distribution platform built on the premise of India’s
-        Powerful radio network for government to reach citizens effectively. It leverages
-        on the usage of unused spectrum of the FM broadcast to carry textual and pictorial
-        data in regional and national languages to the common man.</p>
-        <br />
-        <p>AiRpaper aims to keep the citizens of India informed on various govt schemes,
-        policies and development activities, that the government has rolled out in
-        real time, and all these information is provided for free to the citizens in
-        each and every corner of the country without internet.</p>
-        <br />
-        <p>AiRpaper is a digital data distribution platform built on the premise of India’s
-        Powerful radio network for government to reach citizens effectively. It leverages
-        on the usage of unused spectrum of the FM broadcast to carry textual and pictorial
-        data in regional and national languages to the common man.</p>
-        <br />
-        <p>AiRpaper aims to keep the citizens of India informed on various govt schemes,
-        policies and development activities, that the government has rolled out in
-        real time, and all these information is provided for free to the citizens in
-        each and every corner of the country without internet.</p>
-        </html>
-
-    </string>
     <string name="title_activity_content_viewer">ContentViewer</string>
 
     <string name="action_help">Help</string>
@@ -231,5 +208,7 @@
     <string name="pref_logfile_title">Log File</string>
     <string name="pref_logfile_summ">File path: %s</string>
     <string name="pref_logfile_default">RFAnalyzer/log.txt</string>
+    <string name="title_activity_splash_screen">SplashScreen</string>
+    <string name="title_activity_test">AiRpaper</string>
 
 </resources>

@@ -1,6 +1,9 @@
 package com.geeksynergy.airpaper;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -8,7 +11,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -29,6 +34,9 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
     BufferedReader bufferedReader = null;
     StringBuilder stringBuilder = new StringBuilder();
 
+    RatingBar ratingBar;
+    ConnectivityManager connectivityManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +55,24 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
 
         titleText.setText(mTitle);
         dateText.setText(mDate);
+
+        ratingBar = (RatingBar) findViewById(R.id.ratingBar);
+        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+
+                if(networkInfo != null && networkInfo.isConnected()) {
+                    ratingBar.setRating(rating);
+                } else {
+                    ratingBar.setRating(0.0f);
+                    Toast.makeText(ContentViewer.this, "Please check your Internet Connection and rate again", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
 
         try {
             bufferedReader = new BufferedReader(new InputStreamReader(this.getResources().openRawResource(getResources().getIdentifier(mPageTitle, "raw", getPackageName()))));
