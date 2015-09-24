@@ -63,11 +63,13 @@
 
         <TextView
             android:layout_width="fill_parent"
-            android:layout_height="450dp"
+            android:layout_height="550dp"
             android:background="@android:color/white"
             android:textColor="@android:color/black"
             android:text="Your message will pop here:\n"
             android:id="@+id/decoder_tv"
+            android:maxLines = "40000"
+            android:scrollbars = "vertical"
             />
         <LinearLayout
             android:layout_width="fill_parent"

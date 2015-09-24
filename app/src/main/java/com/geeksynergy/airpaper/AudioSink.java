@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -77,7 +78,7 @@ public class AudioSink extends Thread {
         // Create an instance of the AudioTrack class:
         int bufferSize = AudioTrack.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
         this.audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, AudioFormat.CHANNEL_OUT_MONO,
-                AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM);
+                AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM); // MODE_STREAM
 
         // Create the audio filters:
         this.audioFilter1 = FirFilter.createLowPass(2, 1, 1, 0.1f, 0.15f, 30);
@@ -151,11 +152,14 @@ public class AudioSink extends Thread {
         SamplePacket tempPacket = new SamplePacket(packetSize);
         float[] floatPacket;
         short[] shortPacket = new short[packetSize];
+        short[] decodeshortPacket = new short[packetSize];
 
         Log.i(LOGTAG, "AudioSink started. (Thread: " + this.getName() + ")");
 
         // start audio playback:
         audioTrack.play();
+        int k=0;
+        buffer_packet smp = new buffer_packet();
 
         // Continuously write the data from the queue to the audio track:
         while (!stopRequested) {
@@ -177,32 +181,24 @@ public class AudioSink extends Thread {
                     filteredPacket = packet;
 
                 // Convert doubles to shorts [expect doubles to be in [-1...1]
+
                 floatPacket = filteredPacket.re();
+                short[] sendpack = new short[256];
                 for (int i = 0; i < filteredPacket.size(); i++) {
                     shortPacket[i] = (short) (floatPacket[i] * 32767);
+                    smp.payload[i+256*k] = (short) (floatPacket[i] * 24000);
+                }
+                // Log.d(TAG, "shortPacket" + filteredPacket.size() + ": " + Arrays.toString(shortPacket));
+
+                if(++k == 32)
+                {
+                    if(MainActivity.bQueue.isEmpty())
+                        MainActivity.bQueue.put(smp);
+                    k=0;
                 }
 
-                // Interpolate here and put the data to Decomon
-                if (!sdr_demod) {
-                    new Thread() {
-                        public void run() {
-                            try {
-                                FileOutputStream fileOut = new FileOutputStream(sdrPATH);
-                                ObjectOutputStream out = new ObjectOutputStream(fileOut);
-                                // out.writeObject(shortPacket);
-                                out.close();
-                                out.flush();
-                                fileOut.close();
-                                System.out.println("\nSerialization Successful... Checkout your specified output file..\n");
-                            } catch (FileNotFoundException e) {
-                                e.printStackTrace();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }.start();
 
-                }
+
 
                 // Write it to the audioTrack:
                 if (audioTrack.write(shortPacket, 0, filteredPacket.size()) != filteredPacket.size()) {

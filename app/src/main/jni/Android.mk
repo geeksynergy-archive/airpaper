@@ -18,7 +18,8 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE    := decomon
 
-LOCAL_CFLAGS := -DANDROID_NDK \
+LOCAL_CFLAGS :=  -std=gnu99 \
+                 -DANDROID_NDK \
                  -DDISABLE_IMPORTGL \
                  -Wall -g
 
