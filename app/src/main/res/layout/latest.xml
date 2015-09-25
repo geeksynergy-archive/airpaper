@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <TextView
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="600dp"
         android:background="@android:color/white"
         android:textColor="@android:color/black"
         android:text="Your message will pop here:\n"
@@ -14,4 +15,10 @@
         android:scrollbars = "vertical"
         />
 
-</RelativeLayout>
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="200dp"
+        android:id="@+id/decoder_ivz"
+        />
+
+</LinearLayout>

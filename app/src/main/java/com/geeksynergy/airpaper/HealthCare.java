@@ -1,6 +1,7 @@
 package com.geeksynergy.airpaper;
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,13 +14,20 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class HealthCare extends Fragment {
 
-    BufferedReader bufferedReader = null;
+    public static BufferedReader bufferedReader = null;
     StringBuilder builder = new StringBuilder();
     private List<Person> healthItems;
     private RecyclerView rv;
@@ -41,6 +49,26 @@ public class HealthCare extends Fragment {
         return v;
     }
 
+    public static String convertStreamToString(InputStream is) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line).append("\n");
+        }
+        reader.close();
+        return sb.toString();
+    }
+
+    public static String getStringFromFile (String filePath) throws Exception {
+        File fl = new File(filePath);
+        FileInputStream fin = new FileInputStream(fl);
+        String ret = convertStreamToString(fin);
+        //Make sure you close all streams.
+        fin.close();
+        return ret;
+    }
+
     private void initializeData() {
         healthItems = new ArrayList<>();
         try {
@@ -49,16 +77,48 @@ public class HealthCare extends Fragment {
             for (String line = null; (line = bufferedReader.readLine()) != null; ) {
                 builder.append(line).append("\n");
             }
-
-            JSONObject jsonRootObject = new JSONObject(builder.toString());
-            JSONArray jsonArray = jsonRootObject.optJSONArray("healthcare");
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                String listTitle = jsonObject.optString("title").toString();
-                String listDate = jsonObject.optString("date").toString();
-                String listTime = jsonObject.optString("time").toString();
-                healthItems.add(new Person(listTitle, listDate + "  " + listTime, R.mipmap.ic_launcher));
+            File dir = new File(Environment.getExternalStorageDirectory() + "/AiRpaper/database/");
+            File file = new File(Environment.getExternalStorageDirectory() + "/AiRpaper/database/" +"healthcare.json");
+            if(dir.exists()==false)
+            {
+                dir.mkdirs();
             }
+            if (!file.exists()) {
+                try {
+                    file.createNewFile();
+                    FileWriter filewriter = new FileWriter(Environment.getExternalStorageDirectory() + "/AiRpaper/database/healthcare.json");
+                    filewriter.write(builder.toString());
+                    filewriter.close();
+                    System.out.println("Successfully Copied JSON Object to File...");
+                    //System.out.println("\nJSON Object: " + builder.toString());
+                    JSONObject jsonRootObject = new JSONObject(builder.toString());
+                    JSONArray jsonArray = jsonRootObject.optJSONArray("healthcare");
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        String listTitle = jsonObject.optString("title").toString();
+                        String listDate = jsonObject.optString("date").toString();
+                        String listTime = jsonObject.optString("time").toString();
+                        healthItems.add(new Person(listTitle, listDate + "  " + listTime, R.mipmap.ic_launcher));
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            else
+            {
+                JSONObject jsonRootObject = new JSONObject(getStringFromFile(Environment.getExternalStorageDirectory() + "/AiRpaper/database/" + "healthcare" + ".json"));
+                JSONArray jsonArray = jsonRootObject.optJSONArray("healthcare");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    String listTitle = jsonObject.optString("title").toString();
+                    String listDate = jsonObject.optString("date").toString();
+                    String listTime = jsonObject.optString("time").toString();
+                    healthItems.add(new Person(listTitle, listDate + "  " + listTime, R.mipmap.ic_launcher));
+                }
+            }
+
+
 
         } catch (Exception e) {
             e.printStackTrace();

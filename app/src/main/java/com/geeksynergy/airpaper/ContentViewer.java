@@ -6,6 +6,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -19,6 +20,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class ContentViewer extends AppCompatActivity implements View.OnClickListener {
@@ -36,6 +41,27 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
 
     RatingBar ratingBar;
     ConnectivityManager connectivityManager;
+
+
+    public static String convertStreamToString(InputStream is) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line).append("\n");
+        }
+        reader.close();
+        return sb.toString();
+    }
+
+    public static String getStringFromFile (String filePath) throws Exception {
+        File fl = new File(filePath);
+        FileInputStream fin = new FileInputStream(fl);
+        String ret = convertStreamToString(fin);
+        //Make sure you close all streams.
+        fin.close();
+        return ret;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,13 +101,16 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
         });
 
         try {
-            bufferedReader = new BufferedReader(new InputStreamReader(this.getResources().openRawResource(getResources().getIdentifier(mPageTitle, "raw", getPackageName()))));
-            for (String line = null; (line = bufferedReader.readLine()) != null; ) {
-                stringBuilder.append(line).append("\n");
-            }
+//            bufferedReader = new BufferedReader(new InputStreamReader(this.getResources().openRawResource(getResources().getIdentifier(mPageTitle, "raw", getPackageName()))));
+//            for (String line = null; (line = bufferedReader.readLine()) != null; ) {
+//                stringBuilder.append(line).append("\n");
+//            }
 
-            JSONObject jsonRootObject = new JSONObject(stringBuilder.toString());
+            JSONObject jsonRootObject = new JSONObject(getStringFromFile(Environment.getExternalStorageDirectory() + "/AiRpaper/database/" + mPageTitle +".json"));
             JSONArray jsonArray = jsonRootObject.optJSONArray(mPageTitle);
+
+//            JSONObject jsonRootObject = new JSONObject(stringBuilder.toString());
+//            JSONArray jsonArray = jsonRootObject.optJSONArray(mPageTitle);
 
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);

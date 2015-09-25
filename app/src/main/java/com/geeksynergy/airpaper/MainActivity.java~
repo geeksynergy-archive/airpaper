@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -44,11 +43,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 public class MainActivity extends AppCompatActivity implements IQSourceInterface.Callback, AnalyzerSurface.CallbackInterface, PacketCallback {
     public static final int RTL2832U_RESULT_CODE = 1234;    // arbitrary value, used when sending intent to RTL2832U
@@ -72,108 +71,29 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
     private AudioBufferProcessor abp = null;
     private TextView decod_tv;
     private boolean asci_utf = true; // true is ascii and false is utf16
-    private boolean data_metadata = false;
-    public static boolean decod_string = false;
 
-    private String Arti_category = "";
-    private String Arti_title = "";
-    private String Arti_info = "";
-    private String Arti_img = "";
-    private String Arti_date = "";
-    private String Arti_time = "";
-    private String nave_str = "";
-    private Boolean cont_complete = false;
     private final Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            //Log.d(LOG_TAG, "GOT MESSAGE FROM FILE READER!");
+            Log.d(LOG_TAG, "GOT MESSAGE FROM FILE READER!");
             decod_tv.append(msg.getData().getString("line") + "\n");
 //          Latest.latesttext.append(msg.getData().getString("line") + "\n");
             // Verify if the input is ascii or utf16..?
             // presence of transmission type tells what it is ..//
-//            if(!asci_utf) {
-//                System.out.println("Unicode Values - " + simply_translate((msg.getData().getString("line"))));
-//                Latest.latesttext.append((msg.getData().getString("line")) + "\n");
-//            }
-            Log.d(LOG_TAG, msg.getData().getString("line"));
-            if (data_metadata) {
-                if (msg.getData().getString("line").startsWith(">>Numeric:")) {
-                    try {// Latest.latesttext.append((msg.getData().getString("line")) + "\n");
-//                        String tmp_unicode = simply_translate(msg.getData().getString("line").substring((">>Numeric:").length()));
-//                        Arti_title = tmp_unicode.substring(0, msg.getData().getString("line").indexOf("|"));
-//                        Arti_info = tmp_unicode.substring(msg.getData().getString("line").indexOf("|") + 1);
-//                        cont_complete = true;
-                    } catch (Exception z) {
-
-                    }
-                }
-                if (msg.getData().getString("line").startsWith(">>Alpha:data:image/jpeg;base64")) {
-                    //Latest.latesttext.append((msg.getData().getString("line")) + "\n");
-                    Arti_img = msg.getData().getString("line"); // needs decoding
-                } else {
-                    if (msg.getData().getString("line").startsWith(">>Alpha: 0000")) {
-                        try {
-                            //Latest.latesttext.append((msg.getData().getString("line")) + "\n");
-                            String tmp_redData = msg.getData().getString("line").substring((">>Alpha: 0000").length());
-                            //Log.d(MainActivity.LOG_TAG, tmp_redData);
-                            String tmp_unicode = simply_translate(tmp_redData);
-                            //Log.d(MainActivity.LOG_TAG, tmp_unicode);
-                            Arti_title = tmp_unicode.substring(0, tmp_unicode.indexOf("|"));
-                            Arti_info = tmp_unicode.substring(tmp_unicode.indexOf("|") + 1);
-//                            try {
-//                                JsonFileWriter.putJSONData(Arti_category, "NewMSg", nave_str, Arti_img, Arti_date, Arti_time);
-//                            } catch (IOException e) {
-//                                e.printStackTrace();
-//                            }
-//
-//                            Log.d(MainActivity.LOG_TAG, "handleMessage " + tmp_unicode);
-                            Latest.latesttext.append("category:" + Arti_category + "\n" +
-                                            "title: " + Arti_title + "\n" +
-                                            "date: " + Arti_date + "\n" +
-                                            "time: " + Arti_time + "\n" +
-                                            "info: " + Arti_info + "\n" +
-                                            "img: " + Arti_img + "\n\n\n"
-                            );
-                        } catch (Exception z) {
-
-                        }
-                    } else if (msg.getData().getString("line").startsWith(">>Alpha:")) {
-                        try {
-                            //Latest.latesttext.append((msg.getData().getString("line")) + "\n");
-                            Arti_title = msg.getData().getString("line").substring((">>Alpha:").length(), msg.getData().getString("line").indexOf("|"));
-                            Arti_info = msg.getData().getString("line").substring(msg.getData().getString("line").indexOf("|") + 1);
-                            cont_complete = true;
-                        } catch (Exception z) {
-
-                        }
-                    }
-                }
-                if (cont_complete == true)// Fire json updater here
-                    try {
-                        JsonFileWriter.putJSONData(Arti_category, Arti_title, Arti_info, Arti_img, Arti_date, Arti_time);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-
+            if(!asci_utf) {
+                // parse Hex numbers.... and convert to unicode.
+                // numbers would be in this format ">The journey of e-Governance initiatives in India took a broader dimension in mid 90s for wider sectoral applications with emphasis on citizen-centric services. Later on, many States/UTs started various e-Governance projects. Though these e-Governance projects were citizen-centric, they could make lesser than the desired impact. Government of India launched National e-Governance Plan (NeGP) in 2006. 31 Mission Mode Projects covering various domains were initiated. Despite the successful implementation of many e-Governance projects across the country, e-Governance as a whole has not been able to make the desired impact and fulfil all its objectives. <"
+                // numbers would be in this format ">भारत में ई- शासन पहल की यात्रा नागरिक केंद्रित सेवाओं पर जोर देने के साथ व्यापक सेक्टोरल अनुप्रयोगों के लिए मध्य 90 के दशक में एक व्यापक आयाम ले लिया। बाद में, कई राज्यों / केंद्र शासित प्रदेशों के विभिन्न ई -गवर्नेंस परियोजनाओं शुरू कर दिया। इन ई-गवर्नेंस परियोजनाओं नागरिक केन्द्रित थे, वे वांछित प्रभाव की तुलना में कम कर सकता है। भारत सरकार के विभिन्न डोमेन शुरू किए गए को कवर 2006 31 मिशन मोड परियोजनाओं में राष्ट्रीय ई-शासन योजना (एनईजीपी) का शुभारंभ किया। देश भर में कई ई-गवर्नेंस परियोजनाओं के सफल क्रियान्वयन के बावजूद, एक पूरे के रूप में ई-गवर्नेंस वांछित प्रभाव बनाने के लिए और अपने सभी उद्देश्यों को पूरा करने में सक्षम नहीं किया गया है ।<"
+                String str = "भारत में ई- शासन पहल की यात्रा नागरिक केंद्रित सेवाओं पर जोर देने के साथ व्यापक सेक्टोरल अनुप्रयोगों के लिए मध्य 90 के दशक में एक व्यापक आयाम ले लिया। बाद में, कई राज्यों / केंद्र शासित प्रदेशों के विभिन्न ई -गवर्नेंस परियोजनाओं शुरू कर दिया। इन ई-गवर्नेंस परियोजनाओं नागरिक केन्द्रित थे, वे वांछित प्रभाव की तुलना में कम कर सकता है। भारत सरकार के विभिन्न डोमेन शुरू किए गए को कवर 2006 31 मिशन मोड परियोजनाओं में राष्ट्रीय ई-शासन योजना (एनईजीपी) का शुभारंभ किया। देश भर में कई ई-गवर्नेंस परियोजनाओं के सफल क्रियान्वयन के बावजूद, एक पूरे के रूप में ई-गवर्नेंस वांछित प्रभाव बनाने के लिए और अपने सभी उद्देश्यों को पूरा करने में सक्षम नहीं किया गया है ।";
+                System.out.println("Unicode Values - " + str);
+                Latest.latesttext.append(str + "\n");
             }
-            if (msg.getData().getString("line").startsWith(">>POCSAG2400:")) {
-                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-                DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-                System.out.println(dateFormat.format(new Date())); //2014/08/06 15:59:48
-                data_metadata = true;
-                if (true) // try switch
-                    Arti_category = msg.getData().getString("line").substring((">>POCSAG2400: Address:").length(), msg.getData().getString("line").indexOf("Function:"));  // >>POCSAG2400: Address:
-                Arti_date = dateFormat.format(new Date());
-                Arti_time = timeFormat.format(new Date());
-                cont_complete = false;
-            } else {
-                data_metadata = false;
-                cont_complete = false;
-            }
+
+           //            Latest.latesttext.append(msg.getData().getString("line") + "\n");
 
         }
     };
+
 
 
     private Button readButton, stopButton;
@@ -198,37 +118,31 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
     private Tracker mTracker;
     private String selected_File;
 
-    private String simply_translate(String str) {
+    private void simply_translate()
+    {
+        //String str = "भारत में ई- शासन पहल की यात्रा नागरिक केंद्रित सेवाओं पर जोर देने के साथ व्यापक सेक्टोरल अनुप्रयोगों के लिए मध्य 90 के दशक में एक व्यापक आयाम ले लिया। बाद में, कई राज्यों / केंद्र शासित प्रदेशों के विभिन्न ई -गवर्नेंस परियोजनाओं शुरू कर दिया। इन ई-गवर्नेंस परियोजनाओं नागरिक केन्द्रित थे, वे वांछित प्रभाव की तुलना में कम कर सकता है। भारत सरकार के विभिन्न डोमेन शुरू किए गए को कवर 2006 31 मिशन मोड परियोजनाओं में राष्ट्रीय ई-शासन योजना (एनईजीपी) का शुभारंभ किया। देश भर में कई ई-गवर्नेंस परियोजनाओं के सफल क्रियान्वयन के बावजूद, एक पूरे के रूप में ई-गवर्नेंस वांछित प्रभाव बनाने के लिए और अपने सभी उद्देश्यों को पूरा करने में सक्षम नहीं किया गया है ।";
+        //String str = "\u092d\u093e\u0930\u0924\u0020\u092e\u0947\u0902\u0020\u0908\u002d\u0020\u0936\u093e\u0938\u0928\u0020\u092a\u0939\u0932\u0020\u0915\u0940\u0020\u092f\u093e\u0924\u094d\u0930\u093e\u0020\u0928\u093e\u0917\u0930\u093f\u0915\u0020\u0915\u0947\u0902\u0926\u094d\u0930\u093f\u0924\u0020\u0938\u0947\u0935\u093e\u0913\u0902\u0020\u092a\u0930\u0020\u091c\u094b\u0930\u0020\u0926\u0947\u0928\u0947\u0020\u0915\u0947\u0020\u0938\u093e\u0925\u0020\u0935\u094d\u092f\u093e\u092a\u0915\u0020\u0938\u0947\u0915\u094d\u091f\u094b\u0930\u0932\u0020\u0905\u0928\u0941\u092a\u094d\u0930\u092f\u094b\u0917\u094b\u0902\u0020\u0915\u0947\u0020\u0932\u093f\u090f\u0020\u092e\u0927\u094d\u092f\u0020\u0039\u0030\u0020\u0915\u0947\u0020\u0926\u0936\u0915\u0020\u092e\u0947\u0902\u0020\u090f\u0915\u0020\u0935\u094d\u092f\u093e\u092a\u0915\u0020\u0906\u092f\u093e\u092e\u0020\u0932\u0947\u0020\u0932\u093f\u092f\u093e\u0964\u0020\u092c\u093e\u0926\u0020\u092e\u0947\u0902\u002c\u0020\u0915\u0908\u0020\u0930\u093e\u091c\u094d\u092f\u094b\u0902\u0020\u002f\u0020\u0915\u0947\u0902\u0926\u094d\u0930\u0020\u0936\u093e\u0938\u093f\u0924\u0020\u092a\u094d\u0930\u0926\u0947\u0936\u094b\u0902\u0020\u0915\u0947\u0020\u0935\u093f\u092d\u093f\u0928\u094d\u0928\u0020\u0908\u0020\u002d\u0917\u0935\u0930\u094d\u0928\u0947\u0902\u0938\u0020\u092a\u0930\u093f\u092f\u094b\u091c\u0928\u093e\u0913\u0902\u0020\u0936\u0941\u0930\u0942\u0020\u0915\u0930\u0020\u0926\u093f\u092f\u093e\u0964\u0020\u0907\u0928\u0020\u0908\u002d\u0917\u0935\u0930\u094d\u0928\u0947\u0902\u0938\u0020\u092a\u0930\u093f\u092f\u094b\u091c\u0928\u093e\u0913\u0902\u0020\u0928\u093e\u0917\u0930\u093f\u0915\u0020\u0915\u0947\u0928\u094d\u0926\u094d\u0930\u093f\u0924\u0020\u0925\u0947\u002c\u0020\u0935\u0947\u0020\u0935\u093e\u0902\u091b\u093f\u0924\u0020\u092a\u094d\u0930\u092d\u093e\u0935\u0020\u0915\u0940\u0020\u0924\u0941\u0932\u0928\u093e\u0020\u092e\u0947\u0902\u0020\u0915\u092e\u0020\u0915\u0930\u0020\u0938\u0915\u0924\u093e\u0020\u0939\u0948\u0964\u0020\u092d\u093e\u0930\u0924\u0020\u0938\u0930\u0915\u093e\u0930\u0020\u0915\u0947\u0020\u0935\u093f\u092d\u093f\u0928\u094d\u0928\u0020\u0921\u094b\u092e\u0947\u0928\u0020\u0936\u0941\u0930\u0942\u0020\u0915\u093f\u090f\u0020\u0917\u090f\u0020\u0915\u094b\u0020\u0915\u0935\u0930\u0020\u0032\u0030\u0030\u0036\u0020\u0033\u0031\u0020\u092e\u093f\u0936\u0928\u0020\u092e\u094b\u0921\u0020\u092a\u0930\u093f\u092f\u094b\u091c\u0928\u093e\u0913\u0902\u0020\u092e\u0947\u0902\u0020\u0930\u093e\u0937\u094d\u091f\u094d\u0930\u0940\u092f\u0020\u0908\u002d\u0936\u093e\u0938\u0928\u0020\u092f\u094b\u091c\u0928\u093e\u0020\u0028\u090f\u0928\u0908\u091c\u0940\u092a\u0940\u0029\u0020\u0915\u093e\u0020\u0936\u0941\u092d\u093e\u0930\u0902\u092d\u0020\u0915\u093f\u092f\u093e\u0964\u0020\u0926\u0947\u0936\u0020\u092d\u0930\u0020\u092e\u0947\u0902\u0020\u0915\u0908\u0020\u0908\u002d\u0917\u0935\u0930\u094d\u0928\u0947\u0902\u0938\u0020\u092a\u0930\u093f\u092f\u094b\u091c\u0928\u093e\u0913\u0902\u0020\u0915\u0947\u0020\u0938\u092b\u0932\u0020\u0915\u094d\u0930\u093f\u092f\u093e\u0928\u094d\u0935\u092f\u0928\u0020\u0915\u0947\u0020\u092c\u093e\u0935\u091c\u0942\u0926\u002c\u0020\u090f\u0915\u0020\u092a\u0942\u0930\u0947\u0020\u0915\u0947\u0020\u0930\u0942\u092a\u0020\u092e\u0947\u0902\u0020\u0908\u002d\u0917\u0935\u0930\u094d\u0928\u0947\u0902\u0938\u0020\u0935\u093e\u0902\u091b\u093f\u0924\u0020\u092a\u094d\u0930\u092d\u093e\u0935\u0020\u092c\u0928\u093e\u0928\u0947\u0020\u0915\u0947\u0020\u0932\u093f\u090f\u0020\u0914\u0930\u0020\u0905\u092a\u0928\u0947\u0020\u0938\u092d\u0940\u0020\u0909\u0926\u094d\u0926\u0947\u0936\u094d\u092f\u094b\u0902\u0020\u0915\u094b\u0020\u092a\u0942\u0930\u093e\u0020\u0915\u0930\u0928\u0947\u0020\u092e\u0947\u0902\u0020\u0938\u0915\u094d\u0937\u092e\u0020\u0928\u0939\u0940\u0902\u0020\u0915\u093f\u092f\u093e\u0020\u0917\u092f\u093e\u0020\u0939\u0948\u0020\u0964"; // WITH u
+        String str = "092d093e093009240020092e0947090200200908002d00200936093e093809280020092a093909320020091509400020092f093e0924094d0930093e00200928093e09170930093f091500200915094709020926094d0930093f09240020093809470935093e091309020020092a09300020091c094b09300020092609470928094700200915094700200938093e092500200935094d092f093e092a09150020093809470915094d091f094b093009320020090509280941092a094d0930092f094b0917094b090200200915094700200932093f090f0020092e0927094d092f00200039003000200915094700200926093609150020092e094709020020090f091500200935094d092f093e092a091500200906092f093e092e00200932094700200932093f092f093e09640020092c093e09260020092e09470902002c00200915090800200930093e091c094d092f094b09020020002f00200915094709020926094d093000200936093e0938093f09240020092a094d0930092609470936094b090200200915094700200935093f092d093f0928094d0928002009080020002d091709350930094d09280947090209380020092a0930093f092f094b091c0928093e091309020020093609410930094200200915093000200926093f092f093e096400200907092800200908002d091709350930094d09280947090209380020092a0930093f092f094b091c0928093e0913090200200928093e09170930093f09150020091509470928094d0926094d0930093f0924002009250947002c00200935094700200935093e0902091b093f09240020092a094d0930092d093e093500200915094000200924094109320928093e0020092e0947090200200915092e0020091509300020093809150924093e00200939094809640020092d093e093009240020093809300915093e093000200915094700200935093f092d093f0928094d092800200921094b092e094709280020093609410930094200200915093f090f00200917090f00200915094b0020091509350930002000320030003000360020003300310020092e093f093609280020092e094b09210020092a0930093f092f094b091c0928093e091309020020092e0947090200200930093e0937094d091f094d09300940092f00200908002d0936093e093809280020092f094b091c0928093e00200028090f09280908091c0940092a0940002900200915093e002009360941092d093e09300902092d00200915093f092f093e096400200926094709360020092d09300020092e0947090200200915090800200908002d091709350930094d09280947090209380020092a0930093f092f094b091c0928093e0913090200200915094700200938092b093200200915094d0930093f092f093e0928094d0935092f09280020091509470020092c093e0935091c09420926002c0020090f09150020092a094209300947002009150947002009300942092a0020092e0947090200200908002d091709350930094d092809470902093800200935093e0902091b093f09240020092a094d0930092d093e09350020092c0928093e0928094700200915094700200932093f090f00200914093000200905092a0928094700200938092d0940002009090926094d092609470936094d092f094b090200200915094b0020092a09420930093e002009150930092809470020092e09470902002009380915094d0937092e0020092809390940090200200915093f092f093e00200917092f093e00200939094800200964";
+         str += "000a" + "0cad0cbe0cb00ca40ca60cb20ccd0cb20cbf00200c87002d0c860ca10cb30cbf0ca400200c890caa0c950ccd0cb00cae0c970cb30cc100200caa0ccd0cb00caf0cbe0ca300200ca80cbe0c970cb00cbf0c9500200c950cc60cd50c820ca60ccd0cb00cbf0ca400200cb80cc60cd50cb50cc60c970cb30ca80ccd0ca80cc100200caa0ccd0cb00cbe0cae0cc10c960ccd0caf0ca40cc60caf0cc60cc20c820ca60cbf0c970cc600200cb50ccd0caf0cbe0caa0c9500200c950ccd0cb70cc60cd50ca40ccd0cb00cbf0cd50caf00200c850ca80ccd0cb50caf0c970cb30cbf0c970cc600200039003000200cb000200ca60cb60c950ca600200cae0ca70ccd0caf0cad0cbe0c970ca60cb20ccd0cb20cbf00200c920c820ca60cc100200cb50cbf0cb60cbe0cb20cb50cbe0ca600200c860caf0cbe0cae0cb50ca80ccd0ca80cc100200ca40cc60c970cc60ca60cc10c950cc60cc20c820ca10cbf0ca40cc1002e00200ca80c820ca40cb0002c00200c850ca80cc60cd50c9500200cb00cbe0c9c0ccd0caf0c970cb30cb20ccd0cb20cbf0020002f00200c950cc60cd50c820ca60ccd0cb00cbe0ca10cb30cbf0ca400200cb50cbf0cb50cbf0ca700200c87002d0c860ca10cb30cbf0ca400200caf0cc60cc20cd50c9c0ca80cc60c970cb300200c860cb00c820cad0cbf0cb80cbf0ca60cb00cc1002e00200c8800200c87002d0c860ca10cb30cbf0ca400200caf0cc60cc20cd50c9c0ca80cc60c970cb300200ca80cbe0c970cb00cbf0c9500200c950cc60cd50c820ca60ccd0cb00cbf0ca400200cb80cb9002c00200c850cb50cb00cc100200c850caa0cc60cd50c950ccd0cb70cbf0ca400200caa0cb00cbf0ca30cbe0cae00200c950ca10cbf0cae0cc600200cae0cbe0ca10cb20cc100200cb80cbe0ca70ccd0caf0cb50cbe0caf0cbf0ca40cc1002e00200cad0cbe0cb00ca400200cb80cb00ccd0c950cbe0cb00ca600200cb50cbf0cb50cbf0ca700200ca10cc60cc20cae0cc60cd50ca80ccd0c970cb300200caa0ccd0cb00cbe0cb00c820cad0cbf0cb80cb20cbe0caf0cbf0ca40cc100200c920cb30c970cc60cc20c820ca10020003200300030003600200033003100200cae0cbf0cb60ca80ccd00200cae0cc60cc20cd50ca10ccd00200caf0cc60cc20cd50c9c0ca80cc60c970cb30cc100200cb00cbe0cb70ccd0c9f0ccd0cb00cbf0cd50caf00200c87002d00200c860ca10cb30cbf0ca400200caf0cc60cc20cd50c9c0ca80cc6002000280020004e0065004700500020002900200cb80ccd0ca50cbe0caa0cbf0cb80cbf0ca60cb00cc1002e00200ca60cc60cd50cb60cbe0ca60ccd0caf0c820ca400200c850ca80cc60cd50c9500200c87002d0c860ca10cb30cbf0ca400200caf0cc60cc20cd50c9c0ca80cc60c970cb300200caf0cb60cb80ccd0cb50cbf00200c850ca80cc10cb70ccd0ca00cbe0ca800200cb90cc60cc20cb00ca40cbe0c970cbf0caf0cc2002c00200c870ca10cbf0cd500200c87002d0c860ca10cb30cbf0ca400200c850caa0cc60cd50c950ccd0cb70cbf0ca400200caa0cb00cbf0ca30cbe0cae00200cae0cbe0ca10cb20cc100200cae0ca40ccd0ca40cc100200c8e0cb20ccd0cb20cbe00200c970cc10cb00cbf0c970cb30ca80ccd0ca80cc100200caa0cc20cb00cc60cd60cb80cb20cc100200cb80cbe0ca70ccd0caf0cb50cbe0c970cbf0cb20ccd0cb20020002e";
         String ucoded_str = "";
-        nave_str = "";
-        str.trim();
-        if(str.endsWith("<SOH>"))
-            str = str.substring(0,str.length()-5);
-        Log.d(MainActivity.LOG_TAG, "Length: " + str.length() + ": " + str);
-        if (str.length() % 4 == 0)
-            for (int i = 0; i < str.length(); i = i + 4)
-            {
-                ucoded_str += (char) Integer.parseInt(str.substring(i, i + 4), 16);
-                nave_str += "\\u" + str.substring(i, i + 4);
-            }
-        else if (str.length() > 4) {
-            str = str.substring(0, str.length() - str.length() % 4);
-            for (int i = 0; i < str.length(); i = i + 4)
-            {
-                ucoded_str += (char) Integer.parseInt(str.substring(i, i + 4), 16);
-                nave_str += "\\u" + str.substring(i, i + 4);
-            }
-        }
 
-        return (ucoded_str);
+        for(int i=0;i < str.length();i=i+4)
+            ucoded_str += (char) Integer.parseInt(str.substring(i,i+4), 16);
+
+        //java.util.Arrays.toString(str.split("(?<=\\G....)"))
+
+//        System.out.println("Unicode Values - " + str);
+        System.out.println("Unicode Values - " + ucoded_str);
+        Latest.latesttext.append(ucoded_str + "\n");
     }
 
-    private Bitmap simply_img(String str_img) {
-        String completeImageData = "data:image/jpeg;base64,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";
-        String imageDataBytes = completeImageData.substring(completeImageData.indexOf(",") + 1);
+    private void simply_img()
+    {
+        String completeImageData = "data:image/jpeg;base64,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";
+        String imageDataBytes = completeImageData.substring(completeImageData.indexOf(",")+1);
         InputStream stream = new ByteArrayInputStream(Base64.decode(imageDataBytes.getBytes(), Base64.DEFAULT));
-        //Latest.latestimg.setImageBitmap(BitmapFactory.decodeStream(stream));
-        return BitmapFactory.decodeStream(stream);
+
+        Latest.latestimg.setImageBitmap(BitmapFactory.decodeStream(stream));
 
     }
 
@@ -237,7 +151,11 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
         public void onClick(View v) {
             Log.d(LOG_TAG, "START: Monitor");
             startMonitor();
-            MainActivity.decod_string = true;
+
+            simply_translate();
+            simply_img();
+            //Log.d(LOG_TAG, "START: PipeReader");
+            //startPipeRead();
 
             v.setEnabled(false);
             stopButton.setEnabled(true);
@@ -249,7 +167,8 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
         public void onClick(View v) {
             Log.d(LOG_TAG, "STOP: Monitor");
             stopMonitor();
-            MainActivity.decod_string = false;
+            simply_translate();
+
             v.setEnabled(false);
             readButton.setEnabled(true);
         }
@@ -314,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
         MySource = FILE_SOURCE;
 //        selected_File= "/sdcard/RFAnalyzer/2015-09-14-20-46-41_rtlsdr_108000000Hz_1000000Sps.iq";
 //        selected_File = "/sdcard/RFAnalyzer/2015-09-15-14-41-00_rtlsdr_106968064Hz_1000000Sps.iq";
-        selected_File = "/sdcard/RFAnalyzer/kannada_unicode.iq";
+        selected_File = "/sdcard/RFAnalyzer/aio_trans.iq";
 
         // Set default Settings on first run:
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
@@ -480,7 +399,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
         try {
             packet = Parser.parseAX25(data).toString();
         } catch (Exception e) {
-            packet = ">>" + new String(data);
+            packet = ">> " + new String(data);
         }
         bundle.putString("line", packet);
         msg.setData(bundle);
@@ -586,7 +505,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
                 }
                 onStart();
 
-                return true;
+                return  true;
             case R.id.record_sound:
 //                Thread stoprecorder = new Thread() {
 //                    @Override
@@ -972,8 +891,8 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
                     source = new RtlsdrSource("127.0.0.1", 1234);
                 }
 
-                frequency = preferences.getLong(getString(R.string.pref_frequency), 88495003);
-                frequency = 88495003;
+                frequency = preferences.getLong(getString(R.string.pref_frequency), 93500000);
+                frequency = 93500000;
                 sampleRate = preferences.getInt(getString(R.string.pref_sampleRate), source.getMaxSampleRate());
                 if (sampleRate > 2000000)    // might be the case after switching over from HackRF
                     sampleRate = 2000000;
@@ -1188,7 +1107,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
         analyzerProcessingLoop.start();
 
 //        scheduler.setChannelFrequency(analyzerSurface.getChannelFrequency());
-        scheduler.setChannelFrequency(88495003);
+        scheduler.setChannelFrequency(93500000);
 
         // Start the demodulator thread:
         demodulator = new Demodulator(scheduler.getDemodOutputQueue(), scheduler.getDemodInputQueue(), source.getPacketSize());
