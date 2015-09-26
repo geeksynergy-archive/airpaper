@@ -1,11 +1,13 @@
 package com.geeksynergy.airpaper;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -15,11 +17,13 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.http.NameValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.List;
 
 public class ContentViewer extends AppCompatActivity implements View.OnClickListener {
 
@@ -37,6 +41,9 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
     RatingBar ratingBar;
     ConnectivityManager connectivityManager;
 
+    private String device_id;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,9 +54,9 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
         infoText = (TextView) findViewById(R.id.info_text);
 
         Intent intent = getIntent();
-        String mTitle = intent.getStringExtra("titleInfo");
+        final String mTitle = intent.getStringExtra("titleInfo");
         String mDate = intent.getStringExtra("dateInfo");
-        String mPageTitle = intent.getStringExtra("pageTitleInfo");
+        final String mPageTitle = intent.getStringExtra("pageTitleInfo");
 
         String listTitle;
 
@@ -64,15 +71,23 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
                 connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
 
-                if(networkInfo != null && networkInfo.isConnected()) {
-                    ratingBar.setRating(rating);
+                if (networkInfo != null && networkInfo.isConnected()) {
+                    ContentValues contentValues = new ContentValues();
+                    device_id = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+                    String programme_category = mPageTitle;
+                    String programmeTitle = mTitle;
+
+
+
                 } else {
                     ratingBar.setRating(0.0f);
                     Toast.makeText(ContentViewer.this, "Please check your Internet Connection and rate again", Toast.LENGTH_SHORT).show();
                 }
 
             }
+
         });
+
 
         try {
             bufferedReader = new BufferedReader(new InputStreamReader(this.getResources().openRawResource(getResources().getIdentifier(mPageTitle, "raw", getPackageName()))));
@@ -97,6 +112,7 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
             e.printStackTrace();
         }
 
+
         adLink = (TextView) findViewById(R.id.ad_link);
         adBar = (Toolbar) findViewById(R.id.ad_bar);
         adBar.setOnClickListener(this);
@@ -108,6 +124,7 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

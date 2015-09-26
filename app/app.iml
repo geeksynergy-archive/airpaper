@@ -98,6 +98,7 @@
     <orderEntry type="library" exported="" name="appcompat-v7-22.1.0" level="project" />
     <orderEntry type="library" exported="" name="recyclerview-v7-23.0.1" level="project" />
     <orderEntry type="library" exported="" name="javAPRSlib" level="project" />
+    <orderEntry type="library" exported="" name="http-core-4.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-analytics-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="cardview-v7-23.0.1" level="project" />
     <orderEntry type="library" exported="" name="dsp-collection" level="project" />
