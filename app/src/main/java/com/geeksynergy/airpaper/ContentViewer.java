@@ -7,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -17,12 +18,24 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class ContentViewer extends AppCompatActivity implements View.OnClickListener {
@@ -48,6 +61,8 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_content_viewer);
+        StrictMode.ThreadPolicy threadPolicy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(threadPolicy);
 
         titleText = (TextView) findViewById(R.id.titleText);
         dateText = (TextView) findViewById(R.id.dateTimeText);
@@ -66,24 +81,58 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
         ratingBar = (RatingBar) findViewById(R.id.ratingBar);
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
 
+            InputStream inputStream = null;
+
             @Override
             public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
                 connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
 
-                if (networkInfo != null && networkInfo.isConnected()) {
+                Calendar now = Calendar.getInstance();
+                int year = now.get(Calendar.YEAR);
+                int month = now.get(Calendar.MONTH) + 1; // Note: zero based!
+                int day = now.get(Calendar.DAY_OF_MONTH);
+                int hour = now.get(Calendar.HOUR_OF_DAY);
+                int minute = now.get(Calendar.MINUTE);
+//                int second = now.get(Calendar.SECOND);
+
+
+                if (networkInfo != null && networkInfo.isConnected())
+
+                {
                     ContentValues contentValues = new ContentValues();
                     device_id = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
                     String programme_category = mPageTitle;
-                    String programmeTitle = mTitle;
+                    String programme_title = mTitle;
 
+                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
+                    nameValuePairs.add(new BasicNameValuePair("device_id", device_id.toString()));
+                    nameValuePairs.add(new BasicNameValuePair("programme_category", programme_category));
+                    nameValuePairs.add(new BasicNameValuePair("programme_title", programme_title));
+                    nameValuePairs.add(new BasicNameValuePair("rating", String.valueOf(rating)));
+                    nameValuePairs.add(new BasicNameValuePair("date", String.valueOf(day) + "-" + String.valueOf(month) + "-" + String.valueOf(year)));
+                    nameValuePairs.add(new BasicNameValuePair("time", String.valueOf(hour) + ":" + String.valueOf(minute)));
 
+                    try {
+                        HttpClient httpClient = new DefaultHttpClient();
+                        HttpPost httpPost = new HttpPost("http://192.168.1.2/insert_data.php");
+                        httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                        HttpResponse response = httpClient.execute(httpPost);
+                        HttpEntity httpEntity = response.getEntity();
+                        inputStream = httpEntity.getContent();
 
+                        String message = "Thanks for Rating the article";
+                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+
+                    } catch (ClientProtocolException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 } else {
                     ratingBar.setRating(0.0f);
                     Toast.makeText(ContentViewer.this, "Please check your Internet Connection and rate again", Toast.LENGTH_SHORT).show();
                 }
-
             }
 
         });

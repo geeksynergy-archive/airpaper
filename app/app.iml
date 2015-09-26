@@ -105,6 +105,7 @@
     <orderEntry type="library" exported="" name="support-v4-23.0.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-base-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="hackrf_android" level="project" />
+    <orderEntry type="library" exported="" name="httpclient-4.2.3" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-23.0.1" level="project" />
   </component>
 </module>
