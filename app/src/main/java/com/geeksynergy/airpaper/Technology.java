@@ -27,7 +27,7 @@ public class Technology extends Fragment {
 
     public static BufferedReader bufferedReader = null;
     StringBuilder builder = new StringBuilder();
-    private List<Person> techItems;
+    private List<Recycler_preview_Template> techItems;
     private RecyclerView rv;
 
     @Override
@@ -97,7 +97,8 @@ public class Technology extends Fragment {
                         String listTitle = jsonObject.optString("title").toString();
                         String listDate = jsonObject.optString("date").toString();
                         String listTime = jsonObject.optString("time").toString();
-                        techItems.add(new Person(listTitle, listDate + "  " + listTime, R.mipmap.ic_launcher));
+                        String listImg = jsonObject.optString("img64").toString();
+                        techItems.add(new Recycler_preview_Template(listTitle, listDate + "  " + listTime, listImg));
                     }
 
                 } catch (IOException e) {
@@ -113,7 +114,8 @@ public class Technology extends Fragment {
                     String listTitle = jsonObject.optString("title").toString();
                     String listDate = jsonObject.optString("date").toString();
                     String listTime = jsonObject.optString("time").toString();
-                    techItems.add(new Person(listTitle, listDate + "  " + listTime, R.mipmap.ic_launcher));
+                    String listImg = jsonObject.optString("img64").toString();
+                    techItems.add(new Recycler_preview_Template(listTitle, listDate + "  " + listTime, listImg));
                 }
             }
         } catch (Exception e) {

@@ -2,28 +2,54 @@
   "technology":
   [
     {
-      "title": "iPhone",
-      "time": "01:22 pm",
-      "date": "Sep 12, 2015",
-      "info": "It wouldn't be September without a late night spent hitting refresh on your browser window trying to buy the new iPhone. And so here we are again, as preorders are now live on Apple's site. You can also preorder online with AT&T, Verizon, Sprint, or T-Mobile (who makes you call in, which is insane) and with shipments beginning on September 25th. As of this writing, you can't grab your new phone from Apple's website, which doesn't have a preorder option yet. An even better idea, as my colleague Chris Ziegler points out, to do so through the Apple Store iOS app. The app is known to be more reliable than the website, which around now is being crushed by a mountain of traffic."
-    },
-    {
-      "title": "Android Phone",
+      "title": "Addiction !",
       "time": "02:22 pm",
       "date": "Sep 12, 2015",
-      "info": "Blah blah blah. It wouldn't be September without a late night spent hitting refresh on your browser window trying to buy the new iPhone. And so here we are again, as preorders are now live on Apple's site. You can also preorder online with AT&T, Verizon, Sprint, or T-Mobile (who makes you call in, which is insane) and with shipments beginning on September 25th. As of this writing, you can't grab your new phone from Apple's website, which doesn't have a preorder option yet. An even better idea, as my colleague Chris Ziegler points out, to do so through the Apple Store iOS app. The app is known to be more reliable than the website, which around now is being crushed by a mountain of traffic."
+      "info": "The average 21 year old has spent 5,000 hours playing video games, sent 250,000 emails, instant messages, and text messages, and has spent 10,000 hours on a mobile phone alone.",
+      "img64" : ""
     },
     {
-      "title": "iPhone 6s and 6s+ is out for $949 with 3D touch.",
-      "time": "03:22 pm",
-      "date": "Sep 12, 2015",
-      "info": "Anil Kumar.It wouldn't be September without a late night spent hitting refresh on your browser window trying to buy the new iPhone. And so here we are again, as preorders are now live on Apple's site. You can also preorder online with AT&T, Verizon, Sprint, or T-Mobile (who makes you call in, which is insane) and with shipments beginning on September 25th. As of this writing, you can't grab your new phone from Apple's website, which doesn't have a preorder option yet. An even better idea, as my colleague Chris Ziegler points out, to do so through the Apple Store iOS app. The app is known to be more reliable than the website, which around now is being crushed by a mountain of traffic."
-    },
-    {
-      "title": "Moto X",
+      "title": "Facebook",
       "time": "02:22 pm",
       "date": "Sep 12, 2015",
-      "info": "Blah blah blah. It wouldn't be September without a late night spent hitting refresh on your browser window trying to buy the new iPhone. And so here we are again, as preorders are now live on Apple's site. You can also preorder online with AT&T, Verizon, Sprint, or T-Mobile (who makes you call in, which is insane) and with shipments beginning on September 25th. As of this writing, you can't grab your new phone from Apple's website, which doesn't have a preorder option yet. An even better idea, as my colleague Chris Ziegler points out, to do so through the Apple Store iOS app. The app is known to be more reliable than the website, which around now is being crushed by a mountain of traffic."
+      "info": "Since the company’s inception, there have been 144.7 million individual visitors to Facebook, making it the most visited social networking site as of June 2013.",
+      "img64" : ""
+    },
+    {
+      "title": "Digital Magic",
+      "time": "02:22 pm",
+      "date": "Sep 12, 2015",
+      "info": " The man known as the Father of Information Theory, Claude Shannon, invented the digital circuit – the foundation of the magic that provides us all access to the Internet today - during his master’s degree program, when he was just 21 years old. ",
+      "img64" : ""
+    },
+    {
+      "title": "Hygiene",
+      "time": "02:22 pm",
+      "date": "Sep 12, 2015",
+      "info": "There are 6.8 billion people on the planet and 4 billion of them use a mobile phone. Only 3.5 billion of them use a toothbrush",
+      "img64" : ""
+    },
+    {
+      "title": "First Sell",
+      "time": "02:22 pm",
+      "date": "Sep 12, 2015",
+      "info": "The first personal computer was created by Berkeley Enterprises. Affectionately referred to as Simon, it sold for a pricey $300 in 1950.",
+      "img64" : ""
+    },
+    {
+      "title": "Mouse",
+      "time": "02:22 pm",
+      "date": "Sep 12, 2015",
+      "info": "The first mouse was invented by Douglas Engelbart in 1963; it consisted of a hard wooden shell and two clunky metal wheels.",
+      "img64" : ""
+    },
+    {
+      "title": "Astrosat",
+      "time": "02:22 pm",
+      "date": "Sep 12, 2015",
+      "info": "Astrosat, which had a lift-off mass of 1,513kg, will now embark on a five-year astronomy mission studying distant celestial objects. It will observe the universe in the optical, ultraviolet, low and high energy x-ray regions of the electromagnetic spectrum, compared to most other scientific satellites that are capable of observing a narrow range of wavelength band. Among its assignments, the five payloads of Astrosat will study star birth regions and black holes.",
+      "img64" : ""
     }
+
   ]
 }

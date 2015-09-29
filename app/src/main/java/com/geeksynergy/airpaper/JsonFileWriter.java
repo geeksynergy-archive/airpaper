@@ -53,7 +53,7 @@ public class JsonFileWriter  {
                         "date: " + date + "\n" +
                         "time: " + time + "\n" +
                         "info: " + info + "\n" +
-                        "img: " + img + "\n\n\n"
+                        "img64: " + img + "\n\n\n"
         );
         String cat_filename = "technology";
 
@@ -73,21 +73,47 @@ public class JsonFileWriter  {
             JSONObject jsonRootObject = new JSONObject(getStringFromFile(Environment.getExternalStorageDirectory() + "/AiRpaper/database/" + cat_filename +".json"));
             file = new FileWriter(Environment.getExternalStorageDirectory() + "/AiRpaper/database/" + cat_filename +".json");
             JSONArray jsonArray = jsonRootObject.optJSONArray(cat_filename);
-            JSONObject jsobj = jsonArray.getJSONObject(0);
-//            obj.put("Name", "technology");
-//            jsonArray.put("title:" + title);
-//            jsonArray.put("date:" + date);
-//            jsonArray.put("time:" + time);
-//            jsonArray.put("info:" + info);
-            jsobj.put("title" ,title);
-            jsobj.put("date" , date);
-            jsobj.put("time" , time);
-            jsobj.put("info" , info.substring(0,info.length()-5));
-            jsonRootObject.put(cat_filename, jsonArray);
-            file.write(jsonRootObject.toString());
-            System.out.println("Successfully Updated JSON Object to File...");
-            file.flush();
-            file.close();
+            Boolean existing_record = false;
+            int record_pos = -1;
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                if (jsonObject.optString("title").toString().compareTo(title) == 0) {
+                    existing_record =true;
+                    record_pos = i;
+                    break;
+                }
+            }
+
+            if(existing_record)
+                {
+                    JSONObject json_obj = jsonArray.getJSONObject(record_pos);
+                    json_obj.put("title", title);
+                    json_obj.put("date", date);
+                    json_obj.put("time", time);
+                    json_obj.put("info", info.substring(0, info.length() - 5));
+                    json_obj.put("img64", img);
+                    jsonArray.put(json_obj);
+                    jsonRootObject.put(cat_filename, jsonArray);
+                    file.write(jsonRootObject.toString());
+                    System.out.println("Successfully Updated JSON Object to File...");
+                    file.flush();
+                    file.close();
+                }
+            else
+                {
+                    JSONObject json_obj = new JSONObject();
+                    json_obj.put("title", title);
+                    json_obj.put("date", date);
+                    json_obj.put("time", time);
+                    json_obj.put("info", info.substring(0, info.length() - 5));
+                    json_obj.put("img64", img);
+                    jsonArray.put(json_obj);
+                    jsonRootObject.put(cat_filename, jsonArray);
+                    file.write(jsonRootObject.toString());
+                    System.out.println("Successfully Updated JSON Object to File...");
+                    file.flush();
+                    file.close();
+                }
         }
         catch (JSONException e) {
             e.printStackTrace();

@@ -1,22 +1,28 @@
 package com.geeksynergy.airpaper;
 
 import android.content.Intent;
+import android.graphics.Matrix;
+import android.os.Build;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.larvalabs.svgandroid.SVGParser;
 
 import java.util.List;
 
 public class AgricultureRVAdapter extends RecyclerView.Adapter<AgricultureRVAdapter.AgriViewHolder> {
 
-    List<Person> persons;
+    List<Recycler_preview_Template> recyclerpreviewTemplates;
 
-    AgricultureRVAdapter(List<Person> persons) {
-        this.persons = persons;
+    AgricultureRVAdapter(List<Recycler_preview_Template> recyclerpreviewTemplates) {
+        this.recyclerpreviewTemplates = recyclerpreviewTemplates;
     }
 
     @Override
@@ -33,19 +39,23 @@ public class AgricultureRVAdapter extends RecyclerView.Adapter<AgricultureRVAdap
 
     @Override
     public void onBindViewHolder(AgriViewHolder agriViewHolder, int i) {
-        agriViewHolder.listTitle.setText(persons.get(i).title);
-        agriViewHolder.listDate.setText(persons.get(i).date);
-        agriViewHolder.listPhoto.setImageResource(persons.get(i).photoId);
-    }
+                try{
+                    agriViewHolder.listTitle.setText(recyclerpreviewTemplates.get(i).title);
+                    agriViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
+                    agriViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
+                }
+                catch (Exception ez)
+                {
+
+                }
+           }
 
     @Override
     public int getItemCount() {
-        return persons.size();
+        return recyclerpreviewTemplates.size();
     }
 
     public static class AgriViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-        CardView cv;
         TextView listTitle;
         TextView listDate;
         ImageView listPhoto;
@@ -53,12 +63,15 @@ public class AgricultureRVAdapter extends RecyclerView.Adapter<AgricultureRVAdap
 
         AgriViewHolder(View itemView) {
             super(itemView);
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB) {
+                itemView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+            }
             itemView.setClickable(true);
             itemView.setOnClickListener(this);
-            cv = (CardView) itemView.findViewById(R.id.cv);
             listTitle = (TextView) itemView.findViewById(R.id.list_title);
             listDate = (TextView) itemView.findViewById(R.id.list_date);
             listPhoto = (ImageView) itemView.findViewById(R.id.list_photo);
+
         }
 
         @Override

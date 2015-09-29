@@ -1,22 +1,26 @@
 package com.geeksynergy.airpaper;
 
 import android.content.Intent;
+import android.os.Build;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.larvalabs.svgandroid.SVGParser;
+
 import java.util.List;
 
 public class BusinessRVAdapter extends RecyclerView.Adapter<BusinessRVAdapter.BusinessViewHolder> {
 
-    List<Person> persons;
+    List<Recycler_preview_Template> recyclerpreviewTemplates;
 
-    BusinessRVAdapter(List<Person> persons) {
-        this.persons = persons;
+    BusinessRVAdapter(List<Recycler_preview_Template> recyclerpreviewTemplates) {
+        this.recyclerpreviewTemplates = recyclerpreviewTemplates;
     }
 
     @Override
@@ -33,19 +37,22 @@ public class BusinessRVAdapter extends RecyclerView.Adapter<BusinessRVAdapter.Bu
 
     @Override
     public void onBindViewHolder(BusinessViewHolder businessViewHolder, int i) {
-        businessViewHolder.listTitle.setText(persons.get(i).title);
-        businessViewHolder.listDate.setText(persons.get(i).date);
-        businessViewHolder.listPhoto.setImageResource(persons.get(i).photoId);
+        try {
+            businessViewHolder.listTitle.setText(recyclerpreviewTemplates.get(i).title);
+            businessViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
+            businessViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
+        } catch (Exception ez) {
+
+        }
     }
 
     @Override
     public int getItemCount() {
-        return persons.size();
+        return recyclerpreviewTemplates.size();
     }
 
     public static class BusinessViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        CardView cv;
         TextView listTitle;
         TextView listDate;
         ImageView listPhoto;
@@ -53,9 +60,11 @@ public class BusinessRVAdapter extends RecyclerView.Adapter<BusinessRVAdapter.Bu
 
         BusinessViewHolder(View itemView) {
             super(itemView);
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB) {
+                itemView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+            }
             itemView.setClickable(true);
             itemView.setOnClickListener(this);
-            cv = (CardView) itemView.findViewById(R.id.cv);
             listTitle = (TextView) itemView.findViewById(R.id.list_title);
             listDate = (TextView) itemView.findViewById(R.id.list_date);
             listPhoto = (ImageView) itemView.findViewById(R.id.list_photo);

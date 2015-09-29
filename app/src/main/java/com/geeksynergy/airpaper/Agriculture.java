@@ -27,7 +27,7 @@ public class Agriculture extends Fragment {
 
     public static BufferedReader bufferedReader = null;
     StringBuilder builder = new StringBuilder();
-    private List<Person> agriItems;
+    private List<Recycler_preview_Template> agriItems;
     private RecyclerView rv;
 
     @Override
@@ -95,7 +95,8 @@ public class Agriculture extends Fragment {
                         String listTitle = jsonObject.optString("title").toString();
                         String listDate = jsonObject.optString("date").toString();
                         String listTime = jsonObject.optString("time").toString();
-                        agriItems.add(new Person(listTitle, listDate + "  " + listTime, R.mipmap.ic_launcher));
+                        String listImg = jsonObject.optString("img64").toString();
+                        agriItems.add(new Recycler_preview_Template(listTitle, listDate + "  " + listTime, listImg));
                     }
 
                 } catch (IOException e) {
@@ -111,7 +112,8 @@ public class Agriculture extends Fragment {
                     String listTitle = jsonObject.optString("title").toString();
                     String listDate = jsonObject.optString("date").toString();
                     String listTime = jsonObject.optString("time").toString();
-                    agriItems.add(new Person(listTitle, listDate + "  " + listTime, R.mipmap.ic_launcher));
+                    String listImg = jsonObject.optString("img64").toString();
+                    agriItems.add(new Recycler_preview_Template(listTitle, listDate + "  " + listTime, listImg));
                 }
             }
 

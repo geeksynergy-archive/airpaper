@@ -20,8 +20,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +27,7 @@ public class HealthCare extends Fragment {
 
     public static BufferedReader bufferedReader = null;
     StringBuilder builder = new StringBuilder();
-    private List<Person> healthItems;
+    private List<Recycler_preview_Template> healthItems;
     private RecyclerView rv;
 
     @Override
@@ -98,7 +96,8 @@ public class HealthCare extends Fragment {
                         String listTitle = jsonObject.optString("title").toString();
                         String listDate = jsonObject.optString("date").toString();
                         String listTime = jsonObject.optString("time").toString();
-                        healthItems.add(new Person(listTitle, listDate + "  " + listTime, R.mipmap.ic_launcher));
+                        String listImg = jsonObject.optString("img64").toString();
+                        healthItems.add(new Recycler_preview_Template(listTitle, listDate + "  " + listTime, listImg));
                     }
 
                 } catch (IOException e) {
@@ -114,7 +113,8 @@ public class HealthCare extends Fragment {
                     String listTitle = jsonObject.optString("title").toString();
                     String listDate = jsonObject.optString("date").toString();
                     String listTime = jsonObject.optString("time").toString();
-                    healthItems.add(new Person(listTitle, listDate + "  " + listTime, R.mipmap.ic_launcher));
+                    String listImg = jsonObject.optString("img64").toString();
+                    healthItems.add(new Recycler_preview_Template(listTitle, listDate + "  " + listTime, listImg));
                 }
             }
 

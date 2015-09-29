@@ -177,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
 
 
     private Button readButton, stopButton;
-    private List<Person> persons;
+    private List<Recycler_preview_Template> persons;
     private RecyclerView rv;
     private MenuItem mi_startStop = null;
     private MenuItem mi_demodulationMode = null;
@@ -241,6 +241,13 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
 
             v.setEnabled(false);
             stopButton.setEnabled(true);
+//
+//            try {
+//                JsonFileWriter.putJSONData("200058", "Silver is not Gold", "some context here ", Arti_img, Arti_date, Arti_time);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+
         }
     };
 
@@ -311,10 +318,11 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
 
         // Google Analytics Ends Here
 
-        MySource = FILE_SOURCE;
+        MySource = RTLSDR_SOURCE;
 //        selected_File= "/sdcard/RFAnalyzer/2015-09-14-20-46-41_rtlsdr_108000000Hz_1000000Sps.iq";
 //        selected_File = "/sdcard/RFAnalyzer/2015-09-15-14-41-00_rtlsdr_106968064Hz_1000000Sps.iq";
-        selected_File = "/sdcard/RFAnalyzer/kannada_unicode.iq";
+//        selected_File = "/sdcard/RFAnalyzer/From_all_clip.iq";
+        selected_File = "/sdcard/RFAnalyzer/From_all_clip.iq";
 
         // Set default Settings on first run:
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
