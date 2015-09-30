@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -114,11 +115,23 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
 
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
-                listTitle = jsonObject.optString("title").toString();
-                if (listTitle.compareTo(mTitle) == 0) {
-                    infoText.setText(jsonObject.optString("info").toString());
-                    break;
+                if(Boolean.valueOf(jsonObject.optString("uni").toString().equals("True")))
+                {
+                    listTitle = new String(Base64.decode(jsonObject.optString("title").toString(), Base64.DEFAULT));
+                    if (listTitle.compareTo(mTitle) == 0) {
+                        infoText.setText(new String(Base64.decode(jsonObject.optString("info").toString(), Base64.DEFAULT)));
+                        break;
+                    }
                 }
+                else
+                {
+                    listTitle = jsonObject.optString("title").toString();
+                    if (listTitle.compareTo(mTitle) == 0) {
+                        infoText.setText(jsonObject.optString("info").toString());
+                        break;
+                    }
+                }
+
             }
 
 

@@ -37,10 +37,17 @@ public class EntertainmentRVAdapter extends RecyclerView.Adapter<EntertainmentRV
     @Override
     public void onBindViewHolder(ETViewHolder etViewHolder, int i) {
         try{
-        etViewHolder.listTitle.setText(recyclerpreviewTemplates.get(i).title);
-        etViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
-        etViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
-    }
+            if(recyclerpreviewTemplates.get(i).uni) {
+                etViewHolder.listTitle.setText( new String(Base64.decode(recyclerpreviewTemplates.get(i).title, Base64.DEFAULT)));
+                etViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
+                etViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
+            }
+            else {
+                etViewHolder.listTitle.setText(recyclerpreviewTemplates.get(i).title);
+                etViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
+                etViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
+            }
+        }
     catch (Exception ez)
     {
 

@@ -5,49 +5,56 @@
       "time": "01:22 pm",
       "date": "Sep 12, 2015",
       "info": "There are more than 1,000 chemicals in a cup of coffee; of these, only 26 have been tested, and half caused cancer in rats.",
-      "img64": ""
+      "img64" : "",
+      "uni" : ""
     },
      {
       "title": "One Touch",
       "time": "01:22 pm",
       "date": "Sep 12, 2015",
       "info": "It's not just coughs and sneezes that spread diseases. One single bacteria cell can multiply to become more than 8 million cells in less than 24 hours. Just imagine what's on the toilet door handle you just touched, the taps and even on other people's hands..",
-      "img64": ""
-    },
+       "img64" : "",
+       "uni" : ""
+     },
      {
       "title": "Airborne",
       "time": "01:22 pm",
       "date": "Sep 12, 2015",
       "info": "Airborn - Different viruses cause the common cold and flu, but both are spread through the air in tiny droplets produced when an infected person coughs, sneezes or breathes. When you sneeze your body is getting rid of infected cells and an average sneeze will spread over 100,000 virus cells up to 30 feet. And, in case you were wondering, people suffering from a cold can spread the virus from two days before the symptoms of the illness start and up to four days afterwards. On average, adults catch two to three colds each year. School-age children can have twelve or more colds in a year.",
-      "img64": ""
-    },
+       "img64" : "",
+       "uni" : ""
+     },
      {
       "title": "Heart",
       "time": "01:22 pm",
       "date": "Sep 12, 2015",
       "info": "The first known heart medicine was discovered in an English garden. In 1799, physician John Ferriar noted the effect of dried leaves of the common plant, digitalis purpurea, on heart action. Still used in heart medications, digitalis slows the pulse and increases the force of heart contractions and the amount of blood pumped per heartbeat.",
-      "img64": ""
-    },
+       "img64" : "",
+       "uni" : ""
+     },
      {
       "title": "Conjunctivitis",
       "time": "01:22 pm",
       "date": "Sep 12, 2015",
       "info": "Do not use eyeshadow if you have an eye infection as this will aggravate the problem. You could also pass the bacteria on to the eyeshadow with the applicator or your finger. And pay attention to how those suave mall makeup artists apply their products on your face. You don't want to get used tools. Which reminds us, never use lipstick if you have a cold sore, it will aggrivate the cold sore but, more importantly, the infection will be on the lipstick and you could re-infect your mouth. Ok, one more thing, never share mascara as this is the most common way to pass on eye infections such as conjunctivitis. ",
-      "img64": ""
-    },
+       "img64" : "",
+       "uni" : ""
+     },
      {
       "title": "Wart",
       "time": "01:22 pm",
       "date": "Sep 12, 2015",
       "info": "The wart virus is very contagious. The skin cells on the warts release thousands of viruses and touching the wart or skin cells on it releases the virus, which can then infect others. Similarly, 6-9 million Americans have toenail fungus. Protect your feet by keeping them clean and dry. Furthermore, a tiny flake of infected skin from a person with athlete's foot can fall off whilst showering. It may then be trodden on by others who can then develop the infection. Once a small patch of infection develops it typically spreads along the skin.",
-      "img64": ""
-    },
+       "img64" : "",
+       "uni" : ""
+     },
      {
       "title": "Heals on",
       "time": "01:22 pm",
       "date": "Sep 12, 2015",
       "info": "High heels over 1.5 inches could lead to broken and twisted ankles as well as knee and backstrain. Pointed shoes could lead to bunions and hammer toes.",
-      "img64": ""
-    }
+       "img64" : "",
+       "uni" : ""
+     }
   ]
 }

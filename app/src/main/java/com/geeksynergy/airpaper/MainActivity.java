@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
 
     private String Arti_category = "";
     private String Arti_title = "";
+    private Boolean Arti_Uni = false;
     private String Arti_info = "";
     private String Arti_img = "";
     private String Arti_date = "";
@@ -113,27 +114,12 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
                 } else {
                     if (msg.getData().getString("line").startsWith(">>Alpha: 0000")) {
                         try {
-                            //Latest.latesttext.append((msg.getData().getString("line")) + "\n");
                             String tmp_redData = msg.getData().getString("line").substring((">>Alpha: 0000").length());
-                            //Log.d(MainActivity.LOG_TAG, tmp_redData);
                             String tmp_unicode = simply_translate(tmp_redData);
-                            //Log.d(MainActivity.LOG_TAG, tmp_unicode);
-                            Arti_title = tmp_unicode.substring(0, tmp_unicode.indexOf("|"));
-                            Arti_info = tmp_unicode.substring(tmp_unicode.indexOf("|") + 1);
-//                            try {
-//                                JsonFileWriter.putJSONData(Arti_category, "NewMSg", nave_str, Arti_img, Arti_date, Arti_time);
-//                            } catch (IOException e) {
-//                                e.printStackTrace();
-//                            }
-//
-//                            Log.d(MainActivity.LOG_TAG, "handleMessage " + tmp_unicode);
-                            Latest.latesttext.append("category:" + Arti_category + "\n" +
-                                            "title: " + Arti_title + "\n" +
-                                            "date: " + Arti_date + "\n" +
-                                            "time: " + Arti_time + "\n" +
-                                            "info: " + Arti_info + "\n" +
-                                            "img: " + Arti_img + "\n\n\n"
-                            );
+                            Arti_title = Base64.encodeToString(tmp_unicode.substring(0, tmp_unicode.indexOf("|")).getBytes(), Base64.DEFAULT);
+                            Arti_info = Base64.encodeToString(tmp_unicode.substring(tmp_unicode.indexOf("|") + 1).getBytes(),Base64.DEFAULT);
+                            Arti_Uni = true;
+                            cont_complete = true;
                         } catch (Exception z) {
 
                         }
@@ -142,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
                             //Latest.latesttext.append((msg.getData().getString("line")) + "\n");
                             Arti_title = msg.getData().getString("line").substring((">>Alpha:").length(), msg.getData().getString("line").indexOf("|"));
                             Arti_info = msg.getData().getString("line").substring(msg.getData().getString("line").indexOf("|") + 1);
+                            Arti_Uni = false;
                             cont_complete = true;
                         } catch (Exception z) {
 
@@ -150,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
                 }
                 if (cont_complete == true)// Fire json updater here
                     try {
-                        JsonFileWriter.putJSONData(Arti_category, Arti_title, Arti_info, Arti_img, Arti_date, Arti_time);
+                        JsonFileWriter.putJSONData(Arti_category, Arti_title, Arti_info, Arti_img, Arti_date, Arti_time, Arti_Uni);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -583,6 +570,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
             case R.id.create_pdf:
                 PdfCreator creator = new PdfCreator();
                 creator.createPdf(this, getApplicationContext());
+                source.close();
                 return true;
             case R.id.FM_MOD:
                 if (item.getTitle().equals("WideBandFM")) {

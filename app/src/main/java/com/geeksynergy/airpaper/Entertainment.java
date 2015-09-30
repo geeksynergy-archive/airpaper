@@ -99,7 +99,8 @@ public class Entertainment extends Fragment {
                         String listDate = jsonObject.optString("date").toString();
                         String listTime = jsonObject.optString("time").toString();
                         String listImg = jsonObject.optString("img64").toString();
-                        entertainItems.add(new Recycler_preview_Template(listTitle, listDate + "  " + listTime, listImg));
+                        Boolean listuni = Boolean.valueOf(jsonObject.optString("uni").toString().equals("True"));
+                        entertainItems.add(new Recycler_preview_Template(listTitle, listDate + "  " + listTime, listImg,listuni));
                     }
 
                 } catch (IOException e) {
@@ -116,7 +117,8 @@ public class Entertainment extends Fragment {
                     String listDate = jsonObject.optString("date").toString();
                     String listTime = jsonObject.optString("time").toString();
                     String listImg = jsonObject.optString("img64").toString();
-                    entertainItems.add(new Recycler_preview_Template(listTitle, listDate + "  " + listTime, listImg));
+                    Boolean listuni = Boolean.valueOf(jsonObject.optString("uni").toString().equals("True"));
+                    entertainItems.add(new Recycler_preview_Template(listTitle, listDate + "  " + listTime, listImg,listuni));
                 }
             }
 

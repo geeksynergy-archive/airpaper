@@ -6,6 +6,7 @@ package com.geeksynergy.airpaper;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
+import android.util.Base64;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,17 +47,27 @@ public class JsonFileWriter  {
     }
 
     @SuppressWarnings("unchecked")
-    public static void putJSONData(String category,String title,String info,String img,String date,String time) throws IOException {
+    public static void putJSONData(String category,String title,String info,String img,String date,String time, Boolean Uni) throws IOException {
 
+        if(!Uni)
         Latest.latesttext.append("category:" + category + "\n" +
                         "title: " + title + "\n" +
                         "date: " + date + "\n" +
                         "time: " + time + "\n" +
                         "info: " + info + "\n" +
+                        "uni: " + "False" + "\n" +
                         "img64: " + img + "\n\n\n"
         );
-        String cat_filename = "technology";
+        else
+            Latest.latesttext.append("category:" + category + "\n" +
+                    "title: " + new String(Base64.decode(title, Base64.DEFAULT)) + "\n" +
+                    "date: " + date + "\n" +
+                    "time: " + time + "\n" +
+                    "info: " + new String(Base64.decode(info, Base64.DEFAULT)) + "\n" +
+                    "uni: " + "True" + "\n" +
+                    "img64: " + img + "\n\n\n");
 
+        String cat_filename = "technology";
         if(category.contains("1000"))
             cat_filename = "technology";
         if(category.contains("2000"))
@@ -92,6 +103,7 @@ public class JsonFileWriter  {
                     json_obj.put("time", time);
                     json_obj.put("info", info.substring(0, info.length() - 5));
                     json_obj.put("img64", img);
+                    json_obj.put("uni", Uni?"True":"False");
                     jsonArray.put(json_obj);
                     jsonRootObject.put(cat_filename, jsonArray);
                     file.write(jsonRootObject.toString());
@@ -107,6 +119,7 @@ public class JsonFileWriter  {
                     json_obj.put("time", time);
                     json_obj.put("info", info.substring(0, info.length() - 5));
                     json_obj.put("img64", img);
+                    json_obj.put("uni", Uni?"True":"False");
                     jsonArray.put(json_obj);
                     jsonRootObject.put(cat_filename, jsonArray);
                     file.write(jsonRootObject.toString());

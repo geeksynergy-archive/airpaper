@@ -38,10 +38,17 @@ public class HealthCareRVAdapter extends RecyclerView.Adapter<HealthCareRVAdapte
     @Override
     public void onBindViewHolder(HCViewHolder hcViewHolder, int i) {
         try{
-        hcViewHolder.listTitle.setText(recyclerpreviewTemplates.get(i).title);
-        hcViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
-        hcViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
-    }
+            if(recyclerpreviewTemplates.get(i).uni) {
+                hcViewHolder.listTitle.setText( new String(Base64.decode(recyclerpreviewTemplates.get(i).title, Base64.DEFAULT)));
+                hcViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
+                hcViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
+            }
+            else {
+                hcViewHolder.listTitle.setText(recyclerpreviewTemplates.get(i).title);
+                hcViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
+                hcViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
+            }
+        }
     catch (Exception ez)
     {
 

@@ -38,10 +38,16 @@ public class BusinessRVAdapter extends RecyclerView.Adapter<BusinessRVAdapter.Bu
     @Override
     public void onBindViewHolder(BusinessViewHolder businessViewHolder, int i) {
         try {
-            businessViewHolder.listTitle.setText(recyclerpreviewTemplates.get(i).title);
-            businessViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
-            businessViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
-        } catch (Exception ez) {
+            if(recyclerpreviewTemplates.get(i).uni) {
+                businessViewHolder.listTitle.setText( new String(Base64.decode(recyclerpreviewTemplates.get(i).title, Base64.DEFAULT)));
+                businessViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
+                businessViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
+            }
+            else {
+                businessViewHolder.listTitle.setText(recyclerpreviewTemplates.get(i).title);
+                businessViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
+                businessViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
+            }        } catch (Exception ez) {
 
         }
     }

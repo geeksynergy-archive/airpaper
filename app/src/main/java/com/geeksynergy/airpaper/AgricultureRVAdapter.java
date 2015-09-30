@@ -40,9 +40,16 @@ public class AgricultureRVAdapter extends RecyclerView.Adapter<AgricultureRVAdap
     @Override
     public void onBindViewHolder(AgriViewHolder agriViewHolder, int i) {
                 try{
-                    agriViewHolder.listTitle.setText(recyclerpreviewTemplates.get(i).title);
-                    agriViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
-                    agriViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
+                    if(recyclerpreviewTemplates.get(i).uni) {
+                        agriViewHolder.listTitle.setText( new String(Base64.decode(recyclerpreviewTemplates.get(i).title, Base64.DEFAULT)));
+                        agriViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
+                        agriViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
+                    }
+                    else {
+                        agriViewHolder.listTitle.setText(recyclerpreviewTemplates.get(i).title);
+                        agriViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
+                        agriViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
+                    }
                 }
                 catch (Exception ez)
                 {
@@ -71,7 +78,6 @@ public class AgricultureRVAdapter extends RecyclerView.Adapter<AgricultureRVAdap
             listTitle = (TextView) itemView.findViewById(R.id.list_title);
             listDate = (TextView) itemView.findViewById(R.id.list_date);
             listPhoto = (ImageView) itemView.findViewById(R.id.list_photo);
-
         }
 
         @Override

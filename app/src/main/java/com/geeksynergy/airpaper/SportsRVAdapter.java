@@ -39,10 +39,18 @@ public class SportsRVAdapter extends RecyclerView.Adapter<SportsRVAdapter.Sports
     public void onBindViewHolder(SportsViewHolder sportsViewHolder, int i) {
         try{
 
-        sportsViewHolder.listTitle.setText(recyclerpreviewTemplates.get(i).title);
-        sportsViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
-        sportsViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
-    }
+            if(recyclerpreviewTemplates.get(i).uni) {
+                sportsViewHolder.listTitle.setText( new String(Base64.decode(recyclerpreviewTemplates.get(i).title, Base64.DEFAULT)));
+                sportsViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
+                sportsViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
+            }
+            else {
+                sportsViewHolder.listTitle.setText(recyclerpreviewTemplates.get(i).title);
+                sportsViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
+                sportsViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
+            }
+
+        }
     catch (Exception ez)
     {
 

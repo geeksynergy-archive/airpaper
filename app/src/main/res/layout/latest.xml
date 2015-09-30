@@ -14,11 +14,16 @@
         android:maxLines = "40000"
         android:scrollbars = "vertical"
         />
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/decoder_imz"
+                android:layout_centerInParent="true"/>
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/decoder_imz"
-        android:layout_centerInParent="true"/>
+        </LinearLayout>
 
 </LinearLayout>

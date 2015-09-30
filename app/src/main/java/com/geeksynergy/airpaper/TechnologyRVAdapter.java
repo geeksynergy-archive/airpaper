@@ -38,11 +38,17 @@ public class TechnologyRVAdapter extends RecyclerView.Adapter<TechnologyRVAdapte
     @Override
     public void onBindViewHolder(TechViewHolder techViewHolder, int i) {
         try{
-
-        techViewHolder.listTitle.setText(recyclerpreviewTemplates.get(i).title);
-        techViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
-        techViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
-    }
+            if(recyclerpreviewTemplates.get(i).uni) {
+                techViewHolder.listTitle.setText( new String(Base64.decode(recyclerpreviewTemplates.get(i).title, Base64.DEFAULT)));
+                techViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
+                techViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
+            }
+            else {
+                techViewHolder.listTitle.setText(recyclerpreviewTemplates.get(i).title);
+                techViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
+                techViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
+            }
+        }
     catch (Exception ez)
     {
 
