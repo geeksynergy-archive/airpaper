@@ -80,4 +80,21 @@ dependencies {
     compile files('libs/androidsvg-1.2.1.jar')
     compile files('libs/ion-2.1.6.jar')
     compile files('libs/svg-android.jar')
+    compile files('libs/http-core-4.1.jar')
+    compile files('libs/httpclient-4.2.3.jar')
+    compile files('libs/javAPRSlib.jar')
+}
+android {
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/dependencies.txt'
+        exclude 'META-INF/LGPL2.1'
+    }
 }

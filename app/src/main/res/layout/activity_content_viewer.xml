@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:weightSum="1">
 
     <include
         android:id="@+id/tool_bar"
@@ -26,7 +27,7 @@
                 android:layout_height="fill_parent"
                 android:textAppearance="?android:textAppearanceMedium"
                 android:textSize="20sp"
-                 />
+                />
 
             <ImageView
                 android:id="@+id/content_image"
@@ -64,9 +65,30 @@
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"/>
 
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine"
+                android:ems="10"
+                android:id="@+id/commentText"
+                android:visibility="invisible"
+                android:layout_weight="0.48"
+                android:layout_below="@+id/ratingBar"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:maxLength="2000"
+                android:maxLines="4" />
+
+            <Button
+                android:id="@+id/commentButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/commentText"
+                android:text="@string/comment_section"
+                android:visibility="invisible"/>
+
         </RelativeLayout>
 
     </ScrollView>
-
 
 </LinearLayout>

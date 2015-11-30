@@ -1,37 +1,53 @@
 package com.geeksynergy.airpaper;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
+import android.os.StrictMode;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 public class ContentViewer extends AppCompatActivity implements View.OnClickListener {
 
     TextView infoText;
     TextView titleText;
     TextView dateText;
+
+    EditText commentText;
+    Button commentButton;
 
     Toolbar toolbar;
     Toolbar adBar;
@@ -43,40 +59,30 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
     RatingBar ratingBar;
     ConnectivityManager connectivityManager;
 
+    private String device_id;
+    private String comment;
+    String rate_value;
 
-    public static String convertStreamToString(InputStream is) throws Exception {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            sb.append(line).append("\n");
-        }
-        reader.close();
-        return sb.toString();
-    }
-
-    public static String getStringFromFile (String filePath) throws Exception {
-        File fl = new File(filePath);
-        FileInputStream fin = new FileInputStream(fl);
-        String ret = convertStreamToString(fin);
-        //Make sure you close all streams.
-        fin.close();
-        return ret;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_content_viewer);
+        StrictMode.ThreadPolicy threadPolicy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(threadPolicy);
+
+        //Comment Section EditText and Button initialization
+        commentText = (EditText) findViewById(R.id.commentText);
+        commentButton = (Button) findViewById(R.id.commentButton);
 
         titleText = (TextView) findViewById(R.id.titleText);
         dateText = (TextView) findViewById(R.id.dateTimeText);
         infoText = (TextView) findViewById(R.id.info_text);
 
         Intent intent = getIntent();
-        String mTitle = intent.getStringExtra("titleInfo");
+        final String mTitle = intent.getStringExtra("titleInfo");
         String mDate = intent.getStringExtra("dateInfo");
-        String mPageTitle = intent.getStringExtra("pageTitleInfo");
+        final String mPageTitle = intent.getStringExtra("pageTitleInfo");
 
         String listTitle;
 
@@ -88,56 +94,95 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
 
             @Override
             public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                rate_value = String.valueOf(rating);
+                Toast.makeText(getApplicationContext(), "You rated " + String.valueOf(rating) + ". Add a comment to this article.", Toast.LENGTH_SHORT).show();
+                commentText.setVisibility(View.VISIBLE);
+                commentButton.setVisibility(View.VISIBLE);
+                ratingBar.setVisibility(View.INVISIBLE);
+            }
+
+        });
+
+        commentButton.setOnClickListener(new View.OnClickListener() {
+
+            InputStream inputStream = null;
+
+            @Override
+            public void onClick(View v) {
                 connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
 
-                if(networkInfo != null && networkInfo.isConnected()) {
-                    ratingBar.setRating(rating);
+                Calendar now = Calendar.getInstance();
+                int year = now.get(Calendar.YEAR);
+                int month = now.get(Calendar.MONTH) + 1; // Note: zero based!
+                int day = now.get(Calendar.DAY_OF_MONTH);
+                int hour = now.get(Calendar.HOUR_OF_DAY);
+                int minute = now.get(Calendar.MINUTE);
+
+                if (networkInfo != null && networkInfo.isConnected())
+
+                {
+                    device_id = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+                    String programme_category = mPageTitle;
+                    String programme_title = mTitle;
+
+                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
+                    nameValuePairs.add(new BasicNameValuePair("device_id", device_id.toString()));
+                    nameValuePairs.add(new BasicNameValuePair("programme_category", programme_category));
+                    nameValuePairs.add(new BasicNameValuePair("programme_title", programme_title));
+                    nameValuePairs.add(new BasicNameValuePair("rating", rate_value));
+                    nameValuePairs.add(new BasicNameValuePair("date", String.valueOf(day) + "-" + String.valueOf(month) + "-" + String.valueOf(year)));
+                    nameValuePairs.add(new BasicNameValuePair("time", String.valueOf(hour) + ":" + String.valueOf(minute)));
+                    nameValuePairs.add(new BasicNameValuePair("comment", commentText.getText().toString()));
+
+                    try {
+                        HttpClient httpClient = new DefaultHttpClient();
+                        HttpPost httpPost = new HttpPost("http://192.168.8.100/insert_data.php");
+                        httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                        HttpResponse response = httpClient.execute(httpPost);
+                        HttpEntity httpEntity = response.getEntity();
+                        inputStream = httpEntity.getContent();
+
+                        String message = "Thanks for your valuable feedback!!";
+                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                        commentText.setText("");
+
+                    } catch (ClientProtocolException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 } else {
                     ratingBar.setRating(0.0f);
                     Toast.makeText(ContentViewer.this, "Please check your Internet Connection and rate again", Toast.LENGTH_SHORT).show();
                 }
-
             }
         });
 
+
         try {
-//            bufferedReader = new BufferedReader(new InputStreamReader(this.getResources().openRawResource(getResources().getIdentifier(mPageTitle, "raw", getPackageName()))));
-//            for (String line = null; (line = bufferedReader.readLine()) != null; ) {
-//                stringBuilder.append(line).append("\n");
-//            }
+            bufferedReader = new BufferedReader(new InputStreamReader(this.getResources().openRawResource(getResources().getIdentifier(mPageTitle, "raw", getPackageName()))));
+            for (String line = null; (line = bufferedReader.readLine()) != null; ) {
+                stringBuilder.append(line).append("\n");
+            }
 
-            JSONObject jsonRootObject = new JSONObject(getStringFromFile(Environment.getExternalStorageDirectory() + "/AiRpaper/database/" + mPageTitle +".json"));
+            JSONObject jsonRootObject = new JSONObject(stringBuilder.toString());
             JSONArray jsonArray = jsonRootObject.optJSONArray(mPageTitle);
-
-//            JSONObject jsonRootObject = new JSONObject(stringBuilder.toString());
-//            JSONArray jsonArray = jsonRootObject.optJSONArray(mPageTitle);
 
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
-                if(Boolean.valueOf(jsonObject.optString("uni").toString().equals("True")))
-                {
-                    listTitle = new String(Base64.decode(jsonObject.optString("title").toString(), Base64.DEFAULT));
-                    if (listTitle.compareTo(mTitle) == 0) {
-                        infoText.setText(new String(Base64.decode(jsonObject.optString("info").toString(), Base64.DEFAULT)));
-                        break;
-                    }
+                listTitle = jsonObject.optString("title").toString();
+                if (listTitle.compareTo(mTitle) == 0) {
+                    infoText.setText(jsonObject.optString("info").toString());
+                    break;
                 }
-                else
-                {
-                    listTitle = jsonObject.optString("title").toString();
-                    if (listTitle.compareTo(mTitle) == 0) {
-                        infoText.setText(jsonObject.optString("info").toString());
-                        break;
-                    }
-                }
-
             }
 
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+
 
         adLink = (TextView) findViewById(R.id.ad_link);
         adBar = (Toolbar) findViewById(R.id.ad_bar);
@@ -150,6 +195,7 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
