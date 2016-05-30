@@ -14,6 +14,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,6 +46,9 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
     TextView titleText;
     TextView dateText;
 
+    EditText commentText;
+    Button commentButton;
+
     Toolbar toolbar;
     Toolbar adBar;
     TextView adLink;
@@ -55,6 +60,8 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
     ConnectivityManager connectivityManager;
 
     private String device_id;
+    private String comment;
+    String rate_value;
 
 
     @Override
@@ -63,6 +70,10 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_content_viewer);
         StrictMode.ThreadPolicy threadPolicy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(threadPolicy);
+
+        //Comment Section EditText and Button initialization
+        commentText = (EditText) findViewById(R.id.commentText);
+        commentButton = (Button) findViewById(R.id.commentButton);
 
         titleText = (TextView) findViewById(R.id.titleText);
         dateText = (TextView) findViewById(R.id.dateTimeText);
@@ -81,10 +92,23 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
         ratingBar = (RatingBar) findViewById(R.id.ratingBar);
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
 
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                rate_value = String.valueOf(rating);
+                Toast.makeText(getApplicationContext(), "You rated " + String.valueOf(rating) + ". Add a comment to this article.", Toast.LENGTH_SHORT).show();
+                commentText.setVisibility(View.VISIBLE);
+                commentButton.setVisibility(View.VISIBLE);
+                ratingBar.setVisibility(View.INVISIBLE);
+            }
+
+        });
+
+        commentButton.setOnClickListener(new View.OnClickListener() {
+
             InputStream inputStream = null;
 
             @Override
-            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+            public void onClick(View v) {
                 connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
 
@@ -94,13 +118,10 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
                 int day = now.get(Calendar.DAY_OF_MONTH);
                 int hour = now.get(Calendar.HOUR_OF_DAY);
                 int minute = now.get(Calendar.MINUTE);
-//                int second = now.get(Calendar.SECOND);
-
 
                 if (networkInfo != null && networkInfo.isConnected())
 
                 {
-                    ContentValues contentValues = new ContentValues();
                     device_id = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
                     String programme_category = mPageTitle;
                     String programme_title = mTitle;
@@ -109,20 +130,22 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
                     nameValuePairs.add(new BasicNameValuePair("device_id", device_id.toString()));
                     nameValuePairs.add(new BasicNameValuePair("programme_category", programme_category));
                     nameValuePairs.add(new BasicNameValuePair("programme_title", programme_title));
-                    nameValuePairs.add(new BasicNameValuePair("rating", String.valueOf(rating)));
+                    nameValuePairs.add(new BasicNameValuePair("rating", rate_value));
                     nameValuePairs.add(new BasicNameValuePair("date", String.valueOf(day) + "-" + String.valueOf(month) + "-" + String.valueOf(year)));
                     nameValuePairs.add(new BasicNameValuePair("time", String.valueOf(hour) + ":" + String.valueOf(minute)));
+                    nameValuePairs.add(new BasicNameValuePair("comment", commentText.getText().toString()));
 
                     try {
                         HttpClient httpClient = new DefaultHttpClient();
-                        HttpPost httpPost = new HttpPost("http://192.168.1.2/insert_data.php");
+                        HttpPost httpPost = new HttpPost("http://192.168.8.100/insert_data.php");
                         httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
                         HttpResponse response = httpClient.execute(httpPost);
                         HttpEntity httpEntity = response.getEntity();
                         inputStream = httpEntity.getContent();
 
-                        String message = "Thanks for Rating the article";
+                        String message = "Thanks for your valuable feedback!!";
                         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                        commentText.setText("");
 
                     } catch (ClientProtocolException e) {
                         e.printStackTrace();
@@ -134,7 +157,6 @@ public class ContentViewer extends AppCompatActivity implements View.OnClickList
                     Toast.makeText(ContentViewer.this, "Please check your Internet Connection and rate again", Toast.LENGTH_SHORT).show();
                 }
             }
-
         });
 
 

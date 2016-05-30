@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.pdf.PdfDocument;
 import android.os.Environment;
 import android.view.View;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,7 +29,7 @@ public class PdfCreator {
         document.finishPage(page);
 
         SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyyhhmmss");
-        String pdfName = "pdfdemo" + sdf.format(Calendar.getInstance().getTime()) + ".pdf";
+        String pdfName = "PDF_" + sdf.format(Calendar.getInstance().getTime()) + ".pdf";
         File outFile = new File(Environment.getExternalStorageDirectory(), pdfName);
         try {
             outFile.createNewFile();
@@ -36,6 +37,8 @@ public class PdfCreator {
             document.writeTo(out);
             document.close();
             out.close();
+            Toast.makeText(activity.getBaseContext(), "Document Saved as " + pdfName, Toast.LENGTH_LONG).show();
+
         } catch (IOException e) {
             e.printStackTrace();
         }

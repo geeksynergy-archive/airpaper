@@ -52,7 +52,7 @@ struct demod_state {
 	const struct demod_param *dem_par;
 	union {
 		struct l2_state_hdlc {
-			unsigned char rxbuf[512];
+			unsigned char rxbuf[1024];
 			unsigned char *rxptr;
 			unsigned int rxstate;
 			unsigned int rxbitstream;
@@ -67,7 +67,7 @@ struct demod_state {
 			unsigned char rx_word;
 			signed int function;          // POCSAG function
 			signed int address;           // POCSAG address
-			unsigned char buffer[512];
+			unsigned char buffer[1024];
 			unsigned int numnibbles;
 			unsigned int pocsag_total_error_count;
 			unsigned int pocsag_corrected_error_count;
@@ -164,7 +164,7 @@ struct demod_state {
 /* 		struct l1_state_scope { */
 /* 			int datalen; */
 /* 			int dispnum; */
-/* 			float data[512]; */
+/* 			float data[1024]; */
 /* 		} scope; */
 	} l1;
 };

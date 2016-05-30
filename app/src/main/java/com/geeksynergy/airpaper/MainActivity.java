@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,6 +20,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,13 +38,17 @@ import com.google.android.gms.analytics.Tracker;
 import net.ab0oo.aprs.parser.Parser;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 public class MainActivity extends AppCompatActivity implements IQSourceInterface.Callback, AnalyzerSurface.CallbackInterface, PacketCallback {
     public static final int RTL2832U_RESULT_CODE = 1234;    // arbitrary value, used when sending intent to RTL2832U
@@ -64,18 +71,100 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
     private String PIPE_PATH = "/data/data/com.geksynergy.airpaper/pipe";
     private AudioBufferProcessor abp = null;
     private TextView decod_tv;
+    private boolean asci_utf = true; // true is ascii and false is utf16
+    private boolean data_metadata = false;
+    public static boolean decod_string = false;
+
+    private String Arti_category = "";
+    private String Arti_title = "";
+    private Boolean Arti_Uni = false;
+    private String Arti_info = "";
+    private String Arti_img = "";
+    private String Arti_date = "";
+    private String Arti_time = "";
+    private String nave_str = "";
+    private Boolean cont_complete = false;
     private final Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            Log.d(LOG_TAG, "GOT MESSAGE FROM FILE READER!");
+            //Log.d(LOG_TAG, "GOT MESSAGE FROM FILE READER!");
             decod_tv.append(msg.getData().getString("line") + "\n");
-            Latest.latesttext.append(msg.getData().getString("line") + "\n");
+//          Latest.latesttext.append(msg.getData().getString("line") + "\n");
+            // Verify if the input is ascii or utf16..?
+            // presence of transmission type tells what it is ..//
+//            if(!asci_utf) {
+//                System.out.println("Unicode Values - " + simply_translate((msg.getData().getString("line"))));
+//                Latest.latesttext.append((msg.getData().getString("line")) + "\n");
+//            }
+            Log.d(LOG_TAG, msg.getData().getString("line"));
+            if (data_metadata) {
+                if (msg.getData().getString("line").startsWith(">>Numeric:")) {
+                    try {// Latest.latesttext.append((msg.getData().getString("line")) + "\n");
+//                        String tmp_unicode = simply_translate(msg.getData().getString("line").substring((">>Numeric:").length()));
+//                        Arti_title = tmp_unicode.substring(0, msg.getData().getString("line").indexOf("|"));
+//                        Arti_info = tmp_unicode.substring(msg.getData().getString("line").indexOf("|") + 1);
+//                        cont_complete = true;
+                    } catch (Exception z) {
+
+                    }
+                }
+                if (msg.getData().getString("line").startsWith(">>Alpha:data:image/jpeg;base64")) {
+                    //Latest.latesttext.append((msg.getData().getString("line")) + "\n");
+                    Arti_img = msg.getData().getString("line"); // needs decoding
+                } else {
+                    if (msg.getData().getString("line").startsWith(">>Alpha: 0000")) {
+                        try {
+                            String tmp_redData = msg.getData().getString("line").substring((">>Alpha: 0000").length());
+                            String tmp_unicode = simply_translate(tmp_redData);
+                            Arti_title = Base64.encodeToString(tmp_unicode.substring(0, tmp_unicode.indexOf("|")).getBytes(), Base64.DEFAULT);
+                            Arti_info = Base64.encodeToString(tmp_unicode.substring(tmp_unicode.indexOf("|") + 1).getBytes(),Base64.DEFAULT);
+                            Arti_Uni = true;
+                            cont_complete = true;
+                        } catch (Exception z) {
+
+                        }
+                    } else if (msg.getData().getString("line").startsWith(">>Alpha:")) {
+                        try {
+                            //Latest.latesttext.append((msg.getData().getString("line")) + "\n");
+                            Arti_title = msg.getData().getString("line").substring((">>Alpha:").length(), msg.getData().getString("line").indexOf("|"));
+                            Arti_info = msg.getData().getString("line").substring(msg.getData().getString("line").indexOf("|") + 1);
+                            Arti_Uni = false;
+                            cont_complete = true;
+                        } catch (Exception z) {
+
+                        }
+                    }
+                }
+                if (cont_complete == true)// Fire json updater here
+                    try {
+                        JsonFileWriter.putJSONData(Arti_category, Arti_title, Arti_info, Arti_img, Arti_date, Arti_time, Arti_Uni);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+
+            }
+            if (msg.getData().getString("line").startsWith(">>POCSAG2400:")) {
+                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+                DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+                System.out.println(dateFormat.format(new Date())); //2014/08/06 15:59:48
+                data_metadata = true;
+                if (true) // try switch
+                    Arti_category = msg.getData().getString("line").substring((">>POCSAG2400: Address:").length(), msg.getData().getString("line").indexOf("Function:"));  // >>POCSAG2400: Address:
+                Arti_date = dateFormat.format(new Date());
+                Arti_time = timeFormat.format(new Date());
+                cont_complete = false;
+            } else {
+                data_metadata = false;
+                cont_complete = false;
+            }
+
         }
     };
 
 
     private Button readButton, stopButton;
-    private List<Person> persons;
+    private List<Recycler_preview_Template> persons;
     private RecyclerView rv;
     private MenuItem mi_startStop = null;
     private MenuItem mi_demodulationMode = null;
@@ -95,17 +184,57 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
     private int MySource;
     private Tracker mTracker;
     private String selected_File;
+
+    private String simply_translate(String str) {
+        String ucoded_str = "";
+        nave_str = "";
+        str.trim();
+        if(str.endsWith("<SOH>"))
+            str = str.substring(0,str.length()-5);
+        Log.d(MainActivity.LOG_TAG, "Length: " + str.length() + ": " + str);
+        if (str.length() % 4 == 0)
+            for (int i = 0; i < str.length(); i = i + 4)
+            {
+                ucoded_str += (char) Integer.parseInt(str.substring(i, i + 4), 16);
+                nave_str += "\\u" + str.substring(i, i + 4);
+            }
+        else if (str.length() > 4) {
+            str = str.substring(0, str.length() - str.length() % 4);
+            for (int i = 0; i < str.length(); i = i + 4)
+            {
+                ucoded_str += (char) Integer.parseInt(str.substring(i, i + 4), 16);
+                nave_str += "\\u" + str.substring(i, i + 4);
+            }
+        }
+
+        return (ucoded_str);
+    }
+
+    private Bitmap simply_img(String str_img) {
+        String completeImageData = "data:image/jpeg;base64,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";
+        String imageDataBytes = completeImageData.substring(completeImageData.indexOf(",") + 1);
+        InputStream stream = new ByteArrayInputStream(Base64.decode(imageDataBytes.getBytes(), Base64.DEFAULT));
+        //Latest.latestimg.setImageBitmap(BitmapFactory.decodeStream(stream));
+        return BitmapFactory.decodeStream(stream);
+
+    }
+
     private View.OnClickListener onClickReadButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Log.d(LOG_TAG, "START: Monitor");
             startMonitor();
-
-            //Log.d(LOG_TAG, "START: PipeReader");
-            //startPipeRead();
+            MainActivity.decod_string = true;
 
             v.setEnabled(false);
             stopButton.setEnabled(true);
+//
+//            try {
+//                JsonFileWriter.putJSONData("200058", "Silver is not Gold", "some context here ", Arti_img, Arti_date, Arti_time);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+
         }
     };
 
@@ -114,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
         public void onClick(View v) {
             Log.d(LOG_TAG, "STOP: Monitor");
             stopMonitor();
-
+            MainActivity.decod_string = false;
             v.setEnabled(false);
             readButton.setEnabled(true);
         }
@@ -176,10 +305,11 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
 
         // Google Analytics Ends Here
 
-        MySource = FILE_SOURCE;
+        MySource = RTLSDR_SOURCE;
 //        selected_File= "/sdcard/RFAnalyzer/2015-09-14-20-46-41_rtlsdr_108000000Hz_1000000Sps.iq";
 //        selected_File = "/sdcard/RFAnalyzer/2015-09-15-14-41-00_rtlsdr_106968064Hz_1000000Sps.iq";
-        selected_File = "/sdcard/RFAnalyzer/aio_trans.iq";
+//        selected_File = "/sdcard/RFAnalyzer/From_all_clip.iq";
+        selected_File = "/sdcard/RFAnalyzer/From_all_clip.iq";
 
         // Set default Settings on first run:
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
@@ -283,6 +413,9 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
         // Set the hardware volume keys to work on the music audio stream:
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
+
+        // Lets get a unicoded string
+
     }
 
     private void startMonitor() {
@@ -342,7 +475,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
         try {
             packet = Parser.parseAX25(data).toString();
         } catch (Exception e) {
-            packet = ">> " + new String(data);
+            packet = ">>" + new String(data);
         }
         bundle.putString("line", packet);
         msg.setData(bundle);
@@ -437,6 +570,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
             case R.id.create_pdf:
                 PdfCreator creator = new PdfCreator();
                 creator.createPdf(this, getApplicationContext());
+                source.close();
                 return true;
             case R.id.FM_MOD:
                 if (item.getTitle().equals("WideBandFM")) {
@@ -448,7 +582,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
                 }
                 onStart();
 
-                return  true;
+                return true;
             case R.id.record_sound:
 //                Thread stoprecorder = new Thread() {
 //                    @Override
@@ -834,8 +968,8 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
                     source = new RtlsdrSource("127.0.0.1", 1234);
                 }
 
-                frequency = preferences.getLong(getString(R.string.pref_frequency), 93500000);
-                frequency = 93500000;
+                frequency = preferences.getLong(getString(R.string.pref_frequency), 88495003);
+                frequency = 88495003;
                 sampleRate = preferences.getInt(getString(R.string.pref_sampleRate), source.getMaxSampleRate());
                 if (sampleRate > 2000000)    // might be the case after switching over from HackRF
                     sampleRate = 2000000;
@@ -1050,7 +1184,7 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
         analyzerProcessingLoop.start();
 
 //        scheduler.setChannelFrequency(analyzerSurface.getChannelFrequency());
-        scheduler.setChannelFrequency(93500000);
+        scheduler.setChannelFrequency(88495003);
 
         // Start the demodulator thread:
         demodulator = new Demodulator(scheduler.getDemodOutputQueue(), scheduler.getDemodInputQueue(), source.getPacketSize());

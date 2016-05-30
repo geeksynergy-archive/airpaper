@@ -1,22 +1,26 @@
 package com.geeksynergy.airpaper;
 
 import android.content.Intent;
+import android.os.Build;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.larvalabs.svgandroid.SVGParser;
+
 import java.util.List;
 
 public class SportsRVAdapter extends RecyclerView.Adapter<SportsRVAdapter.SportsViewHolder> {
 
-    List<Person> persons;
+    List<Recycler_preview_Template> recyclerpreviewTemplates;
 
-    SportsRVAdapter(List<Person> persons) {
-        this.persons = persons;
+    SportsRVAdapter(List<Recycler_preview_Template> recyclerpreviewTemplates) {
+        this.recyclerpreviewTemplates = recyclerpreviewTemplates;
     }
 
     @Override
@@ -33,19 +37,34 @@ public class SportsRVAdapter extends RecyclerView.Adapter<SportsRVAdapter.Sports
 
     @Override
     public void onBindViewHolder(SportsViewHolder sportsViewHolder, int i) {
-        sportsViewHolder.listTitle.setText(persons.get(i).title);
-        sportsViewHolder.listDate.setText(persons.get(i).date);
-        sportsViewHolder.listPhoto.setImageResource(persons.get(i).photoId);
+        try{
+
+            if(recyclerpreviewTemplates.get(i).uni) {
+                sportsViewHolder.listTitle.setText( new String(Base64.decode(recyclerpreviewTemplates.get(i).title, Base64.DEFAULT)));
+                sportsViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
+                sportsViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
+            }
+            else {
+                sportsViewHolder.listTitle.setText(recyclerpreviewTemplates.get(i).title);
+                sportsViewHolder.listDate.setText(recyclerpreviewTemplates.get(i).date);
+                sportsViewHolder.listPhoto.setImageDrawable(SVGParser.getSVGFromString(new String(Base64.decode(recyclerpreviewTemplates.get(i).photo_string64, Base64.DEFAULT))).createPictureDrawable());
+            }
+
+        }
+    catch (Exception ez)
+    {
+
     }
+
+}
 
     @Override
     public int getItemCount() {
-        return persons.size();
+        return recyclerpreviewTemplates.size();
     }
 
     public static class SportsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        CardView cv;
         TextView listTitle;
         TextView listDate;
         ImageView listPhoto;
@@ -53,9 +72,11 @@ public class SportsRVAdapter extends RecyclerView.Adapter<SportsRVAdapter.Sports
 
         SportsViewHolder(View itemView) {
             super(itemView);
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB) {
+                itemView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+            }
             itemView.setClickable(true);
             itemView.setOnClickListener(this);
-            cv = (CardView) itemView.findViewById(R.id.cv);
             listTitle = (TextView) itemView.findViewById(R.id.list_title);
             listDate = (TextView) itemView.findViewById(R.id.list_date);
             listPhoto = (ImageView) itemView.findViewById(R.id.list_photo);

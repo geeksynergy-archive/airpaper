@@ -214,7 +214,7 @@ static char *translate_alpha(unsigned char chr)
                  { 0x5c, "OE" }, /* upper case O dieresis */
                  { 0x5d, "UE" }, /* upper case U dieresis */
                  { 0x7b, "ae" }, /* lower case a dieresis */
-                 { 0x7c, "oe" }, /* lower case o dieresis */
+                 { 0x7c, "|" }, /* lower case o dieresis                   { 0x7c, "oe" }, /* lower case o dieresis */
                  { 0x7d, "ue" }, /* lower case u dieresis */
                  { 0x7e, "ss" }, /* sharp s */
              #endif
@@ -261,21 +261,36 @@ static int guesstimate_alpha(const unsigned char cp)
 
 static int guesstimate_numeric(const unsigned char cp, int pos)
 {
-    if(cp == 'U')
+    if(cp == 'B')
         return -10;
-    else if(cp == '[' || cp == ']')
+    else if(cp == 'F' || cp == 'E')
         return -5;
-    else if(cp == ' ' || cp == '.' || cp == '-')
+    else if(cp == 'C' || cp == 'A' || cp == 'D')
         return -2;
     else if(pos < 10) // Penalize long messages
         return 5;
     else
         return 0;
+
+//    static const char *conv_table = "084 2.6]195-3U7[";  // proper pocsag encoding
+//    static const char *conv_table = "084C2A6E195D3B7F";
+//
+// if(cp == 'U')
+//        return -10;
+//    else if(cp == '[' || cp == ']')
+//        return -5;
+//    else if(cp == ' ' || cp == '.' || cp == '-')
+//        return -2;
+//    else if(pos < 10) // Penalize long messages
+//        return 5;
+//    else
+//        return 0;
 }
 
 static unsigned int print_msg_numeric(struct l2_state_pocsag *rx, char* buff, unsigned int size)
 {
-    static const char *conv_table = "084 2.6]195-3U7[";
+    static const char *conv_table = "084 2.6]195-3U7[";  // proper pocsag encoding
+    //static const char *conv_table = "084C2A6E195D3B7F"; // Hex Encoding for UniCode
     unsigned char *bp = rx->buffer;
     int len = rx->numnibbles;
     char* cp = buff;
@@ -423,7 +438,7 @@ static void pocsag_printmessage(struct demod_state *s, bool sync)
         {
             LOGD("%s: Address: %7d  Function: %1i ",s->dem_par->name,s->l2.pocsag.address, s->l2.pocsag.function);
 	        
-	        unsigned char msgbuffer[1024];
+	        unsigned char msgbuffer[4096];
 	        int cx = snprintf(msgbuffer, sizeof(msgbuffer), "%s: Address: %7d  Function: %1i ", s->dem_par->name, s->l2.pocsag.address, s->l2.pocsag.function); 
 	        send_frame_to_java(msgbuffer, cx);
 
@@ -434,9 +449,9 @@ static void pocsag_printmessage(struct demod_state *s, bool sync)
         }
         else
         {
-            char num_string[1024];
-            char alpha_string[1024];
-            char skyper_string[1024];
+            char num_string[4096];
+            char alpha_string[4096];
+            char skyper_string[4096];
             int guess_num = 0;
             int guess_alpha = 0;
             int guess_skyper = 0;
@@ -460,7 +475,7 @@ static void pocsag_printmessage(struct demod_state *s, bool sync)
 
                     LOGD("%s: Address: %7d  Function: %1i ", s->dem_par->name,
                          s->l2.pocsag.address, s->l2.pocsag.function);
-	                unsigned char msgbuffer[1024];
+	                unsigned char msgbuffer[4096];
 	                int cx = snprintf(msgbuffer,
 		                sizeof(msgbuffer),
 		                "%s: Address: %7d  Function: %1i ",
@@ -476,7 +491,7 @@ static void pocsag_printmessage(struct demod_state *s, bool sync)
                 if(pocsag_mode == POCSAG_MODE_AUTO)
                     verbprintf(3, "Certainty: %5i  ", guess_num);
                 verbprintf(0, "Numeric: %s", num_string);
-	            unsigned char msgbuffer[1024];
+	            unsigned char msgbuffer[4096];
 	            int cx = snprintf(msgbuffer,
 		            sizeof(msgbuffer),
 		            "Numeric: %s",
@@ -494,7 +509,7 @@ static void pocsag_printmessage(struct demod_state *s, bool sync)
                 {
                     LOGD("%s: Address: %7d  Function: %1i ", s->dem_par->name,
                          s->l2.pocsag.address, s->l2.pocsag.function);
-	                unsigned char msgbuffer[1024];
+	                unsigned char msgbuffer[4096];
 	                int cx = snprintf(msgbuffer,
 		                sizeof(msgbuffer),
 		                "%s: Address: %7d  Function: %1i ",
@@ -511,7 +526,7 @@ static void pocsag_printmessage(struct demod_state *s, bool sync)
                     verbprintf(3, "Certainty: %5i  ", guess_alpha);
                 verbprintf(0, "Alpha:   %s", alpha_string);
 	            LOGD("Alpha: %s", alpha_string);
-	            unsigned char msgbuffer[1024];
+	            unsigned char msgbuffer[4096];
 	            int cx = snprintf(msgbuffer,
 		            sizeof(msgbuffer),
 		            "Alpha: %s",
@@ -528,7 +543,7 @@ static void pocsag_printmessage(struct demod_state *s, bool sync)
                 {
                     LOGD("%s: Address: %7d  Function: %1i ", s->dem_par->name,
                          s->l2.pocsag.address, s->l2.pocsag.function);
-	                unsigned char msgbuffer[1024];
+	                unsigned char msgbuffer[4096];
 	                int cx = snprintf(msgbuffer,
 		                sizeof(msgbuffer),
 		                "%s: Address: %7d  Function: %1i ",
@@ -545,7 +560,7 @@ static void pocsag_printmessage(struct demod_state *s, bool sync)
                 if(pocsag_mode == POCSAG_MODE_AUTO)
                     verbprintf(3, "Certainty: %5i  ", guess_skyper);
                 verbprintf(0, "Skyper:  %s", skyper_string);
-	            unsigned char msgbuffer[1024];
+	            unsigned char msgbuffer[4096];
 	            int cx = snprintf(msgbuffer,
 		            sizeof(msgbuffer),
 		            "Skyper:  %s",
@@ -956,8 +971,8 @@ static void do_one_bit(struct demod_state *s, unsigned int rx_data)
 
                 if(rx_data & POCSAG_MESSAGE_DETECTION)
                 {
-                    LOGD("Got a message:: %u", rx_data);
-                    LOGD( "Message: %u\n", rx_data);
+                    //LOGD("Got a message:: %u", rx_data);
+                    //LOGD( "Message: %u\n", rx_data);
 
                     verbprintf(4, "Got a message: %u\n", rx_data);
                     s->l2.pocsag.function = -2;
@@ -965,7 +980,7 @@ static void do_one_bit(struct demod_state *s, unsigned int rx_data)
                     s->l2.pocsag.state = MESSAGE;
                     break; // Performing partial decode
                 }
-                LOGD("Got a message:: %u", rx_data);
+                //LOGD("Got a message:: %u", rx_data);
                 verbprintf(4, "Got an address: %u\n", rx_data);
                 s->l2.pocsag.function = (rx_data >> 11) & 3;
                 s->l2.pocsag.address  = ((rx_data >> 10) & 0x1ffff8) | ((rxword >> 1) & 7);
@@ -978,7 +993,7 @@ static void do_one_bit(struct demod_state *s, unsigned int rx_data)
                 if(rx_data & POCSAG_MESSAGE_DETECTION)
                 {
                     verbprintf(4, "Got a message: %u\n", rx_data);
-                    LOGD("Got a message:: %u", rx_data);
+                   // LOGD("Got a message:: %u", rx_data);
                 }
                 else
                 {
@@ -991,6 +1006,9 @@ static void do_one_bit(struct demod_state *s, unsigned int rx_data)
                 if (s->l2.pocsag.numnibbles > sizeof(s->l2.pocsag.buffer)*2 - 5) {
                     verbprintf(0, "%s: Warning: Message too long\n",
                                s->dem_par->name);
+                    LOGD("%s: Warning: Message too long\n",
+                         s->dem_par->name);
+
                     s->l2.pocsag.state = END_OF_MESSAGE;
                     break;
                 }
@@ -1009,7 +1027,7 @@ static void do_one_bit(struct demod_state *s, unsigned int rx_data)
                     bp[2] = data << 4;
                 }
                 s->l2.pocsag.numnibbles += 5;
-                LOGD("We received something");
+               // LOGD("We received something");
                 verbprintf(5, "We received something!\n");
                 return;
             }

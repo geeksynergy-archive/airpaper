@@ -1,0 +1,1802 @@
+package com.geeksynergy.airpaper;
+
+import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.graphics.BitmapFactory;
+import android.media.AudioManager;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
+import android.preference.PreferenceManager;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.text.method.ScrollingMovementMethod;
+import android.util.Base64;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
+import net.ab0oo.aprs.parser.Parser;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+
+public class MainActivity extends AppCompatActivity implements IQSourceInterface.Callback, AnalyzerSurface.CallbackInterface, PacketCallback {
+    public static final int RTL2832U_RESULT_CODE = 1234;    // arbitrary value, used when sending intent to RTL2832U
+
+    static ArrayBlockingQueue<buffer_packet> bQueue = new ArrayBlockingQueue<buffer_packet>(1); // 1 array of short ???
+
+    private static final String LOGTAG = "MainActivity";
+    private static final String RECORDING_DIR = "RFAnalyzer";
+    private static final int FILE_SOURCE = 0;
+    private static final int HACKRF_SOURCE = 1;
+    private static final int RTLSDR_SOURCE = 2;
+    private static final String[] SOURCE_NAMES = new String[]{"filesource", "hackrf", "rtlsdr"};
+    public static String LOG_TAG = "AirPaperMultimonDroid";
+    Toolbar toolbar;
+    ViewPager pager;
+    ViewPagerAdapter adapter;
+    SlidingTabLayout tabs;
+    String tabTitles[];
+    int NumbOfTabs = 8;
+    private String PIPE_PATH = "/data/data/com.geksynergy.airpaper/pipe";
+    private AudioBufferProcessor abp = null;
+    private TextView decod_tv;
+    private boolean asci_utf = true; // true is ascii and false is utf16
+
+    private final Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            Log.d(LOG_TAG, "GOT MESSAGE FROM FILE READER!");
+            decod_tv.append(msg.getData().getString("line") + "\n");
+//          Latest.latesttext.append(msg.getData().getString("line") + "\n");
+            // Verify if the input is ascii or utf16..?
+            // presence of transmission type tells what it is ..//
+            if(!asci_utf) {
+                // parse Hex numbers.... and convert to unicode.
+                // numbers would be in this format ">The journey of e-Governance initiatives in India took a broader dimension in mid 90s for wider sectoral applications with emphasis on citizen-centric services. Later on, many States/UTs started various e-Governance projects. Though these e-Governance projects were citizen-centric, they could make lesser than the desired impact. Government of India launched National e-Governance Plan (NeGP) in 2006. 31 Mission Mode Projects covering various domains were initiated. Despite the successful implementation of many e-Governance projects across the country, e-Governance as a whole has not been able to make the desired impact and fulfil all its objectives. <"
+                // numbers would be in this format ">भारत में ई- शासन पहल की यात्रा नागरिक केंद्रित सेवाओं पर जोर देने के साथ व्यापक सेक्टोरल अनुप्रयोगों के लिए मध्य 90 के दशक में एक व्यापक आयाम ले लिया। बाद में, कई राज्यों / केंद्र शासित प्रदेशों के विभिन्न ई -गवर्नेंस परियोजनाओं शुरू कर दिया। इन ई-गवर्नेंस परियोजनाओं नागरिक केन्द्रित थे, वे वांछित प्रभाव की तुलना में कम कर सकता है। भारत सरकार के विभिन्न डोमेन शुरू किए गए को कवर 2006 31 मिशन मोड परियोजनाओं में राष्ट्रीय ई-शासन योजना (एनईजीपी) का शुभारंभ किया। देश भर में कई ई-गवर्नेंस परियोजनाओं के सफल क्रियान्वयन के बावजूद, एक पूरे के रूप में ई-गवर्नेंस वांछित प्रभाव बनाने के लिए और अपने सभी उद्देश्यों को पूरा करने में सक्षम नहीं किया गया है ।<"
+                String str = "भारत में ई- शासन पहल की यात्रा नागरिक केंद्रित सेवाओं पर जोर देने के साथ व्यापक सेक्टोरल अनुप्रयोगों के लिए मध्य 90 के दशक में एक व्यापक आयाम ले लिया। बाद में, कई राज्यों / केंद्र शासित प्रदेशों के विभिन्न ई -गवर्नेंस परियोजनाओं शुरू कर दिया। इन ई-गवर्नेंस परियोजनाओं नागरिक केन्द्रित थे, वे वांछित प्रभाव की तुलना में कम कर सकता है। भारत सरकार के विभिन्न डोमेन शुरू किए गए को कवर 2006 31 मिशन मोड परियोजनाओं में राष्ट्रीय ई-शासन योजना (एनईजीपी) का शुभारंभ किया। देश भर में कई ई-गवर्नेंस परियोजनाओं के सफल क्रियान्वयन के बावजूद, एक पूरे के रूप में ई-गवर्नेंस वांछित प्रभाव बनाने के लिए और अपने सभी उद्देश्यों को पूरा करने में सक्षम नहीं किया गया है ।";
+                System.out.println("Unicode Values - " + str);
+                Latest.latesttext.append(str + "\n");
+            }
+
+           //            Latest.latesttext.append(msg.getData().getString("line") + "\n");
+
+        }
+    };
+
+
+
+    private Button readButton, stopButton;
+    private List<Person> persons;
+    private RecyclerView rv;
+    private MenuItem mi_startStop = null;
+    private MenuItem mi_demodulationMode = null;
+    private MenuItem mi_record = null;
+    private LinearLayout fl_analyzerFrame = null;
+    private AnalyzerSurface analyzerSurface = null;
+    private AnalyzerProcessingLoop analyzerProcessingLoop = null;
+    private IQSourceInterface source = null;
+    private Scheduler scheduler = null;
+    private Demodulator demodulator = null;
+    private SharedPreferences preferences = null;
+    private Bundle savedInstanceState = null;
+    private Process logcat = null;
+    private boolean running = true; // by default this is false
+    private File recordingFile = null;
+    private int demodulationMode = Demodulator.DEMODULATION_NFM;
+    private int MySource;
+    private Tracker mTracker;
+    private String selected_File;
+
+    private void simply_translate()
+    {
+        //String str = "भारत में ई- शासन पहल की यात्रा नागरिक केंद्रित सेवाओं पर जोर देने के साथ व्यापक सेक्टोरल अनुप्रयोगों के लिए मध्य 90 के दशक में एक व्यापक आयाम ले लिया। बाद में, कई राज्यों / केंद्र शासित प्रदेशों के विभिन्न ई -गवर्नेंस परियोजनाओं शुरू कर दिया। इन ई-गवर्नेंस परियोजनाओं नागरिक केन्द्रित थे, वे वांछित प्रभाव की तुलना में कम कर सकता है। भारत सरकार के विभिन्न डोमेन शुरू किए गए को कवर 2006 31 मिशन मोड परियोजनाओं में राष्ट्रीय ई-शासन योजना (एनईजीपी) का शुभारंभ किया। देश भर में कई ई-गवर्नेंस परियोजनाओं के सफल क्रियान्वयन के बावजूद, एक पूरे के रूप में ई-गवर्नेंस वांछित प्रभाव बनाने के लिए और अपने सभी उद्देश्यों को पूरा करने में सक्षम नहीं किया गया है ।";
+        //String str = "\u092d\u093e\u0930\u0924\u0020\u092e\u0947\u0902\u0020\u0908\u002d\u0020\u0936\u093e\u0938\u0928\u0020\u092a\u0939\u0932\u0020\u0915\u0940\u0020\u092f\u093e\u0924\u094d\u0930\u093e\u0020\u0928\u093e\u0917\u0930\u093f\u0915\u0020\u0915\u0947\u0902\u0926\u094d\u0930\u093f\u0924\u0020\u0938\u0947\u0935\u093e\u0913\u0902\u0020\u092a\u0930\u0020\u091c\u094b\u0930\u0020\u0926\u0947\u0928\u0947\u0020\u0915\u0947\u0020\u0938\u093e\u0925\u0020\u0935\u094d\u092f\u093e\u092a\u0915\u0020\u0938\u0947\u0915\u094d\u091f\u094b\u0930\u0932\u0020\u0905\u0928\u0941\u092a\u094d\u0930\u092f\u094b\u0917\u094b\u0902\u0020\u0915\u0947\u0020\u0932\u093f\u090f\u0020\u092e\u0927\u094d\u092f\u0020\u0039\u0030\u0020\u0915\u0947\u0020\u0926\u0936\u0915\u0020\u092e\u0947\u0902\u0020\u090f\u0915\u0020\u0935\u094d\u092f\u093e\u092a\u0915\u0020\u0906\u092f\u093e\u092e\u0020\u0932\u0947\u0020\u0932\u093f\u092f\u093e\u0964\u0020\u092c\u093e\u0926\u0020\u092e\u0947\u0902\u002c\u0020\u0915\u0908\u0020\u0930\u093e\u091c\u094d\u092f\u094b\u0902\u0020\u002f\u0020\u0915\u0947\u0902\u0926\u094d\u0930\u0020\u0936\u093e\u0938\u093f\u0924\u0020\u092a\u094d\u0930\u0926\u0947\u0936\u094b\u0902\u0020\u0915\u0947\u0020\u0935\u093f\u092d\u093f\u0928\u094d\u0928\u0020\u0908\u0020\u002d\u0917\u0935\u0930\u094d\u0928\u0947\u0902\u0938\u0020\u092a\u0930\u093f\u092f\u094b\u091c\u0928\u093e\u0913\u0902\u0020\u0936\u0941\u0930\u0942\u0020\u0915\u0930\u0020\u0926\u093f\u092f\u093e\u0964\u0020\u0907\u0928\u0020\u0908\u002d\u0917\u0935\u0930\u094d\u0928\u0947\u0902\u0938\u0020\u092a\u0930\u093f\u092f\u094b\u091c\u0928\u093e\u0913\u0902\u0020\u0928\u093e\u0917\u0930\u093f\u0915\u0020\u0915\u0947\u0928\u094d\u0926\u094d\u0930\u093f\u0924\u0020\u0925\u0947\u002c\u0020\u0935\u0947\u0020\u0935\u093e\u0902\u091b\u093f\u0924\u0020\u092a\u094d\u0930\u092d\u093e\u0935\u0020\u0915\u0940\u0020\u0924\u0941\u0932\u0928\u093e\u0020\u092e\u0947\u0902\u0020\u0915\u092e\u0020\u0915\u0930\u0020\u0938\u0915\u0924\u093e\u0020\u0939\u0948\u0964\u0020\u092d\u093e\u0930\u0924\u0020\u0938\u0930\u0915\u093e\u0930\u0020\u0915\u0947\u0020\u0935\u093f\u092d\u093f\u0928\u094d\u0928\u0020\u0921\u094b\u092e\u0947\u0928\u0020\u0936\u0941\u0930\u0942\u0020\u0915\u093f\u090f\u0020\u0917\u090f\u0020\u0915\u094b\u0020\u0915\u0935\u0930\u0020\u0032\u0030\u0030\u0036\u0020\u0033\u0031\u0020\u092e\u093f\u0936\u0928\u0020\u092e\u094b\u0921\u0020\u092a\u0930\u093f\u092f\u094b\u091c\u0928\u093e\u0913\u0902\u0020\u092e\u0947\u0902\u0020\u0930\u093e\u0937\u094d\u091f\u094d\u0930\u0940\u092f\u0020\u0908\u002d\u0936\u093e\u0938\u0928\u0020\u092f\u094b\u091c\u0928\u093e\u0020\u0028\u090f\u0928\u0908\u091c\u0940\u092a\u0940\u0029\u0020\u0915\u093e\u0020\u0936\u0941\u092d\u093e\u0930\u0902\u092d\u0020\u0915\u093f\u092f\u093e\u0964\u0020\u0926\u0947\u0936\u0020\u092d\u0930\u0020\u092e\u0947\u0902\u0020\u0915\u0908\u0020\u0908\u002d\u0917\u0935\u0930\u094d\u0928\u0947\u0902\u0938\u0020\u092a\u0930\u093f\u092f\u094b\u091c\u0928\u093e\u0913\u0902\u0020\u0915\u0947\u0020\u0938\u092b\u0932\u0020\u0915\u094d\u0930\u093f\u092f\u093e\u0928\u094d\u0935\u092f\u0928\u0020\u0915\u0947\u0020\u092c\u093e\u0935\u091c\u0942\u0926\u002c\u0020\u090f\u0915\u0020\u092a\u0942\u0930\u0947\u0020\u0915\u0947\u0020\u0930\u0942\u092a\u0020\u092e\u0947\u0902\u0020\u0908\u002d\u0917\u0935\u0930\u094d\u0928\u0947\u0902\u0938\u0020\u0935\u093e\u0902\u091b\u093f\u0924\u0020\u092a\u094d\u0930\u092d\u093e\u0935\u0020\u092c\u0928\u093e\u0928\u0947\u0020\u0915\u0947\u0020\u0932\u093f\u090f\u0020\u0914\u0930\u0020\u0905\u092a\u0928\u0947\u0020\u0938\u092d\u0940\u0020\u0909\u0926\u094d\u0926\u0947\u0936\u094d\u092f\u094b\u0902\u0020\u0915\u094b\u0020\u092a\u0942\u0930\u093e\u0020\u0915\u0930\u0928\u0947\u0020\u092e\u0947\u0902\u0020\u0938\u0915\u094d\u0937\u092e\u0020\u0928\u0939\u0940\u0902\u0020\u0915\u093f\u092f\u093e\u0020\u0917\u092f\u093e\u0020\u0939\u0948\u0020\u0964"; // WITH u
+        String str = "092d093e093009240020092e0947090200200908002d00200936093e093809280020092a093909320020091509400020092f093e0924094d0930093e00200928093e09170930093f091500200915094709020926094d0930093f09240020093809470935093e091309020020092a09300020091c094b09300020092609470928094700200915094700200938093e092500200935094d092f093e092a09150020093809470915094d091f094b093009320020090509280941092a094d0930092f094b0917094b090200200915094700200932093f090f0020092e0927094d092f00200039003000200915094700200926093609150020092e094709020020090f091500200935094d092f093e092a091500200906092f093e092e00200932094700200932093f092f093e09640020092c093e09260020092e09470902002c00200915090800200930093e091c094d092f094b09020020002f00200915094709020926094d093000200936093e0938093f09240020092a094d0930092609470936094b090200200915094700200935093f092d093f0928094d0928002009080020002d091709350930094d09280947090209380020092a0930093f092f094b091c0928093e091309020020093609410930094200200915093000200926093f092f093e096400200907092800200908002d091709350930094d09280947090209380020092a0930093f092f094b091c0928093e0913090200200928093e09170930093f09150020091509470928094d0926094d0930093f0924002009250947002c00200935094700200935093e0902091b093f09240020092a094d0930092d093e093500200915094000200924094109320928093e0020092e0947090200200915092e0020091509300020093809150924093e00200939094809640020092d093e093009240020093809300915093e093000200915094700200935093f092d093f0928094d092800200921094b092e094709280020093609410930094200200915093f090f00200917090f00200915094b0020091509350930002000320030003000360020003300310020092e093f093609280020092e094b09210020092a0930093f092f094b091c0928093e091309020020092e0947090200200930093e0937094d091f094d09300940092f00200908002d0936093e093809280020092f094b091c0928093e00200028090f09280908091c0940092a0940002900200915093e002009360941092d093e09300902092d00200915093f092f093e096400200926094709360020092d09300020092e0947090200200915090800200908002d091709350930094d09280947090209380020092a0930093f092f094b091c0928093e0913090200200915094700200938092b093200200915094d0930093f092f093e0928094d0935092f09280020091509470020092c093e0935091c09420926002c0020090f09150020092a094209300947002009150947002009300942092a0020092e0947090200200908002d091709350930094d092809470902093800200935093e0902091b093f09240020092a094d0930092d093e09350020092c0928093e0928094700200915094700200932093f090f00200914093000200905092a0928094700200938092d0940002009090926094d092609470936094d092f094b090200200915094b0020092a09420930093e002009150930092809470020092e09470902002009380915094d0937092e0020092809390940090200200915093f092f093e00200917092f093e00200939094800200964";
+         str += "000a" + "0cad0cbe0cb00ca40ca60cb20ccd0cb20cbf00200c87002d0c860ca10cb30cbf0ca400200c890caa0c950ccd0cb00cae0c970cb30cc100200caa0ccd0cb00caf0cbe0ca300200ca80cbe0c970cb00cbf0c9500200c950cc60cd50c820ca60ccd0cb00cbf0ca400200cb80cc60cd50cb50cc60c970cb30ca80ccd0ca80cc100200caa0ccd0cb00cbe0cae0cc10c960ccd0caf0ca40cc60caf0cc60cc20c820ca60cbf0c970cc600200cb50ccd0caf0cbe0caa0c9500200c950ccd0cb70cc60cd50ca40ccd0cb00cbf0cd50caf00200c850ca80ccd0cb50caf0c970cb30cbf0c970cc600200039003000200cb000200ca60cb60c950ca600200cae0ca70ccd0caf0cad0cbe0c970ca60cb20ccd0cb20cbf00200c920c820ca60cc100200cb50cbf0cb60cbe0cb20cb50cbe0ca600200c860caf0cbe0cae0cb50ca80ccd0ca80cc100200ca40cc60c970cc60ca60cc10c950cc60cc20c820ca10cbf0ca40cc1002e00200ca80c820ca40cb0002c00200c850ca80cc60cd50c9500200cb00cbe0c9c0ccd0caf0c970cb30cb20ccd0cb20cbf0020002f00200c950cc60cd50c820ca60ccd0cb00cbe0ca10cb30cbf0ca400200cb50cbf0cb50cbf0ca700200c87002d0c860ca10cb30cbf0ca400200caf0cc60cc20cd50c9c0ca80cc60c970cb300200c860cb00c820cad0cbf0cb80cbf0ca60cb00cc1002e00200c8800200c87002d0c860ca10cb30cbf0ca400200caf0cc60cc20cd50c9c0ca80cc60c970cb300200ca80cbe0c970cb00cbf0c9500200c950cc60cd50c820ca60ccd0cb00cbf0ca400200cb80cb9002c00200c850cb50cb00cc100200c850caa0cc60cd50c950ccd0cb70cbf0ca400200caa0cb00cbf0ca30cbe0cae00200c950ca10cbf0cae0cc600200cae0cbe0ca10cb20cc100200cb80cbe0ca70ccd0caf0cb50cbe0caf0cbf0ca40cc1002e00200cad0cbe0cb00ca400200cb80cb00ccd0c950cbe0cb00ca600200cb50cbf0cb50cbf0ca700200ca10cc60cc20cae0cc60cd50ca80ccd0c970cb300200caa0ccd0cb00cbe0cb00c820cad0cbf0cb80cb20cbe0caf0cbf0ca40cc100200c920cb30c970cc60cc20c820ca10020003200300030003600200033003100200cae0cbf0cb60ca80ccd00200cae0cc60cc20cd50ca10ccd00200caf0cc60cc20cd50c9c0ca80cc60c970cb30cc100200cb00cbe0cb70ccd0c9f0ccd0cb00cbf0cd50caf00200c87002d00200c860ca10cb30cbf0ca400200caf0cc60cc20cd50c9c0ca80cc6002000280020004e0065004700500020002900200cb80ccd0ca50cbe0caa0cbf0cb80cbf0ca60cb00cc1002e00200ca60cc60cd50cb60cbe0ca60ccd0caf0c820ca400200c850ca80cc60cd50c9500200c87002d0c860ca10cb30cbf0ca400200caf0cc60cc20cd50c9c0ca80cc60c970cb300200caf0cb60cb80ccd0cb50cbf00200c850ca80cc10cb70ccd0ca00cbe0ca800200cb90cc60cc20cb00ca40cbe0c970cbf0caf0cc2002c00200c870ca10cbf0cd500200c87002d0c860ca10cb30cbf0ca400200c850caa0cc60cd50c950ccd0cb70cbf0ca400200caa0cb00cbf0ca30cbe0cae00200cae0cbe0ca10cb20cc100200cae0ca40ccd0ca40cc100200c8e0cb20ccd0cb20cbe00200c970cc10cb00cbf0c970cb30ca80ccd0ca80cc100200caa0cc20cb00cc60cd60cb80cb20cc100200cb80cbe0ca70ccd0caf0cb50cbe0c970cbf0cb20ccd0cb20020002e";
+        String ucoded_str = "";
+
+        for(int i=0;i < str.length();i=i+4)
+            ucoded_str += (char) Integer.parseInt(str.substring(i,i+4), 16);
+
+        //java.util.Arrays.toString(str.split("(?<=\\G....)"))
+
+//        System.out.println("Unicode Values - " + str);
+        System.out.println("Unicode Values - " + ucoded_str);
+        Latest.latesttext.append(ucoded_str + "\n");
+    }
+
+    private void simply_img()
+    {
+        String completeImageData = "data:image/jpeg;base64,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";
+        String imageDataBytes = completeImageData.substring(completeImageData.indexOf(",")+1);
+        InputStream stream = new ByteArrayInputStream(Base64.decode(imageDataBytes.getBytes(), Base64.DEFAULT));
+
+        Latest.latestimg.setImageBitmap(BitmapFactory.decodeStream(stream));
+
+    }
+
+    private View.OnClickListener onClickReadButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Log.d(LOG_TAG, "START: Monitor");
+            startMonitor();
+
+            simply_translate();
+            simply_img();
+            //Log.d(LOG_TAG, "START: PipeReader");
+            //startPipeRead();
+
+            v.setEnabled(false);
+            stopButton.setEnabled(true);
+        }
+    };
+
+    private View.OnClickListener onClickStopButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Log.d(LOG_TAG, "STOP: Monitor");
+            stopMonitor();
+            simply_translate();
+
+            v.setEnabled(false);
+            readButton.setEnabled(true);
+        }
+    };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        readButton = (Button) findViewById(R.id.startbutton);
+        readButton.setOnClickListener(onClickReadButtonListener);
+
+        stopButton = (Button) findViewById(R.id.stopbutton);
+        stopButton.setOnClickListener(onClickStopButtonListener);
+
+        decod_tv = (TextView) findViewById(R.id.decoder_tv);
+        decod_tv.setMovementMethod(new ScrollingMovementMethod());
+
+        Log.d(LOG_TAG, "Decomon: OnCreate");
+
+
+        tabTitles = getResources().getStringArray(R.array.tabTitles);
+
+        toolbar = (Toolbar) findViewById(R.id.tool_bar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.mipmap.airpaper);
+
+        // Creating The ViewPagerAdapter and Passing Fragment Manager, Titles for the Tabs and Number Of Tabs.
+        adapter = new ViewPagerAdapter(getSupportFragmentManager(), tabTitles, NumbOfTabs);
+
+        // Assigning ViewPager View and setting the adapter
+        pager = (ViewPager) findViewById(R.id.pager);
+        pager.setAdapter(adapter);
+        // Assiging the Sliding Tab Layout View
+        tabs = (SlidingTabLayout) findViewById(R.id.tabs);
+        tabs.setDistributeEvenly(false); // To make the Tabs Fixed set this true, This makes the tabs Space Evenly in Available width
+
+        // Setting Custom Color for the Scroll bar indicator of the Tab View
+        tabs.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
+            @Override
+            public int getIndicatorColor(int position) {
+                return getResources().getColor(R.color.tabsScrollColor);
+            }
+        });
+
+        // Setting the ViewPager For the SlidingTabsLayout
+        tabs.setViewPager(pager);
+
+        // Google Analytics Begins Here
+
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        mTracker = application.getDefaultTracker();
+
+        mTracker.send(new HitBuilders.EventBuilder()
+                .setCategory("Action")
+                .setAction("Open")
+                .build());
+
+        // Google Analytics Ends Here
+
+        MySource = FILE_SOURCE;
+//        selected_File= "/sdcard/RFAnalyzer/2015-09-14-20-46-41_rtlsdr_108000000Hz_1000000Sps.iq";
+//        selected_File = "/sdcard/RFAnalyzer/2015-09-15-14-41-00_rtlsdr_106968064Hz_1000000Sps.iq";
+        selected_File = "/sdcard/RFAnalyzer/aio_trans.iq";
+
+        // Set default Settings on first run:
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
+        // Get reference to the shared preferences:
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        // Overwrite defaults for file paths in the preferences:
+        String extStorage = Environment.getExternalStorageDirectory().getAbsolutePath();    // get the path to the ext. storage
+        // File Source file:
+        String defaultFile = getString(R.string.pref_filesource_file_default);
+        if (preferences.getString(getString(R.string.pref_filesource_file), "").equals(defaultFile))
+            preferences.edit().putString(getString(R.string.pref_filesource_file), extStorage + "/" + defaultFile).apply();
+        // Log file:
+        defaultFile = getString(R.string.pref_logfile_default);
+        if (preferences.getString(getString(R.string.pref_logfile), "").equals(defaultFile))
+            preferences.edit().putString(getString(R.string.pref_logfile), extStorage + "/" + defaultFile).apply();
+
+        // Start logging if enabled:
+        if (preferences.getBoolean(getString(R.string.pref_logging), false)) {
+            try {
+                File logfile = new File(preferences.getString(getString(R.string.pref_logfile), ""));
+                logfile.getParentFile().mkdir();    // Create folder
+                logcat = Runtime.getRuntime().exec("logcat -f " + logfile);
+                Log.i("MainActivity", "onCreate: started logcat (" + logcat.toString() + ") to " + logfile);
+                Toast.makeText(MainActivity.this, "onCreate: started logcat", Toast.LENGTH_SHORT).show();
+
+            } catch (Exception e) {
+                Log.e("MainActivity", "onCreate: Failed to start logging!");
+                Toast.makeText(MainActivity.this, "onCreate: Failed to start logging", Toast.LENGTH_SHORT).show();
+
+            }
+        }
+
+        // Get references to the GUI components:
+        fl_analyzerFrame = (LinearLayout) findViewById(R.id.fl_analyzerFrame);
+//
+//        // Create a analyzer surface:
+        analyzerSurface = new AnalyzerSurface(this, this);
+        analyzerSurface.setVerticalScrollEnabled(preferences.getBoolean(getString(R.string.pref_scrollDB), true));
+        analyzerSurface.setVerticalZoomEnabled(preferences.getBoolean(getString(R.string.pref_zoomDB), true));
+        analyzerSurface.setDecoupledAxis(preferences.getBoolean(getString(R.string.pref_decoupledAxis), false));
+        analyzerSurface.setDisplayRelativeFrequencies(preferences.getBoolean(getString(R.string.pref_relativeFrequencies), false));
+        analyzerSurface.setWaterfallColorMapType(Integer.valueOf(preferences.getString(getString(R.string.pref_colorMapType), "4")));
+        analyzerSurface.setFftDrawingType(Integer.valueOf(preferences.getString(getString(R.string.pref_fftDrawingType), "2")));
+        analyzerSurface.setFftRatio(Float.valueOf(preferences.getString(getString(R.string.pref_spectrumWaterfallRatio), "0.5")));
+        analyzerSurface.setFontSize(Integer.valueOf(preferences.getString(getString(R.string.pref_fontSize), "2")));
+        analyzerSurface.setShowDebugInformation(preferences.getBoolean(getString(R.string.pref_showDebugInformation), false));
+
+        // Put the analyzer surface in the analyzer frame of the layout:
+        fl_analyzerFrame.addView(analyzerSurface);
+
+        // Restore / Initialize the running state and the demodulator mode:
+        if (savedInstanceState != null) {
+            running = savedInstanceState.getBoolean(getString(R.string.save_state_running));
+            demodulationMode = savedInstanceState.getInt(getString(R.string.save_state_demodulatorMode));
+            demodulationMode = Demodulator.DEMODULATION_WFM;
+            /* BUGFIX / WORKAROUND:
+             * The RTL2832U driver will not allow to close the socket and immediately start the driver
+			 * again to reconnect after an orientation change / app kill + restart.
+			 * It will report back in onActivityResult() with a -1 (not specified).
+			 *
+			 * Work-around:
+			 * 1) We won't restart the Analyzer if the current source is set to a local RTL-SDR instance:
+			 * 2) Delay the restart of the Analyzer after the driver was shut down correctly...
+			 */
+
+            //    Toast.makeText(MainActivity.this,"Stopping and restarting may take time",Toast.LENGTH_SHORT).show();
+//
+            if (running && Integer.valueOf(preferences.getString(getString(R.string.pref_sourceType), "1")) == RTLSDR_SOURCE
+                    && !preferences.getBoolean(getString(R.string.pref_rtlsdr_externalServer), false)) {
+                // 1) don't start Analyzer immediately
+                running = false;
+
+                // Just inform the user about what is going on (why does this take so long? ...)
+//                Toast.makeText(MainActivity.this,"Stopping and restarting RTL2832U driver...",Toast.LENGTH_SHORT).show();
+
+                // 2) Delayed start of the Analyzer:
+                Thread timer = new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(1500);
+//                            Toast.makeText(MainActivity.this,"Waited for a second and Half",Toast.LENGTH_SHORT).show();
+                            startAnalyzer();
+                        } catch (InterruptedException e) {
+                            Log.e(LOGTAG, "onCreate: (timer thread): Interrupted while sleeping.");
+                        }
+                    }
+                };
+                timer.start();
+            }
+
+        } else {
+            // Set running to true if autostart is enabled (this will start the analyzer in onStart() )
+            running = preferences.getBoolean((getString(R.string.pref_autostart)), true); // this was initially false
+//            running = true;
+//            Toast.makeText(MainActivity.this,"Start Analyzer Failed on First Attempt",Toast.LENGTH_SHORT).show();
+
+        }
+        // Set the hardware volume keys to work on the music audio stream:
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+
+        // Lets get a unicoded string
+
+    }
+
+    private void startMonitor() {
+        if (abp == null) {
+            abp = new AudioBufferProcessor(this);
+            abp.start();
+        } else {
+            abp.startRecording();
+        }
+    }
+
+    private void stopMonitor() {
+        abp.stopRecording();
+    }
+
+    private void startPipeRead() {
+        Thread t = new Thread(null, new Runnable() {
+            public void run() {
+                try {
+                    BufferedReader in = new BufferedReader(new FileReader(PIPE_PATH));
+                    String line;
+                    while (true) {
+                        line = in.readLine();
+                        if (line != null) {
+                            Log.d(LOG_TAG, line);
+                            Message msg = Message.obtain();
+                            msg.what = 0;
+                            Bundle bundle = new Bundle();
+                            bundle.putString("line", line);
+                            msg.setData(bundle);
+                            handler.sendMessage(msg);
+                        }
+
+                    }
+                } catch (FileNotFoundException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+            }
+        });
+        t.start();
+
+    }
+
+
+    // PacketCallback interface
+    public void received(byte[] data) {
+        //Log.d(MainActivity.LOG_TAG, "received packets : " + Arrays.toString(data));
+        Message msg = Message.obtain();
+        msg.what = 0;
+        Bundle bundle = new Bundle();
+        String packet;
+        try {
+            packet = Parser.parseAX25(data).toString();
+        } catch (Exception e) {
+            packet = ">> " + new String(data);
+        }
+        bundle.putString("line", packet);
+        msg.setData(bundle);
+        handler.sendMessage(msg);
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // close source
+        if (source != null && source.isOpen())
+            source.close();
+
+        // stop logging:
+        if (logcat != null) {
+            try {
+                logcat.destroy();
+                logcat.waitFor();
+                Log.i(LOGTAG, "onDestroy: logcat exit value: " + logcat.exitValue());
+            } catch (Exception e) {
+                Log.e(LOGTAG, "onDestroy: couldn't stop logcat: " + e.getMessage());
+            }
+        }
+
+        // shut down RTL2832U driver if running:
+        if (running && Integer.valueOf(preferences.getString(getString(R.string.pref_sourceType), "1")) == RTLSDR_SOURCE
+                && !preferences.getBoolean(getString(R.string.pref_rtlsdr_externalServer), false)) {
+            try {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("iqsrc://-x"));    // -x is invalid. will cause the driver to shut down (if running)
+                startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+                Log.e(LOGTAG, "onDestroy: RTL2832U is not installed");
+            }
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return true;
+        //Other Way
+        //getMenuInflater().inflate(R.menu.menu_main, menu);
+        //return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        SoundRecording testFile = new SoundRecording();
+
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.restart_airpaper:
+                //newGame();
+                startAnalyzer();
+                Toast.makeText(MainActivity.this, "startedAnalyzer()", Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.action_settings:
+                testFile.stopRecording();
+                // do some other action here
+                return true;
+            case R.id.reload_json:
+                JSONFileReader fileReader = new JSONFileReader();
+                fileReader.getJSONData(this, getApplicationContext());
+                return true;
+
+            case R.id.Source:
+                if (item.getTitle().equals("RTL_SDR SRC")) {
+                    item.setTitle("IQ_FILE SRC");
+                    MySource = RTLSDR_SOURCE;
+                } else {
+                    item.setTitle("RTL_SDR SRC");
+                    MySource = FILE_SOURCE;
+                }
+                onStart();
+                return true;
+
+            case R.id.Show_Analyzer:
+                if (item.getTitle().equals("Show Analyzer")) {
+                    item.setTitle("Hide Analyzer");
+                    fl_analyzerFrame.setVisibility(View.VISIBLE);
+                } else {
+                    item.setTitle("Show Analyzer");
+                    fl_analyzerFrame.setVisibility(View.INVISIBLE);
+                }
+                return true;
+
+            case R.id.create_pdf:
+                PdfCreator creator = new PdfCreator();
+                creator.createPdf(this, getApplicationContext());
+                return true;
+            case R.id.FM_MOD:
+                if (item.getTitle().equals("WideBandFM")) {
+                    item.setTitle("NarrowBandFM");
+                    setDemodulationMode(Demodulator.DEMODULATION_WFM);
+                } else {
+                    item.setTitle("WideBandFM");
+                    setDemodulationMode(Demodulator.DEMODULATION_NFM);
+                }
+                onStart();
+
+                return  true;
+            case R.id.record_sound:
+//                Thread stoprecorder = new Thread() {
+//                    @Override
+//                    public void run() {
+//                        try {
+//                            SoundRecording testFile = new SoundRecording();
+//                            testFile.startRecording();
+//                            Thread.sleep(100000);
+//                            testFile.stopRecording();
+//                        } catch (InterruptedException e) {
+//                            Log.e(LOGTAG, "onCreate: (timer thread): Interrupted while sleeping.");
+//                        }
+//                    }
+//                };
+//                stoprecorder.start();
+//                testFile.startRecording();
+
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+    /**
+     * Will update the action bar icons and titles according to the current app state
+     */
+    private void updateActionBar() {
+//
+//        this.runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                // Set title and icon of the start/stop button according to the state:
+//                if(mi_startStop != null) {
+//                    if (running) {
+//                        mi_startStop.setTitle(R.string.action_stop);
+//                        mi_startStop.setIcon(R.drawable.ic_action_pause);
+//                    } else {
+//                        mi_startStop.setTitle(R.string.action_start);
+//                        mi_startStop.setIcon(R.drawable.ic_action_play);
+//                    }
+//                }
+//
+//                // Set title and icon for the demodulator mode button
+//                if(mi_demodulationMode != null) {
+//                    int iconRes;
+//                    int titleRes;
+//                    switch (demodulationMode) {
+//                        case Demodulator.DEMODULATION_OFF:
+//                            iconRes = R.drawable.ic_action_demod_off;
+//                            titleRes = R.string.action_demodulation_off;
+//                            break;
+//                        case Demodulator.DEMODULATION_AM:
+//                            iconRes = R.drawable.ic_action_demod_am;
+//                            titleRes = R.string.action_demodulation_am;
+//                            break;
+//                        case Demodulator.DEMODULATION_NFM:
+//                            iconRes = R.drawable.ic_action_demod_nfm;
+//                            titleRes = R.string.action_demodulation_nfm;
+//                            break;
+//                        case Demodulator.DEMODULATION_WFM:
+//                            iconRes = R.drawable.ic_action_demod_wfm;
+//                            titleRes = R.string.action_demodulation_wfm;
+//                            break;
+//                        case Demodulator.DEMODULATION_LSB:
+//                            iconRes = R.drawable.ic_action_demod_lsb;
+//                            titleRes = R.string.action_demodulation_lsb;
+//                            break;
+//                        case Demodulator.DEMODULATION_USB:
+//                            iconRes = R.drawable.ic_action_demod_usb;
+//                            titleRes = R.string.action_demodulation_usb;
+//                            break;
+//                        default:
+//                            Log.e(LOGTAG,"updateActionBar: invalid mode: " + demodulationMode);
+//                            iconRes = -1;
+//                            titleRes = -1;
+//                            break;
+//                    }
+//                    if(titleRes > 0 && iconRes > 0) {
+//                        mi_demodulationMode.setTitle(titleRes);
+//                        mi_demodulationMode.setIcon(iconRes);
+//                    }
+//                }
+//
+//                // Set title and icon of the record button according to the state:
+//                if(mi_record != null) {
+//                    if (recordingFile != null) {
+//                        mi_record.setTitle(R.string.action_recordOn);
+//                        mi_record.setIcon(R.drawable.ic_action_record_on);
+//                    } else {
+//                        mi_record.setTitle(R.string.action_recordOff);
+//                        mi_record.setIcon(R.drawable.ic_action_record_off);
+//                    }
+//                }
+//            }
+//        });
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Check if the user changed the preferences:
+        checkForChangedPreferences();
+
+        running = true; // Lets override the settings here GS
+        // Start the analyzer if running is true:
+        if (running)
+            startAnalyzer();
+
+        // on the first time after the app was killed by the system, savedInstanceState will be
+        // non-null and we restore the settings:
+        if (savedInstanceState != null) {
+            analyzerSurface.setVirtualFrequency(savedInstanceState.getLong(getString(R.string.save_state_virtualFrequency)));
+            analyzerSurface.setVirtualSampleRate(savedInstanceState.getInt(getString(R.string.save_state_virtualSampleRate)));
+            analyzerSurface.setDBScale(savedInstanceState.getFloat(getString(R.string.save_state_minDB)),
+                    savedInstanceState.getFloat(getString(R.string.save_state_maxDB)));
+            analyzerSurface.setChannelFrequency(savedInstanceState.getLong(getString(R.string.save_state_channelFrequency)));
+            analyzerSurface.setChannelWidth(savedInstanceState.getInt(getString(R.string.save_state_channelWidth)));
+            analyzerSurface.setSquelch(savedInstanceState.getFloat(getString(R.string.save_state_squelch)));
+            if (demodulator != null && scheduler != null) {
+                demodulator.setChannelWidth(savedInstanceState.getInt(getString(R.string.save_state_channelWidth)));
+                scheduler.setChannelFrequency(savedInstanceState.getLong(getString(R.string.save_state_channelFrequency)));
+            }
+            savedInstanceState = null; // not needed any more...
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        boolean runningSaved = running;    // save the running state, to restore it after the app re-starts...
+        stopAnalyzer();                    // will stop the processing loop, scheduler and source
+        running = runningSaved;            // running will be saved in onSaveInstanceState()
+
+        // safe preferences:
+        if (source != null) {
+            SharedPreferences.Editor edit = preferences.edit();
+            edit.putLong(getString(R.string.pref_frequency), source.getFrequency());
+            edit.putInt(getString(R.string.pref_sampleRate), source.getSampleRate());
+            edit.commit();
+        }
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // err_info from RTL2832U:
+        String[] rtlsdrErrInfo = {
+                "permission_denied",
+                "root_required",
+                "no_devices_found",
+                "unknown_error",
+                "replug",
+                "already_running"};
+
+        switch (requestCode) {
+            case RTL2832U_RESULT_CODE:
+                // This happens if the RTL2832U driver was started.
+                // We check for errors and print them:
+                if (resultCode == RESULT_OK)
+                    Log.i(LOGTAG, "onActivityResult: RTL2832U driver was successfully started.");
+                else {
+                    int errorId = -1;
+                    int exceptionCode = 0;
+                    String detailedDescription = null;
+                    if (data != null) {
+                        errorId = data.getIntExtra("marto.rtl_tcp_andro.RtlTcpExceptionId", -1);
+                        exceptionCode = data.getIntExtra("detailed_exception_code", 0);
+                        detailedDescription = data.getStringExtra("detailed_exception_message");
+                    }
+                    String errorMsg = "ERROR NOT SPECIFIED";
+                    if (errorId >= 0 && errorId < rtlsdrErrInfo.length)
+                        errorMsg = rtlsdrErrInfo[errorId];
+
+                    Log.e(LOGTAG, "onActivityResult: RTL2832U driver returned with error: " + errorMsg + " (" + errorId + ")"
+                            + (detailedDescription != null ? ": " + detailedDescription + " (" + exceptionCode + ")" : ""));
+
+                    if (source != null && source instanceof RtlsdrSource) {
+                        Toast.makeText(MainActivity.this, "Error with Source [" + source.getName() + "]: " + errorMsg + " (" + errorId + ")"
+                                + (detailedDescription != null ? ": " + detailedDescription + " (" + exceptionCode + ")" : ""), Toast.LENGTH_LONG).show();
+                        source.close();
+                    }
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onIQSourceReady(IQSourceInterface source) {    // is called after source.open()
+        if (running)
+            startAnalyzer();    // will start the processing loop, scheduler and source
+    }
+
+    @Override
+    public void onIQSourceError(final IQSourceInterface source, final String message) {
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(MainActivity.this, "Error with Source [" + source.getName() + "]: " + message, Toast.LENGTH_LONG).show();
+            }
+        });
+        stopAnalyzer();
+
+        if (this.source != null && this.source.isOpen())
+            this.source.close();
+    }
+
+    /**
+     * Will check if any preference conflicts with the current state of the app and fix it
+     */
+    public void checkForChangedPreferences() {
+        // Source Type (this is pretty complex as we have to check each type individually):
+        int sourceType = Integer.valueOf(preferences.getString(getString(R.string.pref_sourceType), "1"));
+        sourceType = MySource;
+        if (source != null) {
+            switch (sourceType) {
+                case FILE_SOURCE:
+                    if (!(source instanceof FileIQSource)) {
+                        source.close();
+                        createSource();
+                    } else {
+                        long freq = Integer.valueOf(preferences.getString(getString(R.string.pref_filesource_frequency), "88495003"));
+                        int sampRate = Integer.valueOf(preferences.getString(getString(R.string.pref_filesource_sampleRate), "2000000"));
+                        String fileName = preferences.getString(getString(R.string.pref_filesource_file), "");
+                        int fileFormat = Integer.valueOf(preferences.getString(getString(R.string.pref_filesource_format), "0"));
+                        boolean repeat = preferences.getBoolean(getString(R.string.pref_filesource_repeat), false);
+                        if (freq != source.getFrequency() || sampRate != source.getSampleRate()
+                                || !fileName.equals(((FileIQSource) source).getFilename())
+                                || repeat != ((FileIQSource) source).isRepeat()
+                                || fileFormat != ((FileIQSource) source).getFileFormat()) {
+                            source.close();
+                            createSource();
+                        }
+                    }
+                    break;
+                case HACKRF_SOURCE:
+                    if (!(source instanceof HackrfSource)) {
+                        source.close();
+                        createSource();
+                    } else {
+                        // overwrite hackrf source settings if changed:
+                        boolean amp = preferences.getBoolean(getString(R.string.pref_hackrf_amplifier), false);
+                        boolean antennaPower = preferences.getBoolean(getString(R.string.pref_hackrf_antennaPower), false);
+                        int frequencyShift = Integer.valueOf(preferences.getString(getString(R.string.pref_hackrf_frequencyShift), "0"));
+                        if (((HackrfSource) source).isAmplifierOn() != amp)
+                            ((HackrfSource) source).setAmplifier(amp);
+                        if (((HackrfSource) source).isAntennaPowerOn() != antennaPower)
+                            ((HackrfSource) source).setAntennaPower(antennaPower);
+                        if (((HackrfSource) source).getFrequencyShift() != frequencyShift)
+                            ((HackrfSource) source).setFrequencyShift(frequencyShift);
+                    }
+                    break;
+                case RTLSDR_SOURCE:
+                    if (!(source instanceof RtlsdrSource)) {
+                        source.close();
+                        createSource();
+                    } else {
+                        // Check if ip or port has changed and recreate source if necessary:
+                        String ip = preferences.getString(getString(R.string.pref_rtlsdr_ip), "");
+                        int port = Integer.valueOf(preferences.getString(getString(R.string.pref_rtlsdr_port), "1234"));
+                        boolean externalServer = preferences.getBoolean(getString(R.string.pref_rtlsdr_externalServer), false);
+                        if (externalServer) {
+                            if (!ip.equals(((RtlsdrSource) source).getIpAddress()) || port != ((RtlsdrSource) source).getPort()) {
+                                source.close();
+                                createSource();
+                                return;
+                            }
+                        } else {
+                            if (!((RtlsdrSource) source).getIpAddress().equals("127.0.0.1") || 1234 != ((RtlsdrSource) source).getPort()) {
+                                source.close();
+                                createSource();
+                                return;
+                            }
+                        }
+
+                        // otherwise just overwrite rtl-sdr source settings if changed:
+                        int frequencyCorrection = Integer.valueOf(preferences.getString(getString(R.string.pref_rtlsdr_frequencyCorrection), "0"));
+                        int frequencyShift = Integer.valueOf(preferences.getString(getString(R.string.pref_rtlsdr_frequencyShift), "0"));
+                        if (frequencyCorrection != ((RtlsdrSource) source).getFrequencyCorrection())
+                            ((RtlsdrSource) source).setFrequencyCorrection(frequencyCorrection);
+                        if (((RtlsdrSource) source).getFrequencyShift() != frequencyShift)
+                            ((RtlsdrSource) source).setFrequencyShift(frequencyShift);
+                    }
+                    break;
+                default:
+            }
+        }
+
+        if (analyzerSurface != null) {
+            // All GUI settings will just be overwritten:
+            analyzerSurface.setVerticalScrollEnabled(preferences.getBoolean(getString(R.string.pref_scrollDB), true));
+            analyzerSurface.setVerticalZoomEnabled(preferences.getBoolean(getString(R.string.pref_zoomDB), true));
+            analyzerSurface.setDecoupledAxis(preferences.getBoolean(getString(R.string.pref_decoupledAxis), false));
+            analyzerSurface.setDisplayRelativeFrequencies(preferences.getBoolean(getString(R.string.pref_relativeFrequencies), false));
+            analyzerSurface.setWaterfallColorMapType(Integer.valueOf(preferences.getString(getString(R.string.pref_colorMapType), "4")));
+            analyzerSurface.setFftDrawingType(Integer.valueOf(preferences.getString(getString(R.string.pref_fftDrawingType), "2")));
+            analyzerSurface.setAverageLength(Integer.valueOf(preferences.getString(getString(R.string.pref_averaging), "0")));
+            analyzerSurface.setPeakHoldEnabled(preferences.getBoolean(getString(R.string.pref_peakHold), false));
+            analyzerSurface.setFftRatio(Float.valueOf(preferences.getString(getString(R.string.pref_spectrumWaterfallRatio), "0.5")));
+            analyzerSurface.setFontSize(Integer.valueOf(preferences.getString(getString(R.string.pref_fontSize), "2")));
+            analyzerSurface.setShowDebugInformation(preferences.getBoolean(getString(R.string.pref_showDebugInformation), false));
+        }
+
+        // Screen Orientation:
+        String screenOrientation = preferences.getString(getString(R.string.pref_screenOrientation), "auto");
+        if (screenOrientation.equals("auto"))
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+        else if (screenOrientation.equals("landscape"))
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        else if (screenOrientation.equals("portrait"))
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        else if (screenOrientation.equals("reverse_landscape"))
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+        else if (screenOrientation.equals("reverse_portrait"))
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+    }
+
+
+    /**
+     * Will create a IQ Source instance according to the user settings.
+     *
+     * @return true on success; false on error
+     */
+    public boolean createSource() {
+        long frequency;
+        int sampleRate;
+        int sourceType = Integer.valueOf(preferences.getString(getString(R.string.pref_sourceType), "1"));
+
+        // override source to RTL 2832U
+        sourceType = MySource;
+
+        switch (sourceType) {
+            case FILE_SOURCE:
+                // Create IQ Source (filesource)
+                try {
+                    frequency = Integer.valueOf(preferences.getString(getString(R.string.pref_filesource_frequency), "88495003"));
+                    sampleRate = Integer.valueOf(preferences.getString(getString(R.string.pref_filesource_sampleRate), "1000000"));
+                } catch (NumberFormatException e) {
+                    this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "File Source: Wrong format of frequency or sample rate", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    return false;
+                }
+
+                String filename = preferences.getString(getString(R.string.pref_filesource_file), "");
+                filename = selected_File;
+                //   "/sdcard/RFAnalyzer/2015-08-29-19-24-54_rtlsdr_98300000Hz_1000000Sps.iq"
+                int fileFormat = Integer.valueOf(preferences.getString(getString(R.string.pref_filesource_format), "0"));
+                fileFormat = 1; //gs
+                boolean repeat = preferences.getBoolean(getString(R.string.pref_filesource_repeat), false);
+                repeat = true; // gs
+                sampleRate = 1000000;
+
+
+                source = new FileIQSource(filename, sampleRate, frequency, 16384, repeat, fileFormat);
+                break;
+            case HACKRF_SOURCE:
+                // Create HackrfSource
+                source = new HackrfSource();
+                source.setFrequency(preferences.getLong(getString(R.string.pref_frequency), 88495003));
+                source.setSampleRate(preferences.getInt(getString(R.string.pref_sampleRate), HackrfSource.MAX_SAMPLERATE));
+                ((HackrfSource) source).setVgaRxGain(preferences.getInt(getString(R.string.pref_hackrf_vgaRxGain), HackrfSource.MAX_VGA_RX_GAIN / 2));
+                ((HackrfSource) source).setLnaGain(preferences.getInt(getString(R.string.pref_hackrf_lnaGain), HackrfSource.MAX_LNA_GAIN / 2));
+                ((HackrfSource) source).setAmplifier(preferences.getBoolean(getString(R.string.pref_hackrf_amplifier), false));
+                ((HackrfSource) source).setAntennaPower(preferences.getBoolean(getString(R.string.pref_hackrf_antennaPower), false));
+                ((HackrfSource) source).setFrequencyShift(Integer.valueOf(
+                        preferences.getString(getString(R.string.pref_hackrf_frequencyShift), "0")));
+                break;
+            case RTLSDR_SOURCE:
+                // Create RtlsdrSource
+                if (preferences.getBoolean(getString(R.string.pref_rtlsdr_externalServer), false))
+                    source = new RtlsdrSource(preferences.getString(getString(R.string.pref_rtlsdr_ip), ""),
+                            Integer.valueOf(preferences.getString(getString(R.string.pref_rtlsdr_port), "1234")));
+                else {
+                    // Toast.makeText(MainActivity.this, "Setting Source to 127.0.0.1:1234", Toast.LENGTH_SHORT).show();
+                    source = new RtlsdrSource("127.0.0.1", 1234);
+                }
+
+                frequency = preferences.getLong(getString(R.string.pref_frequency), 93500000);
+                frequency = 93500000;
+                sampleRate = preferences.getInt(getString(R.string.pref_sampleRate), source.getMaxSampleRate());
+                if (sampleRate > 2000000)    // might be the case after switching over from HackRF
+                    sampleRate = 2000000;
+                source.setFrequency(frequency);
+                source.setSampleRate(sampleRate);
+
+                ((RtlsdrSource) source).setFrequencyCorrection(Integer.valueOf(preferences.getString(getString(R.string.pref_rtlsdr_frequencyCorrection), "0")));
+                ((RtlsdrSource) source).setFrequencyShift(Integer.valueOf(
+                        preferences.getString(getString(R.string.pref_rtlsdr_frequencyShift), "0")));
+                ((RtlsdrSource) source).setManualGain(preferences.getBoolean(getString(R.string.pref_rtlsdr_manual_gain), false));
+                ((RtlsdrSource) source).setAutomaticGainControl(preferences.getBoolean(getString(R.string.pref_rtlsdr_agc), false));
+                if (((RtlsdrSource) source).isManualGain()) {
+                    ((RtlsdrSource) source).setGain(preferences.getInt(getString(R.string.pref_rtlsdr_gain), 0));
+                    ((RtlsdrSource) source).setIFGain(preferences.getInt(getString(R.string.pref_rtlsdr_ifGain), 0));
+                }
+                break;
+            default:
+                Log.e(LOGTAG, "createSource: Invalid source type: " + sourceType);
+                return false;
+        }
+
+        // inform the analyzer surface about the new source
+        analyzerSurface.setSource(source);
+
+//        Toast.makeText(MainActivity.this, "Source Created", Toast.LENGTH_SHORT).show();
+
+        return true;
+    }
+
+    /**
+     * Will open the IQ Source instance.
+     * Note: some sources need special treatment on opening, like the rtl-sdr source.
+     *
+     * @return true on success; false on error
+     */
+    public boolean openSource() {
+        int sourceType = Integer.valueOf(preferences.getString(getString(R.string.pref_sourceType), "1"));
+
+        sourceType = MySource; // Force RTL 2832
+
+        switch (sourceType) {
+            case FILE_SOURCE:
+                if (source != null && source instanceof FileIQSource)
+                    return source.open(this, this);
+                else {
+                    Log.e(LOGTAG, "openSource: sourceType is FILE_SOURCE, but source is null or of other type.");
+                    return false;
+                }
+            case HACKRF_SOURCE:
+                if (source != null && source instanceof HackrfSource)
+                    return source.open(this, this);
+                else {
+                    Log.e(LOGTAG, "openSource: sourceType is HACKRF_SOURCE, but source is null or of other type.");
+                    return false;
+                }
+            case RTLSDR_SOURCE:
+                if (source != null && source instanceof RtlsdrSource) {
+                    // We might need to start the driver:
+                    if (!preferences.getBoolean(getString(R.string.pref_rtlsdr_externalServer), false)) {
+                        // start local rtl_tcp instance:
+                        Toast.makeText(MainActivity.this, "start local rtl_tcp instance at 127.0.0.1:1234", Toast.LENGTH_LONG).show();
+
+                        try {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setData(Uri.parse("iqsrc://-a 127.0.0.1 -p 1234 -n 1"));
+                            startActivityForResult(intent, RTL2832U_RESULT_CODE);
+
+                        } catch (ActivityNotFoundException e) {
+                            Log.e(LOGTAG, "createSource: RTL2832U is not installed");
+                            Toast.makeText(MainActivity.this, "createSource: RTL2832U is not installed", Toast.LENGTH_LONG).show();
+
+                            // Show a dialog that links to the play market:
+                            new AlertDialog.Builder(this)
+                                    .setTitle("RTL2832U driver not installed!")
+                                    .setMessage("You need to install the (free) RTL2832U driver to use RTL-SDR dongles.")
+                                    .setPositiveButton("Install from Google Play", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                            Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=marto.rtl_tcp_andro"));
+                                            startActivity(marketIntent);
+                                        }
+                                    })
+                                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                            // do nothing
+                                        }
+                                    })
+                                    .show();
+                            return false;
+                        }
+                    }
+                    boolean status_rtlOpen = source.open(this, this);
+                    return status_rtlOpen;
+
+                } else {
+                    Log.e(LOGTAG, "openSource: sourceType is RTLSDR_SOURCE, but source is null or of other type.");
+                    return false;
+                }
+            default:
+                Log.e(LOGTAG, "openSource: Invalid source type: " + sourceType);
+                Toast.makeText(MainActivity.this, "openSource: Invalid source type: ", Toast.LENGTH_LONG).show();
+                return false;
+        }
+
+    }
+
+    /**
+     * Will stop the RF Analyzer. This includes shutting down the scheduler (which turns of the
+     * source), the processing loop and the demodulator if running.
+     */
+    public void stopAnalyzer() {
+        // Stop the Scheduler if running:
+        if (scheduler != null) {
+            // Stop recording in case it is running:
+            stopRecording();
+            scheduler.stopScheduler();
+        }
+
+        // Stop the Processing Loop if running:
+        if (analyzerProcessingLoop != null)
+            analyzerProcessingLoop.stopLoop();
+
+        // Stop the Demodulator if running:
+        if (demodulator != null)
+            demodulator.stopDemodulator();
+
+        // Wait for the scheduler to stop:
+        if (scheduler != null && !scheduler.getName().equals(Thread.currentThread().getName())) {
+            try {
+                scheduler.join();
+            } catch (InterruptedException e) {
+                Log.e(LOGTAG, "startAnalyzer: Error while stopping Scheduler.");
+            }
+        }
+
+        // Wait for the processing loop to stop
+        if (analyzerProcessingLoop != null) {
+            try {
+                analyzerProcessingLoop.join();
+            } catch (InterruptedException e) {
+                Log.e(LOGTAG, "startAnalyzer: Error while stopping Processing Loop.");
+            }
+        }
+
+        // Wait for the demodulator to stop
+        if (demodulator != null) {
+            try {
+                demodulator.join();
+            } catch (InterruptedException e) {
+                Log.e(LOGTAG, "startAnalyzer: Error while stopping Demodulator.");
+            }
+        }
+
+        running = false;
+
+        // update action bar icons and titles:
+        updateActionBar();
+
+        // allow screen to turn off again:
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            }
+        });
+    }
+
+    /**
+     * Will start the RF Analyzer. This includes creating a source (if null), open a source
+     * (if not open), starting the scheduler (which starts the source) and starting the
+     * processing loop.
+     */
+    public void startAnalyzer() {
+        this.stopAnalyzer();    // Stop if running; This assures that we don't end up with multiple instances of the thread loops
+
+        // Retrieve fft size and frame rate from the preferences
+        int fftSize = Integer.valueOf(preferences.getString(getString(R.string.pref_fftSize), "1024"));
+        int frameRate = Integer.valueOf(preferences.getString(getString(R.string.pref_frameRate), "1"));
+        boolean dynamicFrameRate = preferences.getBoolean(getString(R.string.pref_dynamicFrameRate), true);
+
+        running = true;
+
+        if (source == null) {
+            if (!this.createSource())
+                return;
+        }
+
+        // check if the source is open. if not, open it!
+        if (!source.isOpen()) {
+            if (!openSource()) {
+                Toast.makeText(MainActivity.this, "Source not available (" + source.getName() + ")", Toast.LENGTH_SHORT).show();
+                running = false;
+                return;
+            }
+            return;    // we have to wait for the source to become ready... onIQSourceReady() will call startAnalyzer() again...
+        }
+        // Create a new instance of Scheduler and Processing Loop:
+        scheduler = new Scheduler(fftSize, source);
+        analyzerProcessingLoop = new AnalyzerProcessingLoop(
+                analyzerSurface,            // Reference to the Analyzer Surface
+                fftSize,                    // FFT size
+                scheduler.getFftOutputQueue(), // Reference to the input queue for the processing loop
+                scheduler.getFftInputQueue()); // Reference to the buffer-pool-return queue
+        if (dynamicFrameRate)
+            analyzerProcessingLoop.setDynamicFrameRate(true);
+        else {
+            analyzerProcessingLoop.setDynamicFrameRate(false);
+            analyzerProcessingLoop.setFrameRate(frameRate);
+        }
+
+        // Start both threads:
+        scheduler.start();
+        analyzerProcessingLoop.start();
+
+//        scheduler.setChannelFrequency(analyzerSurface.getChannelFrequency());
+        scheduler.setChannelFrequency(93500000);
+
+        // Start the demodulator thread:
+        demodulator = new Demodulator(scheduler.getDemodOutputQueue(), scheduler.getDemodInputQueue(), source.getPacketSize());
+        demodulator.start();
+
+        // Set the demodulation mode (will configure the demodulator correctly)
+        this.setDemodulationMode(demodulationMode);
+
+        // update the action bar icons and titles:
+        updateActionBar();
+
+        // Prevent the screen from turning off:
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            }
+        });
+    }
+
+    /**
+     * Will pop up a dialog to let the user choose a demodulation mode.
+     */
+    private void showDemodulationDialog() {
+        if (scheduler == null || demodulator == null || source == null) {
+            Toast.makeText(MainActivity.this, "Analyzer must be running to change modulation mode", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle("Select a demodulation mode:")
+                .setSingleChoiceItems(R.array.demodulation_modes, demodulator.getDemodulationMode(), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        setDemodulationMode(which);
+                        dialog.dismiss();
+                    }
+                })
+                .show();
+    }
+
+    /**
+     * Will set the modulation mode to the given value. Takes care of adjusting the
+     * scheduler and the demodulator respectively and updates the action bar menu item.
+     *
+     * @param mode Demodulator.DEMODULATION_OFF, *_AM, *_NFM, *_WFM
+     */
+    public void setDemodulationMode(int mode) {
+        if (scheduler == null || demodulator == null || source == null) {
+            Log.e(LOGTAG, "setDemodulationMode: scheduler/demodulator/source is null");
+            return;
+        }
+
+        // (de-)activate demodulation in the scheduler and set the sample rate accordingly:
+        if (mode == Demodulator.DEMODULATION_OFF) {
+            scheduler.setDemodulationActivated(false);
+        } else {
+            if (recordingFile != null && source.getSampleRate() != Demodulator.INPUT_RATE) {
+                // We are recording at an incompatible sample rate right now.
+                Log.i(LOGTAG, "setDemodulationMode: Recording is running at " + source.getSampleRate() + " Sps. Can't start demodulation.");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this, "Recording is running at incompatible sample rate for demodulation!", Toast.LENGTH_LONG).show();
+                    }
+                });
+                return;
+            }
+
+            // adjust sample rate of the source:
+            source.setSampleRate(Demodulator.INPUT_RATE);
+
+            // Verify that the source supports the sample rate:
+            if (source.getSampleRate() != Demodulator.INPUT_RATE) {
+                Log.e(LOGTAG, "setDemodulationMode: cannot adjust source sample rate!");
+                Toast.makeText(MainActivity.this, "Source does not support the sample rate necessary for demodulation (" +
+                        Demodulator.INPUT_RATE / 1000000 + " Msps)", Toast.LENGTH_LONG).show();
+                scheduler.setDemodulationActivated(false);
+                mode = Demodulator.DEMODULATION_OFF;    // deactivate demodulation...
+            } else {
+                scheduler.setDemodulationActivated(true);
+            }
+        }
+
+        // set demodulation mode in demodulator:
+        demodulator.setDemodulationMode(mode);
+        this.demodulationMode = mode;    // save the setting
+
+        // disable/enable demodulation view in surface:
+        if (mode == Demodulator.DEMODULATION_OFF) {
+            analyzerSurface.setDemodulationEnabled(false);
+
+        } else {
+            analyzerSurface.setDemodulationEnabled(true);    // will re-adjust channel freq, width and squelch,
+            // if they are outside the current viewport and update the
+            // demodulator via callbacks.
+//            analyzerSurface.setShowLowerBand(mode != Demodulator.DEMODULATION_USB);		// show lower side band if not USB
+//            analyzerSurface.setShowUpperBand(mode != Demodulator.DEMODULATION_LSB);		// show upper side band if not LSB
+
+        }
+        // update action bar:
+        updateActionBar();
+    }
+
+    /**
+     * Will pop up a dialog to let the user input a new frequency.
+     * Note: A frequency can be entered either in Hz or in MHz. If the input value
+     * is a number smaller than the maximum frequency of the source in MHz, then it
+     * is interpreted as a frequency in MHz. Otherwise it will be handled as frequency
+     * in Hz.
+     */
+    private void tuneToFrequency() {
+        if (source == null)
+            return;
+
+        // calculate max frequency of the source in MHz:
+        final double maxFreqMHz = source.getMaxFrequency() / 1000000f;
+
+//        final LinearLayout ll_view = (LinearLayout) this.getLayoutInflater().inflate(R.layout.tune_to_frequency, null);
+//        final EditText et_frequency = (EditText) ll_view.findViewById(R.id.et_tune_to_frequency);
+//        final CheckBox cb_bandwidth = (CheckBox) ll_view.findViewById(R.id.cb_tune_to_frequency_bandwidth);
+//        final EditText et_bandwidth = (EditText) ll_view.findViewById(R.id.et_tune_to_frequency_bandwidth);
+//        final Spinner sp_bandwidthUnit = (Spinner) ll_view.findViewById(R.id.sp_tune_to_frequency_bandwidth_unit);
+//        final TextView tv_warning = (TextView) ll_view.findViewById(R.id.tv_tune_to_frequency_warning);
+
+        // Show warning if we are currently recording to file:
+//        if(recordingFile != null)
+//            tv_warning.setVisibility(View.VISIBLE);
+//
+//        cb_bandwidth.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                et_bandwidth.setEnabled(isChecked);
+//                sp_bandwidthUnit.setEnabled(isChecked);
+//            }
+//        });
+//        cb_bandwidth.toggle();	// to trigger the onCheckedChangeListener at least once to set inital state
+//        cb_bandwidth.setChecked(preferences.getBoolean(getString(R.string.pref_tune_to_frequency_setBandwidth), false));
+//        et_bandwidth.setText(preferences.getString(getString(R.string.pref_tune_to_frequency_bandwidth), "1"));
+//        sp_bandwidthUnit.setSelection(preferences.getInt(getString(R.string.pref_tune_to_frequency_bandwidthUnit), 0));
+
+//        new AlertDialog.Builder(this)
+//                .setTitle("Tune to Frequency")
+//                .setMessage("Frequency is " + source.getFrequency()/1000000f + "MHz. Type a new Frequency (Values below "
+//                        + maxFreqMHz + " will be interpreted as MHz, higher values as Hz): ")
+//                .setView(ll_view)
+//                .setPositiveButton("Set", new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialog, int whichButton) {
+//                        try {
+//                            float newFreq = source.getFrequency()/1000000f;
+//                            if(et_frequency.getText().length() != 0)
+//                                newFreq = Float.valueOf(et_frequency.getText().toString());
+//                            if (newFreq < maxFreqMHz)
+//                                newFreq = newFreq * 1000000;
+//                            if (newFreq <= source.getMaxFrequency() && newFreq >= source.getMinFrequency()) {
+//                                source.setFrequency((long)newFreq);
+//                                analyzerSurface.setVirtualFrequency((long)newFreq);
+//                                if(demodulationMode != Demodulator.DEMODULATION_OFF)
+//                                    analyzerSurface.setDemodulationEnabled(true);	// This will re-adjust the channel freq correctly
+//
+//                                // Set bandwidth (virtual sample rate):
+//                                if(cb_bandwidth.isChecked() && et_bandwidth.getText().length() != 0) {
+//                                    float bandwidth = Float.valueOf(et_bandwidth.getText().toString());
+//                                    if(sp_bandwidthUnit.getSelectedItemPosition() == 0)			//MHz
+//                                        bandwidth *= 1000000;
+//                                    else if(sp_bandwidthUnit.getSelectedItemPosition() == 1)	//KHz
+//                                        bandwidth *= 1000;
+//                                    if(bandwidth > source.getMaxSampleRate())
+//                                        bandwidth = source.getMaxFrequency();
+//                                    source.setSampleRate(source.getNextHigherOptimalSampleRate((int)bandwidth));
+//                                    analyzerSurface.setVirtualSampleRate((int)bandwidth);
+//                                }
+//                                // safe preferences:
+//                                SharedPreferences.Editor edit = preferences.edit();
+//                                edit.putBoolean(getString(R.string.pref_tune_to_frequency_setBandwidth), cb_bandwidth.isChecked());
+//                                edit.putString(getString(R.string.pref_tune_to_frequency_bandwidth), et_bandwidth.getText().toString());
+//                                edit.putInt(getString(R.string.pref_tune_to_frequency_bandwidthUnit), sp_bandwidthUnit.getSelectedItemPosition());
+//                                edit.apply();
+//
+//                            } else {
+//                                Toast.makeText(MainActivity.this, "Frequency is out of the valid range: " + (long)newFreq + " Hz", Toast.LENGTH_LONG).show();
+//                            }
+//                        } catch (NumberFormatException e) {
+//                            Log.e(LOGTAG, "tuneToFrequency: Error while setting frequency: " + e.getMessage());
+//                        }
+//                    }
+//                })
+//                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialog, int whichButton) {
+//                        // do nothing
+//                    }
+//                })
+//                .show();
+    }
+
+    /**
+     * Will pop up a dialog to let the user adjust gain settings
+     */
+    private void adjustGain() {
+        if (source == null)
+            return;
+
+        int sourceType = Integer.valueOf(preferences.getString(getString(R.string.pref_sourceType), "1"));
+        sourceType = MySource;
+//        switch (sourceType) {
+//            case FILE_SOURCE:
+//                Toast.makeText(this, getString(R.string.filesource_doesnt_support_gain), Toast.LENGTH_LONG).show();
+//                break;
+//            case HACKRF_SOURCE:
+//                // Prepare layout:
+//                final LinearLayout view_hackrf = (LinearLayout) this.getLayoutInflater().inflate(R.layout.hackrf_gain, null);
+//                final SeekBar sb_hackrf_vga = (SeekBar) view_hackrf.findViewById(R.id.sb_hackrf_vga_gain);
+//                final SeekBar sb_hackrf_lna = (SeekBar) view_hackrf.findViewById(R.id.sb_hackrf_lna_gain);
+//                final TextView tv_hackrf_vga = (TextView) view_hackrf.findViewById(R.id.tv_hackrf_vga_gain);
+//                final TextView tv_hackrf_lna = (TextView) view_hackrf.findViewById(R.id.tv_hackrf_lna_gain);
+//                sb_hackrf_vga.setMax(HackrfSource.MAX_VGA_RX_GAIN / HackrfSource.VGA_RX_GAIN_STEP_SIZE);
+//                sb_hackrf_lna.setMax(HackrfSource.MAX_LNA_GAIN / HackrfSource.LNA_GAIN_STEP_SIZE);
+//                sb_hackrf_vga.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//                    @Override
+//                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//                        tv_hackrf_vga.setText("" + progress * HackrfSource.VGA_RX_GAIN_STEP_SIZE);
+//                        ((HackrfSource)source).setVgaRxGain(progress*HackrfSource.VGA_RX_GAIN_STEP_SIZE);
+//                    }
+//
+//                    @Override
+//                    public void onStartTrackingTouch(SeekBar seekBar) {
+//                    }
+//
+//                    @Override
+//                    public void onStopTrackingTouch(SeekBar seekBar) {
+//                    }
+//                });
+//                sb_hackrf_lna.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//                    @Override
+//                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//                        tv_hackrf_lna.setText("" + progress * HackrfSource.LNA_GAIN_STEP_SIZE);
+//                        ((HackrfSource)source).setLnaGain(progress*HackrfSource.LNA_GAIN_STEP_SIZE);
+//                    }
+//
+//                    @Override
+//                    public void onStartTrackingTouch(SeekBar seekBar) {
+//                    }
+//
+//                    @Override
+//                    public void onStopTrackingTouch(SeekBar seekBar) {
+//                    }
+//                });
+//                sb_hackrf_vga.setProgress(((HackrfSource) source).getVgaRxGain() / HackrfSource.VGA_RX_GAIN_STEP_SIZE);
+//                sb_hackrf_lna.setProgress(((HackrfSource) source).getLnaGain() / HackrfSource.LNA_GAIN_STEP_SIZE);
+//
+//                // Show dialog:
+//                AlertDialog hackrfDialog = new AlertDialog.Builder(this)
+//                        .setTitle("Adjust Gain Settings")
+//                        .setView(view_hackrf)
+//                        .setPositiveButton("Set", new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int whichButton) {
+//                                // safe preferences:
+//                                SharedPreferences.Editor edit = preferences.edit();
+//                                edit.putInt(getString(R.string.pref_hackrf_vgaRxGain), sb_hackrf_vga.getProgress()*HackrfSource.VGA_RX_GAIN_STEP_SIZE);
+//                                edit.putInt(getString(R.string.pref_hackrf_lnaGain), sb_hackrf_lna.getProgress()*HackrfSource.LNA_GAIN_STEP_SIZE);
+//                                edit.apply();
+//                            }
+//                        })
+//                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int whichButton) {
+//                                // do nothing
+//                            }
+//                        })
+//                        .create();
+//                hackrfDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+//                    @Override
+//                    public void onDismiss(DialogInterface dialog) {
+//                        // sync source with (new/old) settings
+//                        int vgaRxGain = preferences.getInt(getString(R.string.pref_hackrf_vgaRxGain),HackrfSource.MAX_VGA_RX_GAIN/2);
+//                        int lnaGain = preferences.getInt(getString(R.string.pref_hackrf_lnaGain),HackrfSource.MAX_LNA_GAIN/2);
+//                        if(((HackrfSource)source).getVgaRxGain() != vgaRxGain)
+//                            ((HackrfSource)source).setVgaRxGain(vgaRxGain);
+//                        if(((HackrfSource)source).getLnaGain() != lnaGain)
+//                            ((HackrfSource)source).setLnaGain(lnaGain);
+//                    }
+//                });
+//                hackrfDialog.show();
+//                hackrfDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+//                break;
+//            case RTLSDR_SOURCE:
+//                final int[] possibleGainValues = ((RtlsdrSource)source).getPossibleGainValues();
+//                final int[] possibleIFGainValues = ((RtlsdrSource)source).getPossibleIFGainValues();
+//                if(possibleGainValues.length <= 1 && possibleIFGainValues.length <= 1) {
+//                    Toast.makeText(MainActivity.this, source.getName() + " does not support gain adjustment!", Toast.LENGTH_LONG).show();
+//                }
+//                // Prepare layout:
+//                final LinearLayout view_rtlsdr = (LinearLayout) this.getLayoutInflater().inflate(R.layout.rtlsdr_gain, null);
+//                final LinearLayout ll_rtlsdr_gain = (LinearLayout) view_rtlsdr.findViewById(R.id.ll_rtlsdr_gain);
+//                final LinearLayout ll_rtlsdr_ifgain = (LinearLayout) view_rtlsdr.findViewById(R.id.ll_rtlsdr_ifgain);
+//                final Switch sw_rtlsdr_manual_gain = (Switch) view_rtlsdr.findViewById(R.id.sw_rtlsdr_manual_gain);
+//                final CheckBox cb_rtlsdr_agc = (CheckBox) view_rtlsdr.findViewById(R.id.cb_rtlsdr_agc);
+//                final SeekBar sb_rtlsdr_gain = (SeekBar) view_rtlsdr.findViewById(R.id.sb_rtlsdr_gain);
+//                final SeekBar sb_rtlsdr_ifGain = (SeekBar) view_rtlsdr.findViewById(R.id.sb_rtlsdr_ifgain);
+//                final TextView tv_rtlsdr_gain = (TextView) view_rtlsdr.findViewById(R.id.tv_rtlsdr_gain);
+//                final TextView tv_rtlsdr_ifGain = (TextView) view_rtlsdr.findViewById(R.id.tv_rtlsdr_ifgain);
+//
+//                // Assign current gain:
+//                int gainIndex = 0;
+//                int ifGainIndex = 0;
+//                for (int i = 0; i < possibleGainValues.length; i++) {
+//                    if(((RtlsdrSource)source).getGain() == possibleGainValues[i]) {
+//                        gainIndex = i;
+//                        break;
+//                    }
+//                }
+//                for (int i = 0; i < possibleIFGainValues.length; i++) {
+//                    if(((RtlsdrSource)source).getIFGain() == possibleIFGainValues[i]) {
+//                        ifGainIndex = i;
+//                        break;
+//                    }
+//                }
+//                sb_rtlsdr_gain.setMax(possibleGainValues.length - 1);
+//                sb_rtlsdr_ifGain.setMax(possibleIFGainValues.length - 1);
+//                sb_rtlsdr_gain.setProgress(gainIndex);
+//                sb_rtlsdr_ifGain.setProgress(ifGainIndex);
+//                tv_rtlsdr_gain.setText("" + possibleGainValues[gainIndex]);
+//                tv_rtlsdr_ifGain.setText("" + possibleIFGainValues[ifGainIndex]);
+//
+//                // Assign current manual gain and agc setting
+//                sw_rtlsdr_manual_gain.setChecked(((RtlsdrSource)source).isManualGain());
+//                cb_rtlsdr_agc.setChecked(((RtlsdrSource)source).isAutomaticGainControl());
+//
+//                // Add listener to gui elements:
+//                sw_rtlsdr_manual_gain.setOnCheckedChangeListener(new Switch.OnCheckedChangeListener() {
+//                    @Override
+//                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                        sb_rtlsdr_gain.setEnabled(isChecked);
+//                        tv_rtlsdr_gain.setEnabled(isChecked);
+//                        sb_rtlsdr_ifGain.setEnabled(isChecked);
+//                        tv_rtlsdr_ifGain.setEnabled(isChecked);
+//                        ((RtlsdrSource)source).setManualGain(isChecked);
+//                        if(isChecked) {
+//                            ((RtlsdrSource) source).setGain(possibleGainValues[sb_rtlsdr_gain.getProgress()]);
+//                            ((RtlsdrSource) source).setIFGain(possibleIFGainValues[sb_rtlsdr_ifGain.getProgress()]);
+//                        }
+//                    }
+//                });
+//                cb_rtlsdr_agc.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//                    @Override
+//                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                        ((RtlsdrSource)source).setAutomaticGainControl(isChecked);
+//                    }
+//                });
+//                sb_rtlsdr_gain.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//                    @Override
+//                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//                        tv_rtlsdr_gain.setText("" + possibleGainValues[progress]);
+//                        ((RtlsdrSource) source).setGain(possibleGainValues[progress]);
+//                    }
+//
+//                    @Override
+//                    public void onStartTrackingTouch(SeekBar seekBar) {
+//                    }
+//
+//                    @Override
+//                    public void onStopTrackingTouch(SeekBar seekBar) {
+//                    }
+//                });
+//                sb_rtlsdr_ifGain.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//                    @Override
+//                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//                        tv_rtlsdr_ifGain.setText("" + possibleIFGainValues[progress]);
+//                        ((RtlsdrSource) source).setIFGain(possibleIFGainValues[progress]);
+//                    }
+//
+//                    @Override
+//                    public void onStartTrackingTouch(SeekBar seekBar) {
+//                    }
+//
+//                    @Override
+//                    public void onStopTrackingTouch(SeekBar seekBar) {
+//                    }
+//                });
+//
+//                // Disable gui elements if gain cannot be adjusted:
+//                if(possibleGainValues.length <= 1)
+//                    ll_rtlsdr_gain.setVisibility(View.GONE);
+//                if(possibleIFGainValues.length <= 1)
+//                    ll_rtlsdr_ifgain.setVisibility(View.GONE);
+//
+//                if(!sw_rtlsdr_manual_gain.isChecked()) {
+//                    sb_rtlsdr_gain.setEnabled(false);
+//                    tv_rtlsdr_gain.setEnabled(false);
+//                    sb_rtlsdr_ifGain.setEnabled(false);
+//                    tv_rtlsdr_ifGain.setEnabled(false);
+//                }
+//
+//                // Show dialog:
+//                AlertDialog rtlsdrDialog = new AlertDialog.Builder(this)
+//                        .setTitle("Adjust Gain Settings")
+//                        .setView(view_rtlsdr)
+//                        .setPositiveButton("Set", new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int whichButton) {
+//                                // safe preferences:
+//                                SharedPreferences.Editor edit = preferences.edit();
+//                                edit.putBoolean(getString(R.string.pref_rtlsdr_manual_gain), sw_rtlsdr_manual_gain.isChecked());
+//                                edit.putBoolean(getString(R.string.pref_rtlsdr_agc), cb_rtlsdr_agc.isChecked());
+//                                edit.putInt(getString(R.string.pref_rtlsdr_gain), possibleGainValues[sb_rtlsdr_gain.getProgress()]);
+//                                edit.putInt(getString(R.string.pref_rtlsdr_ifGain), possibleIFGainValues[sb_rtlsdr_ifGain.getProgress()]);
+//                                edit.apply();
+//                            }
+//                        })
+//                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int whichButton) {
+//                                // do nothing
+//                            }
+//                        })
+//                        .create();
+//                rtlsdrDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+//                    @Override
+//                    public void onDismiss(DialogInterface dialog) {
+//                        boolean manualGain = preferences.getBoolean(getString(R.string.pref_rtlsdr_manual_gain), false);
+//                        boolean agc = preferences.getBoolean(getString(R.string.pref_rtlsdr_agc), false);
+//                        int gain = preferences.getInt(getString(R.string.pref_rtlsdr_gain), 0);
+//                        int ifGain = preferences.getInt(getString(R.string.pref_rtlsdr_ifGain), 0);
+//                        ((RtlsdrSource)source).setGain(gain);
+//                        ((RtlsdrSource)source).setIFGain(ifGain);
+//                        ((RtlsdrSource)source).setManualGain(manualGain);
+//                        ((RtlsdrSource)source).setAutomaticGainControl(agc);
+//                        if(manualGain) {
+//                            // Note: This is a workaround. After setting manual gain to true we must
+//                            // rewrite the manual gain values:
+//                            ((RtlsdrSource) source).setGain(gain);
+//                            ((RtlsdrSource) source).setIFGain(ifGain);
+//                        }
+//                    }
+//                });
+//                rtlsdrDialog.show();
+//                rtlsdrDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+//                break;
+//            default:
+//                Log.e(LOGTAG, "adjustGain: Invalid source type: " + sourceType);
+//                break;
+//        }
+//    }
+//
+//    public void showRecordingDialog() {
+//        if(!running || scheduler == null || demodulator == null || source == null) {
+//            Toast.makeText(MainActivity.this, "Analyzer must be running to start recording", Toast.LENGTH_LONG).show();
+//            return;
+//        }
+//
+//        final String externalDir = Environment.getExternalStorageDirectory().getAbsolutePath();
+//        final int[] supportedSampleRates = source.getSupportedSampleRates();
+//        final double maxFreqMHz = source.getMaxFrequency() / 1000000f; // max frequency of the source in MHz
+//        final int sourceType = Integer.valueOf(preferences.getString(getString(R.string.pref_sourceType), "1"));
+//        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.US);
+//
+//        // Get references to the GUI components:
+//        final ScrollView view = (ScrollView) this.getLayoutInflater().inflate(R.layout.start_recording, null);
+//        final EditText et_filename = (EditText) view.findViewById(R.id.et_recording_filename);
+//        final EditText et_frequency = (EditText) view.findViewById(R.id.et_recording_frequency);
+//        final Spinner sp_sampleRate = (Spinner) view.findViewById(R.id.sp_recording_sampleRate);
+//        final TextView tv_fixedSampleRateHint = (TextView) view.findViewById(R.id.tv_recording_fixedSampleRateHint);
+//        final CheckBox cb_stopAfter = (CheckBox) view.findViewById(R.id.cb_recording_stopAfter);
+//        final EditText et_stopAfter = (EditText) view.findViewById(R.id.et_recording_stopAfter);
+//        final Spinner sp_stopAfter = (Spinner) view.findViewById(R.id.sp_recording_stopAfter);
+//
+//        // Setup the sample rate spinner:
+//        final ArrayAdapter<Integer> sampleRateAdapter = new ArrayAdapter<Integer>(this, android.R.layout.simple_list_item_1);
+//        for(int sampR: supportedSampleRates)
+//            sampleRateAdapter.add(sampR);
+//        sampleRateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        sp_sampleRate.setAdapter(sampleRateAdapter);
+//
+//        // Add listener to the frequency textfield, the sample rate spinner and the checkbox:
+//        et_frequency.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//                if(et_frequency.getText().length() == 0)
+//                    return;
+//                double freq = Double.valueOf(et_frequency.getText().toString());
+//                if (freq < maxFreqMHz)
+//                    freq = freq * 1000000;
+//                et_filename.setText(simpleDateFormat.format(new Date()) + "_" + SOURCE_NAMES[sourceType] + "_"
+//                        + (long)freq + "Hz_" + sp_sampleRate.getSelectedItem() + "Sps.iq");
+//            }
+//        });
+//        sp_sampleRate.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//                if(et_frequency.getText().length() == 0)
+//                    return;
+//                double freq = Double.valueOf(et_frequency.getText().toString());
+//                if (freq < maxFreqMHz)
+//                    freq = freq * 1000000;
+//                et_filename.setText(simpleDateFormat.format(new Date()) + "_" + SOURCE_NAMES[sourceType] + "_"
+//                        + (long) freq + "Hz_" + sp_sampleRate.getSelectedItem() + "Sps.iq");
+//            }
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {}
+//        });
+//        cb_stopAfter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                et_stopAfter.setEnabled(isChecked);
+//                sp_stopAfter.setEnabled(isChecked);
+//            }
+//        });
+//
+//        // Set default frequency, sample rate and stop after values:
+//        et_frequency.setText("" + analyzerSurface.getVirtualFrequency());
+//        int sampleRateIndex = 0;
+//        int lastSampleRate = preferences.getInt(getString(R.string.pref_recordingSampleRate),1000000);
+//        for (; sampleRateIndex < supportedSampleRates.length; sampleRateIndex++) {
+//            if(supportedSampleRates[sampleRateIndex] >= lastSampleRate)
+//                break;
+//        }
+//        if(sampleRateIndex >= supportedSampleRates.length)
+//            sampleRateIndex = supportedSampleRates.length - 1;
+//        sp_sampleRate.setSelection(sampleRateIndex);
+//        cb_stopAfter.toggle(); // just to trigger the listener at least once!
+//        cb_stopAfter.setChecked(preferences.getBoolean(getString(R.string.pref_recordingStopAfterEnabled), false));
+//        et_stopAfter.setText("" + preferences.getInt(getString(R.string.pref_recordingStopAfterValue), 10));
+//        sp_stopAfter.setSelection(preferences.getInt(getString(R.string.pref_recordingStopAfterUnit), 0));
+//
+//        // disable sample rate selection if demodulation is running:
+//        if(demodulationMode != Demodulator.DEMODULATION_OFF) {
+//            sampleRateAdapter.add(source.getSampleRate());	// add the current sample rate in case it's not already in the list
+//            sp_sampleRate.setSelection(sampleRateAdapter.getPosition(source.getSampleRate()));	// select it
+//            sp_sampleRate.setEnabled(false);	// disable the spinner
+//            tv_fixedSampleRateHint.setVisibility(View.VISIBLE);
+//        }
+//
+//        // Show dialog:
+//        new AlertDialog.Builder(this)
+//                .setTitle("Start recording")
+//                .setView(view)
+//                .setPositiveButton("Record", new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialog, int whichButton) {
+//                        String filename = et_filename.getText().toString();
+//                        final int stopAfterUnit = sp_stopAfter.getSelectedItemPosition();
+//                        final int stopAfterValue = Integer.valueOf(et_stopAfter.getText().toString());
+//                        //todo check filename
+//
+//                        // Set the frequency in the source:
+//                        if(et_frequency.getText().length() == 0)
+//                            return;
+//                        double freq = Double.valueOf(et_frequency.getText().toString());
+//                        if (freq < maxFreqMHz)
+//                            freq = freq * 1000000;
+//                        if (freq <= source.getMaxFrequency() && freq >= source.getMinFrequency())
+//                            source.setFrequency((long)freq);
+//                        else {
+//                            Toast.makeText(MainActivity.this, "Frequency is invalid!", Toast.LENGTH_LONG).show();
+//                            return;
+//                        }
+//
+//                        // Set the sample rate (only if demodulator is off):
+//                        if(demodulationMode == Demodulator.DEMODULATION_OFF)
+//                            source.setSampleRate((Integer)sp_sampleRate.getSelectedItem());
+//
+//                        // Open file and start recording:
+//                        recordingFile = new File(externalDir + "/" + RECORDING_DIR + "/" + filename);
+//                        recordingFile.getParentFile().mkdir();	// Create directory if it does not yet exist
+//                        try {
+//                            scheduler.startRecording(new BufferedOutputStream(new FileOutputStream(recordingFile)));
+//                        } catch (FileNotFoundException e) {
+//                            Log.e(LOGTAG, "showRecordingDialog: File not found: " + recordingFile.getAbsolutePath());
+//                        }
+//
+//                        // safe preferences:
+//                        SharedPreferences.Editor edit = preferences.edit();
+//                        edit.putInt(getString(R.string.pref_recordingSampleRate), (Integer) sp_sampleRate.getSelectedItem());
+//                        edit.putBoolean(getString(R.string.pref_recordingStopAfterEnabled), cb_stopAfter.isChecked());
+//                        edit.putInt(getString(R.string.pref_recordingStopAfterValue), stopAfterValue);
+//                        edit.putInt(getString(R.string.pref_recordingStopAfterUnit), stopAfterUnit);
+//                        edit.apply();
+//
+//                        analyzerSurface.setRecordingEnabled(true);
+//
+//                        updateActionBar();
+//
+//                        // if stopAfter was selected, start thread to supervise the recording:
+//                        if(cb_stopAfter.isChecked()) {
+//                            Thread supervisorThread = new Thread() {
+//                                @Override
+//                                public void run() {
+//                                    Log.i(LOGTAG, "recording_superviser: Supervisor Thread started. (Thread: " + this.getName() + ")");
+//                                    try {
+//                                        long startTime = System.currentTimeMillis();
+//                                        boolean stop = false;
+//
+//                                        // We check once per half a second if the stop criteria is met:
+//                                        Thread.sleep(500);
+//                                        while (recordingFile != null && !stop) {
+//                                            switch (stopAfterUnit) {    // see arrays.xml - recording_stopAfterUnit
+//                                                case 0: /* MB */
+//                                                    if (recordingFile.length() / 1000000 >= stopAfterValue)
+//                                                        stop = true;
+//                                                    break;
+//                                                case 1: /* GB */
+//                                                    if (recordingFile.length() / 1000000000 >= stopAfterValue)
+//                                                        stop = true;
+//                                                    break;
+//                                                case 2: /* sec */
+//                                                    if (System.currentTimeMillis() - startTime >= stopAfterValue * 1000)
+//                                                        stop = true;
+//                                                    break;
+//                                                case 3: /* min */
+//                                                    if (System.currentTimeMillis() - startTime >= stopAfterValue * 1000 * 60)
+//                                                        stop = true;
+//                                                    break;
+//                                            }
+//                                        }
+//                                        // stop recording:
+//                                        stopRecording();
+//                                    } catch (InterruptedException e) {
+//                                        Log.e(LOGTAG, "recording_superviser: Interrupted!");
+//                                    } catch (NullPointerException e) {
+//                                        Log.e(LOGTAG, "recording_superviser: Recording file is null!");
+//                                    }
+//                                    Log.i(LOGTAG, "recording_superviser: Supervisor Thread stopped. (Thread: " + this.getName() + ")");
+//                                }
+//                            };
+//                            supervisorThread.start();
+//                        }
+//                    }
+//                })
+//                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialog, int whichButton) {
+//                        // do nothing
+//                    }
+//                })
+//                .show()
+//                .getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
+
+    public void stopRecording() {
+        if (scheduler.isRecording()) {
+            scheduler.stopRecording();
+        }
+        if (recordingFile != null) {
+            final String filename = recordingFile.getAbsolutePath();
+            final long filesize = recordingFile.length() / 1000000;    // file size in MB
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(MainActivity.this, "Recording stopped: " + filename + " (" + filesize + " MB)", Toast.LENGTH_LONG).show();
+                }
+            });
+            recordingFile = null;
+            updateActionBar();
+        }
+        if (analyzerSurface != null)
+            analyzerSurface.setRecordingEnabled(false);
+    }
+
+    /**
+     * Called by the analyzer surface after the user changed the channel width
+     *
+     * @param newChannelWidth new channel width (single sided) in Hz
+     * @return true if channel width is valid; false if out of range
+     */
+    @Override
+    public boolean onUpdateChannelWidth(int newChannelWidth) {
+        if (demodulator != null)
+            return demodulator.setChannelWidth(newChannelWidth);
+        else
+            return false;
+    }
+
+    @Override
+    public void onUpdateChannelFrequency(long newChannelFrequency) {
+        if (scheduler != null)
+            scheduler.setChannelFrequency(newChannelFrequency);
+    }
+
+    @Override
+    public void onUpdateSquelchSatisfied(boolean squelchSatisfied) {
+        if (scheduler != null)
+            scheduler.setSquelchSatisfied(squelchSatisfied);
+    }
+
+    @Override
+    public int onCurrentChannelWidthRequested() {
+        if (demodulator != null)
+            return demodulator.getChannelWidth();
+        else
+            return -1;
+    }
+
+
+}

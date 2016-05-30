@@ -2,22 +2,60 @@
   "entertainment":
   [
     {
-      "title": "iPhone",
+      "title": "Katana..",
       "time": "01:22 pm",
       "date": "Sep 12, 2015",
-      "info": "It wouldn't be September without a late night spent hitting refresh on your browser window trying to buy the new iPhone. And so here we are again, as preorders are now live on Apple's site. You can also preorder online with AT&T, Verizon, Sprint, or T-Mobile (who makes you call in, which is insane) and with shipments beginning on September 25th. As of this writing, you can't grab your new phone from Apple's website, which doesn't have a preorder option yet. An even better idea, as my colleague Chris Ziegler points out, to do so through the Apple Store iOS app. The app is known to be more reliable than the website, which around now is being crushed by a mountain of traffic."
+      "info": "The samurai of old are widely regarded as being among the best warriors that ever lived, and with good reason. Although those days are long gone, the Japanese people are still keeping their traditions alive to some extent, which is why you can still see sword masters wielding katanas even...",
+      "img64" : "",
+      "uni" : ""
     },
     {
-      "title": "Android Phone",
-      "time": "02:22 pm",
+      "title": "Titanic 2012",
+      "time": "01:22 pm",
       "date": "Sep 12, 2015",
-      "info": "Blah blah blah. It wouldn't be September without a late night spent hitting refresh on your browser window trying to buy the new iPhone. And so here we are again, as preorders are now live on Apple's site. You can also preorder online with AT&T, Verizon, Sprint, or T-Mobile (who makes you call in, which is insane) and with shipments beginning on September 25th. As of this writing, you can't grab your new phone from Apple's website, which doesn't have a preorder option yet. An even better idea, as my colleague Chris Ziegler points out, to do so through the Apple Store iOS app. The app is known to be more reliable than the website, which around now is being crushed by a mountain of traffic."
+      "info": "When James Cameron re-released the 3D version of 'Titanic' in 2012, he made a minor fix to the film. When he was asked about this scene revision, he was quoted as saying 'Oh, there is one shot that I fixed. It's because Neil deGrasse Tyson, who is one of the US' leading astronomers, sent me quite a snarky email saying that, at that time of year, in that position in the Atlantic in 1912, when Rose is lying on the piece of driftwood and staring up at the stars, that is not the star field she would have seen, and with my reputation as a perfectionist, I should have known that and I should have put the right star field in. So I said, 'All right, you son of a bitch, send me the right stars for the exact time, 4:20 a.m. on April 15, 1912, and I'll put it in the movie.' So that's the one shot that has been changed.'",
+      "img64" : "",
+      "uni" : ""
     },
     {
-      "title": "iPhone 6s and 6s+ is out for $949 with 3D touch.",
-      "time": "03:22 pm",
+      "title": "Nemo",
+      "time": "01:22 pm",
       "date": "Sep 12, 2015",
-      "info": "Anil Kumar.It wouldn't be September without a late night spent hitting refresh on your browser window trying to buy the new iPhone. And so here we are again, as preorders are now live on Apple's site. You can also preorder online with AT&T, Verizon, Sprint, or T-Mobile (who makes you call in, which is insane) and with shipments beginning on September 25th. As of this writing, you can't grab your new phone from Apple's website, which doesn't have a preorder option yet. An even better idea, as my colleague Chris Ziegler points out, to do so through the Apple Store iOS app. The app is known to be more reliable than the website, which around now is being crushed by a mountain of traffic."
+      "info": " The character Nemo from 'Finding Nemo' appeared in the movie 'Monster's Inc.', two years before 'Finding Nemo' was released.",
+      "img64" : "",
+      "uni" : ""
+    },
+    {
+      "title": "Avenger",
+      "time": "01:22 pm",
+      "date": "Sep 12, 2015",
+      "info": "Jemmy Renner was trained by the Olympic archers for his role as the agent Clint Barton in the movie ''The Avengers''",
+      "img64" : "",
+      "uni" : ""
+    },
+    {
+      "title": "Fight Club",
+      "time": "01:22 pm",
+      "date": "Sep 12, 2015",
+      "info": "Marla Singer from 'Fight Club' and Teddy aka John Gammel from 'Memento' have the same phone number.",
+      "img64" : "",
+      "uni" : ""
+    },
+    {
+      "title": "3502",
+      "time": "01:22 pm",
+      "date": "Sep 12, 2015",
+      "info": "'Inception' drops a lot of hints that the entire movie may be a dream. The hotel room where Mal and Cobb spend their anniversary has the number 3502. All this could mean that the entire movie may be Cobb's dream. He's seeing the same set of numbers again and again",
+      "img64" : "",
+      "uni" : ""
+    },
+    {
+      "title": "Shawshank",
+      "time": "01:22 pm",
+      "date": "Sep 12, 2015",
+      "info": "Morgan Freeman's line, ''Maybe it's 'cause I'm an Irishman'' in the classic 'The Shawshank Redemption' was not written to be a joke. In Stephen King's novella, the character 'Red' is actually Irish.",
+      "img64" : "",
+      "uni" : ""
     }
   ]
 }

@@ -205,10 +205,14 @@ public class AudioBufferProcessor extends Thread {
                     int concat_packets = 0;
                     while (true) {
 
-                        if (!MainActivity.bQueue.isEmpty())
+                        if (!MainActivity.bQueue.isEmpty() & MainActivity.decod_string)
                         {
                             buffer_packet samp_pack = MainActivity.bQueue.take();
                             queue.put(samp_pack.payload);
+                        }
+                        else
+                        {
+                            continue;
                         }
 
                         if (false) // never happening

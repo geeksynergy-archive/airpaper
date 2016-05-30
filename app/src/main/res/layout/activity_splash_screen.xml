@@ -2,23 +2,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.geeksynergy.airpaper.SplashScreen">
+    tools:context="com.geeksynergy.airpaperlite.SplashScreen"
+    >
 
     <!--<WebView-->
         <!--android:id="@+id/webView"-->
         <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->//android:layout_marginTop="216dp"
         <!--android:layout_gravity="center_horizontal" />-->
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         android:src="@drawable/airpaper"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="216dp" />
+        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        />
 
     <TextView
         android:id="@+id/splashText"
@@ -27,7 +28,8 @@
         android:text="@string/splash_text"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:layout_below="@+id/imageView"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        />
 
     <TextView
         android:id="@+id/geekyText"
@@ -36,6 +38,7 @@
         android:text="@string/geeky_text"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:layout_below="@+id/splashText"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        />
 
 </RelativeLayout>

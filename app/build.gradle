@@ -7,17 +7,6 @@ android {
     compileSdkVersion 23
     buildToolsVersion "22.0.0"
 
-    packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/license.txt'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/NOTICE.txt'
-        exclude 'META-INF/notice.txt'
-        exclude 'META-INF/ASL2.0'
-    }
-
     defaultConfig {
                 applicationId "com.geeksynergy.airpaper"
                 minSdkVersion 15
@@ -28,7 +17,7 @@ android {
                 ndk{
 
                     moduleName "decomon"
-                    abiFilter "x86"
+                    //abiFilter "x86"
                 }
 
     }
@@ -52,7 +41,11 @@ android {
 
 
         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-            def ndkDir = System.getenv("ANDROID_NDK_ROOT")
+            Properties properties = new Properties()
+            properties.load(project.rootProject.file('local.properties').newDataInputStream())
+            def sdkDir = properties.getProperty('sdk.dir')
+            def ndkDir = properties.getProperty('ndk.dir')
+            //def ndkDir = System.getenv("ANDROID_NDK_ROOT")
 
 
             commandLine 'cmd', '/C', "$ndkDir/ndk-build",
@@ -62,8 +55,11 @@ android {
                     'NDK_APP_LIBS_OUT = src/main/jnilibs'
 
         } else {
-
-            def ndkDir = System.getenv("NDKROOT")
+            Properties properties = new Properties()
+            properties.load(project.rootProject.file('local.properties').newDataInputStream())
+            def sdkDir = properties.getProperty('sdk.dir')
+            def ndkDir = properties.getProperty('ndk.dir')
+            //def ndkDir = System.getenv("NDKROOT")
             commandLine "$ndkDir/ndk-build",
                     'NDK_PROJECT_PATH=build',
                     'APP_BUILD_SCRIPT=src/main/jni/Android.mk',
@@ -88,5 +84,24 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.1.0'
     compile 'com.android.support:cardview-v7:21.+'
     compile 'com.android.support:recyclerview-v7:21.0.+'
+    compile files('libs/androidsvg-1.2.1.jar')
+    compile files('libs/ion-2.1.6.jar')
+    compile files('libs/svg-android.jar')
+    compile files('libs/http-core-4.1.jar')
     compile files('libs/httpclient-4.2.3.jar')
+    compile files('libs/javAPRSlib.jar')
+}
+android {
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/dependencies.txt'
+        exclude 'META-INF/LGPL2.1'
+    }
 }
