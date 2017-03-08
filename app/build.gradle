@@ -17,7 +17,7 @@ android {
                 ndk{
 
                     moduleName "decomon"
-                    abiFilter "x86"
+                    abiFilters "x86", "armeabi-v7a", "armeabi"
                 }
 
     }
@@ -41,9 +41,7 @@ android {
 
 
         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-            def ndkDir = System.getenv("ANDROID_NDK_ROOT")
-
-
+            def ndkDir = "/Users/gowrav/Library/Android/sdk/ndk-bundle" //System.getenv("ANDROID_NDK_ROOT")
             commandLine 'cmd', '/C', "$ndkDir/ndk-build",
                     'NDK_PROJECT_PATH=build',
                     'APP_BUILD_SCRIPT=src/main/jni/Android.mk',
@@ -52,7 +50,7 @@ android {
 
         } else {
 
-            def ndkDir = System.getenv("NDKROOT")
+            def ndkDir = "/Users/gowrav/Library/Android/sdk/ndk-bundle" //System.getenv("NDKROOT")
             commandLine "$ndkDir/ndk-build",
                     'NDK_PROJECT_PATH=build',
                     'APP_BUILD_SCRIPT=src/main/jni/Android.mk',
