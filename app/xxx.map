@@ -2,79 +2,79 @@
 Allocating common symbols
 Common symbol       size              file
 
-env_global          0x4               build/obj/local/mips/objs/decomon/multimon.o
 abp_global          0x4               build/obj/local/mips/objs/decomon/multimon.o
+env_global          0x4               build/obj/local/mips/objs/decomon/multimon.o
 
 Discarded input sections
 
- .mdebug.abi32  0x0000000000000000        0x0 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
+ .mdebug.abi32  0x0000000000000000        0x0 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
  .note.GNU-stack
-                0x0000000000000000        0x0 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
- .reginfo       0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/hdlc.o
- .MIPS.abiflags
-                0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/hdlc.o
+                0x0000000000000000        0x0 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
  .mdebug.abi32  0x0000000000000000        0x0 build/obj/local/mips/objs/decomon/hdlc.o
  .note.GNU-stack
                 0x0000000000000000        0x0 build/obj/local/mips/objs/decomon/hdlc.o
- .reginfo       0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/demod_afsk12.o
+ .reginfo       0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/hdlc.o
  .MIPS.abiflags
-                0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/demod_afsk12.o
+                0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/hdlc.o
  .mdebug.abi32  0x0000000000000000        0x0 build/obj/local/mips/objs/decomon/demod_afsk12.o
  .note.GNU-stack
                 0x0000000000000000        0x0 build/obj/local/mips/objs/decomon/demod_afsk12.o
- .reginfo       0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/pocsag.o
+ .reginfo       0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/demod_afsk12.o
  .MIPS.abiflags
-                0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/pocsag.o
+                0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/demod_afsk12.o
  .mdebug.abi32  0x0000000000000000        0x0 build/obj/local/mips/objs/decomon/pocsag.o
  .note.GNU-stack
                 0x0000000000000000        0x0 build/obj/local/mips/objs/decomon/pocsag.o
- .reginfo       0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/demod_dtmf.o
+ .reginfo       0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/pocsag.o
  .MIPS.abiflags
-                0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/demod_dtmf.o
+                0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/pocsag.o
  .mdebug.abi32  0x0000000000000000        0x0 build/obj/local/mips/objs/decomon/demod_dtmf.o
  .note.GNU-stack
                 0x0000000000000000        0x0 build/obj/local/mips/objs/decomon/demod_dtmf.o
- .reginfo       0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/demod_poc5.o
+ .reginfo       0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/demod_dtmf.o
  .MIPS.abiflags
-                0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/demod_poc5.o
+                0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/demod_dtmf.o
  .mdebug.abi32  0x0000000000000000        0x0 build/obj/local/mips/objs/decomon/demod_poc5.o
  .note.GNU-stack
                 0x0000000000000000        0x0 build/obj/local/mips/objs/decomon/demod_poc5.o
- .reginfo       0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/demod_poc12.o
+ .reginfo       0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/demod_poc5.o
  .MIPS.abiflags
-                0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/demod_poc12.o
+                0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/demod_poc5.o
  .mdebug.abi32  0x0000000000000000        0x0 build/obj/local/mips/objs/decomon/demod_poc12.o
  .note.GNU-stack
                 0x0000000000000000        0x0 build/obj/local/mips/objs/decomon/demod_poc12.o
- .reginfo       0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/demod_poc24.o
+ .reginfo       0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/demod_poc12.o
  .MIPS.abiflags
-                0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/demod_poc24.o
+                0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/demod_poc12.o
  .mdebug.abi32  0x0000000000000000        0x0 build/obj/local/mips/objs/decomon/demod_poc24.o
  .note.GNU-stack
                 0x0000000000000000        0x0 build/obj/local/mips/objs/decomon/demod_poc24.o
- .reginfo       0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/costabf.o
+ .reginfo       0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/demod_poc24.o
  .MIPS.abiflags
-                0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/costabf.o
+                0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/demod_poc24.o
  .mdebug.abi32  0x0000000000000000        0x0 build/obj/local/mips/objs/decomon/costabf.o
  .note.GNU-stack
                 0x0000000000000000        0x0 build/obj/local/mips/objs/decomon/costabf.o
- .reginfo       0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/costabi.o
+ .reginfo       0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/costabf.o
  .MIPS.abiflags
-                0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/costabi.o
+                0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/costabf.o
  .mdebug.abi32  0x0000000000000000        0x0 build/obj/local/mips/objs/decomon/costabi.o
  .note.GNU-stack
                 0x0000000000000000        0x0 build/obj/local/mips/objs/decomon/costabi.o
- .reginfo       0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/multimon.o
+ .reginfo       0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/costabi.o
  .MIPS.abiflags
-                0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/multimon.o
+                0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/costabi.o
  .mdebug.abi32  0x0000000000000000        0x0 build/obj/local/mips/objs/decomon/multimon.o
  .note.GNU-stack
                 0x0000000000000000        0x0 build/obj/local/mips/objs/decomon/multimon.o
+ .reginfo       0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/multimon.o
  .MIPS.abiflags
-                0x0000000000000000       0x18 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtend_so.o
- .reginfo       0x0000000000000000       0x18 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtend_so.o
+                0x0000000000000000       0x18 build/obj/local/mips/objs/decomon/multimon.o
+ .MIPS.abiflags
+                0x0000000000000000       0x18 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtend_so.o
+ .reginfo       0x0000000000000000       0x18 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtend_so.o
  .note.GNU-stack
-                0x0000000000000000        0x0 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtend_so.o
+                0x0000000000000000        0x0 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtend_so.o
 
 Memory Configuration
 
@@ -83,7 +83,7 @@ Name             Origin             Length             Attributes
 
 Linker script and memory map
 
-LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
+LOAD /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
 LOAD build/obj/local/mips/objs/decomon/hdlc.o
 LOAD build/obj/local/mips/objs/decomon/demod_afsk12.o
 LOAD build/obj/local/mips/objs/decomon/pocsag.o
@@ -94,64 +94,66 @@ LOAD build/obj/local/mips/objs/decomon/demod_poc24.o
 LOAD build/obj/local/mips/objs/decomon/costabf.o
 LOAD build/obj/local/mips/objs/decomon/costabi.o
 LOAD build/obj/local/mips/objs/decomon/multimon.o
-LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/toolchains/mipsel-linux-android-4.9/prebuilt/darwin-x86_64/bin/../lib/gcc/mipsel-linux-android/4.9.x/libgcc.a
-LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/libdl.so
-LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/liblog.so
-LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/libstdc++.so
-LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/libm.so
-LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/libc.so
-LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/toolchains/mipsel-linux-android-4.9/prebuilt/darwin-x86_64/bin/../lib/gcc/mipsel-linux-android/4.9.x/libgcc.a
-LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/libc.so
-LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/libdl.so
-LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/toolchains/mipsel-linux-android-4.9/prebuilt/darwin-x86_64/bin/../lib/gcc/mipsel-linux-android/4.9.x/libgcc.a
-LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtend_so.o
+LOAD /Users/gowrav/Library/Android/sdk/ndk-bundle/toolchains/mips64el-linux-android-4.9/prebuilt/darwin-x86_64/lib/gcc/mips64el-linux-android/4.9.x/32/mips-r1/libgcc.a
+LOAD /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/libdl.so
+LOAD /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/liblog.so
+LOAD /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/libc.so
+LOAD /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/libm.so
+LOAD /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/libstdc++.so
+LOAD /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/libm.so
+LOAD /Users/gowrav/Library/Android/sdk/ndk-bundle/toolchains/mips64el-linux-android-4.9/prebuilt/darwin-x86_64/lib/gcc/mips64el-linux-android/4.9.x/32/mips-r1/libgcc.a
+LOAD /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/libdl.so
+LOAD /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/libc.so
+LOAD /Users/gowrav/Library/Android/sdk/ndk-bundle/toolchains/mips64el-linux-android-4.9/prebuilt/darwin-x86_64/lib/gcc/mips64el-linux-android/4.9.x/32/mips-r1/libgcc.a
+LOAD /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/libdl.so
+LOAD /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtend_so.o
                 0x0000000000000174                . = (0x0 + SIZEOF_HEADERS)
 
 .MIPS.abiflags  0x0000000000000178       0x18
  *(.MIPS.abiflags)
  .MIPS.abiflags
-                0x0000000000000178       0x18 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
+                0x0000000000000178       0x18 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
 
 .reginfo        0x0000000000000190       0x18
  *(.reginfo)
- .reginfo       0x0000000000000190       0x18 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
+ .reginfo       0x0000000000000190       0x18 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
 
 .note.gnu.build-id
                 0x00000000000001a8       0x24
  *(.note.gnu.build-id)
  .note.gnu.build-id
-                0x00000000000001a8       0x24 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
+                0x00000000000001a8       0x24 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
 
 .hash           0x00000000000001cc      0x194
  *(.hash)
- .hash          0x00000000000001cc      0x194 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
+ .hash          0x00000000000001cc      0x194 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
 
 .gnu.hash
  *(.gnu.hash)
 
 .dynsym         0x0000000000000360      0x3e0
  *(.dynsym)
- .dynsym        0x0000000000000360      0x3e0 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
+ .dynsym        0x0000000000000360      0x3e0 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
 
 .dynstr         0x0000000000000740      0x365
  *(.dynstr)
- .dynstr        0x0000000000000740      0x365 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
+ .dynstr        0x0000000000000740      0x365 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
 
 .gnu.version    0x0000000000000aa6       0x7c
  *(.gnu.version)
- .gnu.version   0x0000000000000aa6       0x7c /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
+ .gnu.version   0x0000000000000aa6       0x7c /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
 
 .gnu.version_d  0x0000000000000b24        0x0
  *(.gnu.version_d)
  .gnu.version_d
-                0x0000000000000b24        0x0 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
+                0x0000000000000b24        0x0 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
 
-.gnu.version_r  0x0000000000000b24       0x20
+.gnu.version_r  0x0000000000000b24       0x40
  *(.gnu.version_r)
  .gnu.version_r
-                0x0000000000000b24       0x20 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
+                0x0000000000000b24       0x40 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
 
-.rel.dyn        0x0000000000000b44      0x2c8
+.rel.dyn        0x0000000000000b64      0x2d0
  *(.rel.init)
  *(.rel.text .rel.text.* .rel.gnu.linkonce.t.*)
  *(.rel.fini)
@@ -164,7 +166,7 @@ LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips
  *(.rel.dtors)
  *(.rel.got)
  *(.rel.dyn)
- .rel.dyn       0x0000000000000b44      0x2c8 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
+ .rel.dyn       0x0000000000000b64      0x2d0 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
  *(.rel.sdata .rel.sdata.* .rel.gnu.linkonce.s.*)
  *(.rel.sbss .rel.sbss.* .rel.gnu.linkonce.sb.*)
  *(.rel.sdata2 .rel.sdata2.* .rel.gnu.linkonce.s2.*)
@@ -190,9 +192,9 @@ LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips
  *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.*)
  *(.rela.iplt)
 
-.rel.plt        0x0000000000000e0c        0x0
+.rel.plt        0x0000000000000e34        0x0
  *(.rel.plt)
- .rel.plt       0x0000000000000e0c        0x0 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
+ .rel.plt       0x0000000000000e34        0x0 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
 
 .rela.plt
  *(.rela.plt)
@@ -200,207 +202,210 @@ LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips
 .init
  *(SORT(.init))
 
-.text           0x0000000000000e10     0x47f0
-                0x0000000000000e10                _ftext = .
+.text           0x0000000000000e40     0x4f80
+                0x0000000000000e40                _ftext = .
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
- .text.exit     0x0000000000000e10       0x18 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
-                0x0000000000000e10                __on_dlclose
+ .text.exit     0x0000000000000e40       0x18 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
+                0x0000000000000e40                __on_dlclose
  *(.text.startup .text.startup.*)
  *(.text.hot .text.hot.*)
  *(.text .stub .text.* .gnu.linkonce.t.*)
- *fill*         0x0000000000000e28        0x8 
- .text          0x0000000000000e30       0x40 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
-                0x0000000000000e30                __atexit_handler_wrapper
-                0x0000000000000e48                atexit
- .text          0x0000000000000e70        0x0 build/obj/local/mips/objs/decomon/hdlc.o
- .text.ax25_disp_packet.isra.0
-                0x0000000000000e70      0xd54 build/obj/local/mips/objs/decomon/hdlc.o
+ *fill*         0x0000000000000e58        0x8 
+ .text          0x0000000000000e60       0x40 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
+                0x0000000000000e60                __atexit_handler_wrapper
+                0x0000000000000e78                atexit
+ .text          0x0000000000000ea0        0x0 build/obj/local/mips/objs/decomon/hdlc.o
  .text.hdlc_init
-                0x0000000000001bc4       0x64 build/obj/local/mips/objs/decomon/hdlc.o
-                0x0000000000001bc4                hdlc_init
+                0x0000000000000ea0       0x70 build/obj/local/mips/objs/decomon/hdlc.o
+                0x0000000000000ea0                hdlc_init
  .text.hdlc_rxbit
-                0x0000000000001c28      0x17c build/obj/local/mips/objs/decomon/hdlc.o
-                0x0000000000001c28                hdlc_rxbit
- *fill*         0x0000000000001da4        0xc 
- .text          0x0000000000001db0        0x0 build/obj/local/mips/objs/decomon/demod_afsk12.o
- .text.afsk12_demod
-                0x0000000000001db0      0x33c build/obj/local/mips/objs/decomon/demod_afsk12.o
+                0x0000000000000f10     0x1494 build/obj/local/mips/objs/decomon/hdlc.o
+                0x0000000000000f10                hdlc_rxbit
+ *fill*         0x00000000000023a4        0xc 
+ .text          0x00000000000023b0        0x0 build/obj/local/mips/objs/decomon/demod_afsk12.o
  .text.afsk12_init
-                0x00000000000020ec      0x1ac build/obj/local/mips/objs/decomon/demod_afsk12.o
- *fill*         0x0000000000002298        0x8 
- .text          0x00000000000022a0        0x0 build/obj/local/mips/objs/decomon/pocsag.o
- .text.bitslice_syndrome
-                0x00000000000022a0       0x98 build/obj/local/mips/objs/decomon/pocsag.o
- .text.pocsag_printmessage.part.3
-                0x0000000000002338      0xddc build/obj/local/mips/objs/decomon/pocsag.o
+                0x00000000000023b0      0x174 build/obj/local/mips/objs/decomon/demod_afsk12.o
+ .text.afsk12_demod
+                0x0000000000002524      0x298 build/obj/local/mips/objs/decomon/demod_afsk12.o
+ .text.mac      0x00000000000027bc      0x208 build/obj/local/mips/objs/decomon/demod_afsk12.o
+ *fill*         0x00000000000029c4        0xc 
+ .text          0x00000000000029d0        0x0 build/obj/local/mips/objs/decomon/pocsag.o
  .text.pocsag_init
-                0x0000000000003114       0x50 build/obj/local/mips/objs/decomon/pocsag.o
-                0x0000000000003114                pocsag_init
+                0x00000000000029d0       0x4c build/obj/local/mips/objs/decomon/pocsag.o
+                0x00000000000029d0                pocsag_init
  .text.pocsag_deinit
-                0x0000000000003164      0x1b4 build/obj/local/mips/objs/decomon/pocsag.o
-                0x0000000000003164                pocsag_deinit
+                0x0000000000002a1c      0x19c build/obj/local/mips/objs/decomon/pocsag.o
+                0x0000000000002a1c                pocsag_deinit
  .text.pocsag_brute_repair
-                0x0000000000003318      0x774 build/obj/local/mips/objs/decomon/pocsag.o
-                0x0000000000003318                pocsag_brute_repair
+                0x0000000000002bb8      0xa54 build/obj/local/mips/objs/decomon/pocsag.o
+                0x0000000000002bb8                pocsag_brute_repair
+ .text.bitslice_syndrome
+                0x000000000000360c       0xb0 build/obj/local/mips/objs/decomon/pocsag.o
  .text.pocsag_rxbit
-                0x0000000000003a8c      0x8b8 build/obj/local/mips/objs/decomon/pocsag.o
-                0x0000000000003a8c                pocsag_rxbit
- *fill*         0x0000000000004344        0xc 
- .text          0x0000000000004350        0x0 build/obj/local/mips/objs/decomon/demod_dtmf.o
+                0x00000000000036bc       0xa8 build/obj/local/mips/objs/decomon/pocsag.o
+                0x00000000000036bc                pocsag_rxbit
+ .text.do_one_bit
+                0x0000000000003764      0x520 build/obj/local/mips/objs/decomon/pocsag.o
+ .text.pocsag_printmessage
+                0x0000000000003c84      0xe98 build/obj/local/mips/objs/decomon/pocsag.o
+ *fill*         0x0000000000004b1c        0x4 
+ .text          0x0000000000004b20        0x0 build/obj/local/mips/objs/decomon/demod_dtmf.o
  .text.dtmf_init
-                0x0000000000004350       0x20 build/obj/local/mips/objs/decomon/demod_dtmf.o
+                0x0000000000004b20       0x34 build/obj/local/mips/objs/decomon/demod_dtmf.o
  .text.dtmf_demod
-                0x0000000000004370      0x668 build/obj/local/mips/objs/decomon/demod_dtmf.o
- *fill*         0x00000000000049d8        0x8 
- .text          0x00000000000049e0        0x0 build/obj/local/mips/objs/decomon/demod_poc5.o
- .text.poc5_deinit
-                0x00000000000049e0       0x18 build/obj/local/mips/objs/decomon/demod_poc5.o
- .text.poc5_demod
-                0x00000000000049f8      0x1b8 build/obj/local/mips/objs/decomon/demod_poc5.o
+                0x0000000000004b54      0x724 build/obj/local/mips/objs/decomon/demod_dtmf.o
+ *fill*         0x0000000000005278        0x8 
+ .text          0x0000000000005280        0x0 build/obj/local/mips/objs/decomon/demod_poc5.o
  .text.poc5_init
-                0x0000000000004bb0       0x68 build/obj/local/mips/objs/decomon/demod_poc5.o
- *fill*         0x0000000000004c18        0x8 
- .text          0x0000000000004c20        0x0 build/obj/local/mips/objs/decomon/demod_poc12.o
- .text.poc12_deinit
-                0x0000000000004c20       0x18 build/obj/local/mips/objs/decomon/demod_poc12.o
- .text.poc12_demod
-                0x0000000000004c38      0x1cc build/obj/local/mips/objs/decomon/demod_poc12.o
+                0x0000000000005280       0x40 build/obj/local/mips/objs/decomon/demod_poc5.o
+ .text.poc5_demod
+                0x00000000000052c0      0x178 build/obj/local/mips/objs/decomon/demod_poc5.o
+ .text.poc5_deinit
+                0x0000000000005438       0x2c build/obj/local/mips/objs/decomon/demod_poc5.o
+ *fill*         0x0000000000005464        0xc 
+ .text          0x0000000000005470        0x0 build/obj/local/mips/objs/decomon/demod_poc12.o
  .text.poc12_init
-                0x0000000000004e04       0x68 build/obj/local/mips/objs/decomon/demod_poc12.o
- *fill*         0x0000000000004e6c        0x4 
- .text          0x0000000000004e70        0x0 build/obj/local/mips/objs/decomon/demod_poc24.o
- .text.poc24_deinit
-                0x0000000000004e70       0x18 build/obj/local/mips/objs/decomon/demod_poc24.o
- .text.poc24_demod
-                0x0000000000004e88      0x150 build/obj/local/mips/objs/decomon/demod_poc24.o
+                0x0000000000005470       0x40 build/obj/local/mips/objs/decomon/demod_poc12.o
+ .text.poc12_demod
+                0x00000000000054b0      0x188 build/obj/local/mips/objs/decomon/demod_poc12.o
+ .text.poc12_deinit
+                0x0000000000005638       0x2c build/obj/local/mips/objs/decomon/demod_poc12.o
+ *fill*         0x0000000000005664        0xc 
+ .text          0x0000000000005670        0x0 build/obj/local/mips/objs/decomon/demod_poc24.o
  .text.poc24_init
-                0x0000000000004fd8       0x68 build/obj/local/mips/objs/decomon/demod_poc24.o
- .text          0x0000000000005040        0x0 build/obj/local/mips/objs/decomon/costabf.o
- .text          0x0000000000005040        0x0 build/obj/local/mips/objs/decomon/costabi.o
- .text          0x0000000000005040        0x0 build/obj/local/mips/objs/decomon/multimon.o
+                0x0000000000005670       0x40 build/obj/local/mips/objs/decomon/demod_poc24.o
+ .text.poc24_demod
+                0x00000000000056b0      0x138 build/obj/local/mips/objs/decomon/demod_poc24.o
+ .text.poc24_deinit
+                0x00000000000057e8       0x2c build/obj/local/mips/objs/decomon/demod_poc24.o
+ *fill*         0x0000000000005814        0xc 
+ .text          0x0000000000005820        0x0 build/obj/local/mips/objs/decomon/costabf.o
+ .text          0x0000000000005820        0x0 build/obj/local/mips/objs/decomon/costabi.o
+ .text          0x0000000000005820        0x0 build/obj/local/mips/objs/decomon/multimon.o
  .text.verbprintf
-                0x0000000000005040        0xc build/obj/local/mips/objs/decomon/multimon.o
-                0x0000000000005040                verbprintf
+                0x0000000000005820        0xc build/obj/local/mips/objs/decomon/multimon.o
+                0x0000000000005820                verbprintf
  .text.JNI_OnLoad
-                0x000000000000504c       0x48 build/obj/local/mips/objs/decomon/multimon.o
-                0x000000000000504c                JNI_OnLoad
+                0x000000000000582c       0x44 build/obj/local/mips/objs/decomon/multimon.o
+                0x000000000000582c                JNI_OnLoad
  .text.Java_com_geeksynergy_airpaper_AudioBufferProcessor_init
-                0x0000000000005094      0x1cc build/obj/local/mips/objs/decomon/multimon.o
-                0x0000000000005094                Java_com_geeksynergy_airpaper_AudioBufferProcessor_init
+                0x0000000000005870      0x1c0 build/obj/local/mips/objs/decomon/multimon.o
+                0x0000000000005870                Java_com_geeksynergy_airpaper_AudioBufferProcessor_init
  .text.Java_com_geeksynergy_airpaper_AudioBufferProcessor_processBuffer2
-                0x0000000000005260      0x17c build/obj/local/mips/objs/decomon/multimon.o
-                0x0000000000005260                Java_com_geeksynergy_airpaper_AudioBufferProcessor_processBuffer2
+                0x0000000000005a30      0x194 build/obj/local/mips/objs/decomon/multimon.o
+                0x0000000000005a30                Java_com_geeksynergy_airpaper_AudioBufferProcessor_processBuffer2
  .text.Java_com_geeksynergy_airpaper_AudioBufferProcessor_processBuffer
-                0x00000000000053dc       0xb4 build/obj/local/mips/objs/decomon/multimon.o
-                0x00000000000053dc                Java_com_geeksynergy_airpaper_AudioBufferProcessor_processBuffer
+                0x0000000000005bc4       0xb4 build/obj/local/mips/objs/decomon/multimon.o
+                0x0000000000005bc4                Java_com_geeksynergy_airpaper_AudioBufferProcessor_processBuffer
  .text.send_frame_to_java
-                0x0000000000005490      0x16c build/obj/local/mips/objs/decomon/multimon.o
-                0x0000000000005490                send_frame_to_java
- *fill*         0x00000000000055fc        0x4 
- .text          0x0000000000005600        0x0 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtend_so.o
+                0x0000000000005c78      0x144 build/obj/local/mips/objs/decomon/multimon.o
+                0x0000000000005c78                send_frame_to_java
+ *fill*         0x0000000000005dbc        0x4 
+ .text          0x0000000000005dc0        0x0 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtend_so.o
  *(.gnu.warning)
  *(.mips16.fn.*)
  *(.mips16.call.*)
 
-.MIPS.stubs     0x0000000000005600      0x160
- .MIPS.stubs    0x0000000000005600      0x160 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
-                0x0000000000005600                memmove@@LIBC
-                0x0000000000005600                _MIPS_STUBS_
-                0x0000000000005610                fwrite@@LIBC
-                0x0000000000005620                fopen@@LIBC
-                0x0000000000005630                exit@@LIBC
-                0x0000000000005640                memcpy@@LIBC
-                0x0000000000005650                snprintf@@LIBC
-                0x0000000000005660                __stack_chk_fail@@LIBC
-                0x0000000000005670                __android_log_print
-                0x0000000000005680                free@@LIBC
-                0x0000000000005690                fputc@@LIBC
-                0x00000000000056a0                mknod@@LIBC
-                0x00000000000056b0                cos
-                0x00000000000056c0                strlen@@LIBC
-                0x00000000000056d0                sin
-                0x00000000000056e0                __cxa_finalize@@LIBC
-                0x00000000000056f0                fprintf@@LIBC
-                0x0000000000005700                fflush@@LIBC
-                0x0000000000005710                memset@@LIBC
-                0x0000000000005720                unlink@@LIBC
-                0x0000000000005730                malloc@@LIBC
-                0x0000000000005740                __cxa_atexit@@LIBC
+.MIPS.stubs     0x0000000000005dc0      0x160
+ .MIPS.stubs    0x0000000000005dc0      0x160 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
+                0x0000000000005dc0                __cxa_finalize@@LIBC
+                0x0000000000005dc0                _MIPS_STUBS_
+                0x0000000000005dd0                snprintf@@LIBC
+                0x0000000000005de0                cos@@LIBC
+                0x0000000000005df0                fflush@@LIBC
+                0x0000000000005e00                fputc@@LIBC
+                0x0000000000005e10                __stack_chk_fail@@LIBC
+                0x0000000000005e20                __android_log_print
+                0x0000000000005e30                unlink@@LIBC
+                0x0000000000005e40                mknod@@LIBC
+                0x0000000000005e50                memmove@@LIBC
+                0x0000000000005e60                sin@@LIBC
+                0x0000000000005e70                strlen@@LIBC
+                0x0000000000005e80                exit@@LIBC
+                0x0000000000005e90                fprintf@@LIBC
+                0x0000000000005ea0                malloc@@LIBC
+                0x0000000000005eb0                memcpy@@LIBC
+                0x0000000000005ec0                memset@@LIBC
+                0x0000000000005ed0                fopen@@LIBC
+                0x0000000000005ee0                fwrite@@LIBC
+                0x0000000000005ef0                free@@LIBC
+                0x0000000000005f00                __cxa_atexit@@LIBC
 
 .fini
  *(SORT(.fini))
-                0x0000000000005760                PROVIDE (__etext, .)
-                0x0000000000005760                PROVIDE (_etext, .)
-                0x0000000000005760                PROVIDE (etext, .)
+                0x0000000000005f20                PROVIDE (__etext, .)
+                0x0000000000005f20                PROVIDE (_etext, .)
+                0x0000000000005f20                PROVIDE (etext, .)
 
-.rodata         0x0000000000005760      0xa18
+.rodata         0x0000000000005f20      0x935
  *(.rodata .rodata.* .gnu.linkonce.r.*)
- .rodata.str1.4
-                0x0000000000005760      0x10a build/obj/local/mips/objs/decomon/hdlc.o
-                                        0x110 (size before relaxing)
- *fill*         0x000000000000586a        0x6 
- .rodata        0x0000000000005870      0x200 build/obj/local/mips/objs/decomon/hdlc.o
- .rodata.str1.4
-                0x0000000000005a70       0x41 build/obj/local/mips/objs/decomon/demod_afsk12.o
-                                         0x48 (size before relaxing)
- *fill*         0x0000000000005ab1        0x7 
- .rodata.cst8   0x0000000000005ab8       0x20 build/obj/local/mips/objs/decomon/demod_afsk12.o
- .rodata.str1.4
-                0x0000000000005ad8      0x452 build/obj/local/mips/objs/decomon/pocsag.o
-                                        0x474 (size before relaxing)
- *fill*         0x0000000000005f2a        0x6 
- .rodata        0x0000000000005f30       0x30 build/obj/local/mips/objs/decomon/pocsag.o
- .rodata.cst8   0x0000000000005f60       0x10 build/obj/local/mips/objs/decomon/pocsag.o
- .rodata.str1.4
-                0x0000000000005f70       0x71 build/obj/local/mips/objs/decomon/demod_dtmf.o
-                                         0x88 (size before relaxing)
- *fill*         0x0000000000005fe1        0xf 
- .rodata        0x0000000000005ff0       0x20 build/obj/local/mips/objs/decomon/demod_dtmf.o
- .rodata.cst4   0x0000000000006010        0x4 build/obj/local/mips/objs/decomon/demod_dtmf.o
- *fill*         0x0000000000006014        0x4 
- .rodata.cst8   0x0000000000006018       0x10 build/obj/local/mips/objs/decomon/demod_dtmf.o
- .rodata.str1.4
-                0x0000000000006028        0xa build/obj/local/mips/objs/decomon/demod_poc5.o
-                                         0x10 (size before relaxing)
- *fill*         0x0000000000006032        0x2 
- .rodata.str1.4
-                0x0000000000006034        0xb build/obj/local/mips/objs/decomon/demod_poc12.o
-                                         0x10 (size before relaxing)
- *fill*         0x000000000000603f        0x1 
- .rodata.str1.4
-                0x0000000000006040        0xb build/obj/local/mips/objs/decomon/demod_poc24.o
-                                         0x10 (size before relaxing)
- *fill*         0x000000000000604b        0x1 
- .rodata.str1.4
-                0x000000000000604c      0x124 build/obj/local/mips/objs/decomon/multimon.o
-                                        0x138 (size before relaxing)
- .rodata.cst8   0x0000000000006170        0x8 build/obj/local/mips/objs/decomon/multimon.o
+ .rodata.str1.1
+                0x0000000000005f20       0xe5 build/obj/local/mips/objs/decomon/hdlc.o
+                                         0xea (size before relaxing)
+ *fill*         0x0000000000006005        0x1 
+ .rodata        0x0000000000006006      0x200 build/obj/local/mips/objs/decomon/hdlc.o
+ *fill*         0x0000000000006206        0x2 
+ .rodata.cst8   0x0000000000006208       0x10 build/obj/local/mips/objs/decomon/demod_afsk12.o
+ .rodata.str1.1
+                0x0000000000006218       0x39 build/obj/local/mips/objs/decomon/demod_afsk12.o
+                                         0x3c (size before relaxing)
+ *fill*         0x0000000000006251        0x7 
+ .rodata.cst8   0x0000000000006258       0x10 build/obj/local/mips/objs/decomon/pocsag.o
+ .rodata.do_one_bit
+                0x0000000000006268       0x10 build/obj/local/mips/objs/decomon/pocsag.o
+ .rodata.str1.1
+                0x0000000000006278      0x3d9 build/obj/local/mips/objs/decomon/pocsag.o
+                                        0x3f1 (size before relaxing)
+ *fill*         0x0000000000006651        0xf 
+ .rodata        0x0000000000006660       0x18 build/obj/local/mips/objs/decomon/pocsag.o
+ .rodata.cst4   0x0000000000006678        0x4 build/obj/local/mips/objs/decomon/demod_dtmf.o
+ *fill*         0x000000000000667c        0x4 
+ .rodata.cst8   0x0000000000006680       0x10 build/obj/local/mips/objs/decomon/demod_dtmf.o
+ .rodata.str1.1
+                0x0000000000006690       0x69 build/obj/local/mips/objs/decomon/demod_dtmf.o
+                                         0x7a (size before relaxing)
+ *fill*         0x00000000000066f9        0x3 
+ .rodata.cst32  0x00000000000066fc       0x20 build/obj/local/mips/objs/decomon/demod_dtmf.o
+ .rodata.str1.1
+                0x000000000000671c        0xa build/obj/local/mips/objs/decomon/demod_poc5.o
+                                          0xd (size before relaxing)
+ .rodata.str1.1
+                0x0000000000006726        0xb build/obj/local/mips/objs/decomon/demod_poc12.o
+                                          0xe (size before relaxing)
+ .rodata.str1.1
+                0x0000000000006731        0xb build/obj/local/mips/objs/decomon/demod_poc24.o
+                                          0xe (size before relaxing)
+ *fill*         0x000000000000673c        0x4 
+ .rodata.cst8   0x0000000000006740        0x8 build/obj/local/mips/objs/decomon/multimon.o
+ .rodata.str1.1
+                0x0000000000006748      0x10d build/obj/local/mips/objs/decomon/multimon.o
+                                        0x11e (size before relaxing)
 
 .rodata1
  *(.rodata1)
 
-.eh_frame_hdr   0x0000000000006178       0xec
+.eh_frame_hdr   0x0000000000006858       0xf4
  *(.eh_frame_hdr)
- .eh_frame_hdr  0x0000000000006178       0xec build/obj/local/mips/objs/decomon/hdlc.o
+ .eh_frame_hdr  0x0000000000006858       0xf4 build/obj/local/mips/objs/decomon/hdlc.o
 
-.eh_frame       0x0000000000006264      0x578
+.eh_frame       0x000000000000694c      0x41c
  *(.eh_frame)
- .eh_frame      0x0000000000006264       0xdc build/obj/local/mips/objs/decomon/hdlc.o
- .eh_frame      0x0000000000006340       0x90 build/obj/local/mips/objs/decomon/demod_afsk12.o
-                                         0xa4 (size before relaxing)
- .eh_frame      0x00000000000063d0      0x130 build/obj/local/mips/objs/decomon/pocsag.o
-                                        0x144 (size before relaxing)
- .eh_frame      0x0000000000006500       0x78 build/obj/local/mips/objs/decomon/demod_dtmf.o
-                                         0x8c (size before relaxing)
- .eh_frame      0x0000000000006578       0x78 build/obj/local/mips/objs/decomon/demod_poc5.o
-                                         0x8c (size before relaxing)
- .eh_frame      0x00000000000065f0       0x7c build/obj/local/mips/objs/decomon/demod_poc12.o
-                                         0x90 (size before relaxing)
- .eh_frame      0x000000000000666c       0x6c build/obj/local/mips/objs/decomon/demod_poc24.o
-                                         0x80 (size before relaxing)
- .eh_frame      0x00000000000066d8      0x104 build/obj/local/mips/objs/decomon/multimon.o
-                                        0x118 (size before relaxing)
+ .eh_frame      0x000000000000694c       0x5c build/obj/local/mips/objs/decomon/hdlc.o
+ .eh_frame      0x00000000000069a8       0x98 build/obj/local/mips/objs/decomon/demod_afsk12.o
+                                         0xac (size before relaxing)
+ .eh_frame      0x0000000000006a40       0xec build/obj/local/mips/objs/decomon/pocsag.o
+                                        0x100 (size before relaxing)
+ .eh_frame      0x0000000000006b2c       0x5c build/obj/local/mips/objs/decomon/demod_dtmf.o
+                                         0x70 (size before relaxing)
+ .eh_frame      0x0000000000006b88       0x60 build/obj/local/mips/objs/decomon/demod_poc5.o
+                                         0x74 (size before relaxing)
+ .eh_frame      0x0000000000006be8       0x60 build/obj/local/mips/objs/decomon/demod_poc12.o
+                                         0x74 (size before relaxing)
+ .eh_frame      0x0000000000006c48       0x60 build/obj/local/mips/objs/decomon/demod_poc24.o
+                                         0x74 (size before relaxing)
+ .eh_frame      0x0000000000006ca8       0xc0 build/obj/local/mips/objs/decomon/multimon.o
+                                         0xd4 (size before relaxing)
 
 .gcc_except_table
  *(.gcc_except_table .gcc_except_table.*)
@@ -408,14 +413,14 @@ LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips
 .exception_ranges
  *(.exception_ranges .exception_ranges*)
 
-.plt            0x00000000000067dc        0x0
+.plt            0x0000000000006d68        0x0
  *(.plt)
- .plt           0x00000000000067dc        0x0 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
+ .plt           0x0000000000006d68        0x0 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
 
 .iplt
  *(.iplt)
                 0x0000000000010000                . = ALIGN (0x10000)
-                0x0000000000010cf0                . = DATA_SEGMENT_ALIGN (0x10000, 0x1000)
+                0x0000000000010cf8                . = DATA_SEGMENT_ALIGN (0x10000, 0x1000)
 
 .eh_frame
  *(.eh_frame)
@@ -432,23 +437,23 @@ LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips
 .tbss
  *(.tbss .tbss.* .gnu.linkonce.tb.*)
  *(.tcommon)
-                0x0000000000010cf0                . = ALIGN (0x4)
+                0x0000000000010cf8                . = ALIGN (0x4)
 
 .preinit_array
  *(.preinit_array)
 
-.init_array     0x0000000000010cf0        0x4
+.init_array     0x0000000000010cf8        0x4
  *crtbegin*.o(.init_array)
  *(SORT(.init_array.*) SORT(.ctors.*))
  *(.init_array EXCLUDE_FILE(*crtend*.o *crtend.o *crtbegin*.o *crtbegin.o) .ctors)
- .init_array    0x0000000000010cf0        0x4 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtend_so.o
+ .init_array    0x0000000000010cf8        0x4 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtend_so.o
 
-.fini_array     0x0000000000010cf4        0x8
+.fini_array     0x0000000000010cfc        0x8
  *crtbegin*.o(.fini_array)
- .fini_array    0x0000000000010cf4        0x4 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
+ .fini_array    0x0000000000010cfc        0x4 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
  *(SORT(.fini_array.*) SORT(.dtors.*))
  *(.fini_array EXCLUDE_FILE(*crtend*.o *crtend.o *crtbegin*.o *crtbegin.o) .dtors)
- .fini_array    0x0000000000010cf8        0x4 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtend_so.o
+ .fini_array    0x0000000000010d00        0x4 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtend_so.o
 
 .ctors
  *crtbegin.o(.ctors)
@@ -467,46 +472,41 @@ LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips
 .jcr
  *(.jcr)
 
-.data.rel.ro    0x0000000000010cfc      0x1cc
+.data.rel.ro    0x0000000000010d04      0x1cc
  *(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*)
- .data.rel.ro.local
-                0x0000000000010cfc       0x1c build/obj/local/mips/objs/decomon/demod_afsk12.o
-                0x0000000000010cfc                demod_afsk1200
- .data.rel.ro.local
-                0x0000000000010d18      0x140 build/obj/local/mips/objs/decomon/pocsag.o
- .data.rel.ro.local
-                0x0000000000010e58       0x1c build/obj/local/mips/objs/decomon/demod_dtmf.o
-                0x0000000000010e58                demod_dtmf
- .data.rel.ro.local
-                0x0000000000010e74       0x1c build/obj/local/mips/objs/decomon/demod_poc5.o
-                0x0000000000010e74                demod_poc5
- .data.rel.ro.local
-                0x0000000000010e90       0x1c build/obj/local/mips/objs/decomon/demod_poc12.o
-                0x0000000000010e90                demod_poc12
- .data.rel.ro.local
-                0x0000000000010eac       0x1c build/obj/local/mips/objs/decomon/demod_poc24.o
-                0x0000000000010eac                demod_poc24
  *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*)
+ .data.rel.ro   0x0000000000010d04       0x1c build/obj/local/mips/objs/decomon/demod_afsk12.o
+                0x0000000000010d04                demod_afsk1200
+ .data.rel.ro   0x0000000000010d20      0x140 build/obj/local/mips/objs/decomon/pocsag.o
+ .data.rel.ro   0x0000000000010e60       0x1c build/obj/local/mips/objs/decomon/demod_dtmf.o
+                0x0000000000010e60                demod_dtmf
+ .data.rel.ro   0x0000000000010e7c       0x1c build/obj/local/mips/objs/decomon/demod_poc5.o
+                0x0000000000010e7c                demod_poc5
+ .data.rel.ro   0x0000000000010e98       0x1c build/obj/local/mips/objs/decomon/demod_poc12.o
+                0x0000000000010e98                demod_poc12
+ .data.rel.ro   0x0000000000010eb4       0x1c build/obj/local/mips/objs/decomon/demod_poc24.o
+                0x0000000000010eb4                demod_poc24
 
-.got.plt        0x0000000000010ec8        0x0
+.got.plt        0x0000000000010ed0        0x0
  *(.got.plt)
- .got.plt       0x0000000000010ec8        0x0 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
+ .got.plt       0x0000000000010ed0        0x0 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
 
-.dynamic        0x0000000000010ec8      0x138
+.dynamic        0x0000000000010ed0      0x130
  *(.dynamic)
- .dynamic       0x0000000000010ec8      0x138 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
-                0x0000000000010ec8                _DYNAMIC
+ .dynamic       0x0000000000010ed0      0x130 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
+                0x0000000000010ed0                _DYNAMIC
                 0x0000000000011000                . = DATA_SEGMENT_RELRO_END (., 0x0)
 
 .data           0x0000000000011000     0x2030
                 0x0000000000011000                _fdata = .
  *(.data .data.* .gnu.linkonce.d.*)
- .data          0x0000000000011000       0x10 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
+ .data          0x0000000000011000       0x10 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
                 0x0000000000011000                __dso_handle
  .data          0x0000000000011010        0x0 build/obj/local/mips/objs/decomon/hdlc.o
  .data          0x0000000000011010        0x0 build/obj/local/mips/objs/decomon/demod_afsk12.o
- .data          0x0000000000011010       0x10 build/obj/local/mips/objs/decomon/pocsag.o
+ .data          0x0000000000011010        0x4 build/obj/local/mips/objs/decomon/pocsag.o
                 0x0000000000011010                pocsag_error_correction
+ *fill*         0x0000000000011014        0xc 
  .data          0x0000000000011020        0x0 build/obj/local/mips/objs/decomon/demod_dtmf.o
  .data          0x0000000000011020        0x0 build/obj/local/mips/objs/decomon/demod_poc5.o
  .data          0x0000000000011020        0x0 build/obj/local/mips/objs/decomon/demod_poc12.o
@@ -515,8 +515,9 @@ LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips
                 0x0000000000011020                costabf
  .data          0x0000000000012020     0x1000 build/obj/local/mips/objs/decomon/costabi.o
                 0x0000000000012020                costabi
- .data          0x0000000000013020       0x10 build/obj/local/mips/objs/decomon/multimon.o
- .data          0x0000000000013030        0x0 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtend_so.o
+ .data          0x0000000000013020        0x4 build/obj/local/mips/objs/decomon/multimon.o
+ *fill*         0x0000000000013024        0xc 
+ .data          0x0000000000013030        0x0 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtend_so.o
 
 .data1
  *(.data1)
@@ -525,7 +526,7 @@ LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips
 
 .got            0x0000000000013030       0xcc
  *(.got)
- .got           0x0000000000013030       0xcc /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
+ .got           0x0000000000013030       0xcc /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
                 0x0000000000013030                _GLOBAL_OFFSET_TABLE_
 
 .sdata
@@ -548,30 +549,33 @@ LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips
  *(.sbss .sbss.* .gnu.linkonce.sb.*)
  *(.scommon)
  .scommon       0x00000000000130fc        0x8 build/obj/local/mips/objs/decomon/multimon.o
-                0x00000000000130fc                env_global
-                0x0000000000013100                abp_global
+                0x00000000000130fc                abp_global
+                0x0000000000013100                env_global
 
 .bss            0x0000000000013110    0x107c0
  *(.dynbss)
- .dynbss        0x0000000000013110        0x0 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
+ .dynbss        0x0000000000013110        0x0 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
  *(.bss .bss.* .gnu.linkonce.b.*)
- .bss           0x0000000000013110        0x0 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
- .bss           0x0000000000013110       0x10 build/obj/local/mips/objs/decomon/hdlc.o
+ .bss           0x0000000000013110        0x0 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
+ .bss           0x0000000000013110        0x4 build/obj/local/mips/objs/decomon/hdlc.o
+ *fill*         0x0000000000013114        0xc 
  .bss           0x0000000000013120      0x120 build/obj/local/mips/objs/decomon/demod_afsk12.o
- .bss           0x0000000000013240       0x20 build/obj/local/mips/objs/decomon/pocsag.o
-                0x0000000000013240                pocsag_prune_empty
-                0x0000000000013244                pocsag_heuristic_pruning
+ .bss           0x0000000000013240       0x14 build/obj/local/mips/objs/decomon/pocsag.o
+                0x0000000000013240                pocsag_mode
+                0x0000000000013244                pocsag_invert_input
                 0x0000000000013248                pocsag_show_partial_decodes
-                0x000000000001324c                pocsag_invert_input
-                0x0000000000013250                pocsag_mode
+                0x000000000001324c                pocsag_heuristic_pruning
+                0x0000000000013250                pocsag_prune_empty
+ *fill*         0x0000000000013254        0xc 
  .bss           0x0000000000013260        0x0 build/obj/local/mips/objs/decomon/demod_dtmf.o
  .bss           0x0000000000013260        0x0 build/obj/local/mips/objs/decomon/demod_poc5.o
  .bss           0x0000000000013260        0x0 build/obj/local/mips/objs/decomon/demod_poc12.o
  .bss           0x0000000000013260        0x0 build/obj/local/mips/objs/decomon/demod_poc24.o
  .bss           0x0000000000013260        0x0 build/obj/local/mips/objs/decomon/costabf.o
  .bss           0x0000000000013260        0x0 build/obj/local/mips/objs/decomon/costabi.o
- .bss           0x0000000000013260    0x10670 build/obj/local/mips/objs/decomon/multimon.o
- .bss           0x00000000000238d0        0x0 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtend_so.o
+ .bss           0x0000000000013260    0x1066c build/obj/local/mips/objs/decomon/multimon.o
+ *fill*         0x00000000000238cc        0x4 
+ .bss           0x00000000000238d0        0x0 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtend_so.o
  *(COMMON)
                 0x00000000000238d0                . = ALIGN (0x4)
                 0x00000000000238d0                . = ALIGN (0x4)
@@ -602,34 +606,33 @@ LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips
 .stab.indexstr
  *(.stab.indexstr)
 
-.comment        0x0000000000000000       0x27
+.comment        0x0000000000000000       0x64
  *(.comment)
- .comment       0x0000000000000000       0x27 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
+ .comment       0x0000000000000000       0x27 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
                                          0x28 (size before relaxing)
- .comment       0x0000000000000027       0x28 build/obj/local/mips/objs/decomon/hdlc.o
- .comment       0x0000000000000027       0x28 build/obj/local/mips/objs/decomon/demod_afsk12.o
- .comment       0x0000000000000027       0x28 build/obj/local/mips/objs/decomon/pocsag.o
- .comment       0x0000000000000027       0x28 build/obj/local/mips/objs/decomon/demod_dtmf.o
- .comment       0x0000000000000027       0x28 build/obj/local/mips/objs/decomon/demod_poc5.o
- .comment       0x0000000000000027       0x28 build/obj/local/mips/objs/decomon/demod_poc12.o
- .comment       0x0000000000000027       0x28 build/obj/local/mips/objs/decomon/demod_poc24.o
- .comment       0x0000000000000027       0x28 build/obj/local/mips/objs/decomon/costabf.o
- .comment       0x0000000000000027       0x28 build/obj/local/mips/objs/decomon/costabi.o
- .comment       0x0000000000000027       0x28 build/obj/local/mips/objs/decomon/multimon.o
+ .comment       0x0000000000000027       0x3d build/obj/local/mips/objs/decomon/hdlc.o
+                                         0x3e (size before relaxing)
+ .comment       0x0000000000000064       0x3e build/obj/local/mips/objs/decomon/demod_afsk12.o
+ .comment       0x0000000000000064       0x3e build/obj/local/mips/objs/decomon/pocsag.o
+ .comment       0x0000000000000064       0x3e build/obj/local/mips/objs/decomon/demod_dtmf.o
+ .comment       0x0000000000000064       0x3e build/obj/local/mips/objs/decomon/demod_poc5.o
+ .comment       0x0000000000000064       0x3e build/obj/local/mips/objs/decomon/demod_poc12.o
+ .comment       0x0000000000000064       0x3e build/obj/local/mips/objs/decomon/demod_poc24.o
+ .comment       0x0000000000000064       0x3e build/obj/local/mips/objs/decomon/costabf.o
+ .comment       0x0000000000000064       0x3e build/obj/local/mips/objs/decomon/costabi.o
+ .comment       0x0000000000000064       0x3e build/obj/local/mips/objs/decomon/multimon.o
 
-.pdr            0x0000000000000000      0x3e0
- .pdr           0x0000000000000000       0x60 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
- .pdr           0x0000000000000060       0x60 build/obj/local/mips/objs/decomon/hdlc.o
- .pdr           0x00000000000000c0       0x40 build/obj/local/mips/objs/decomon/demod_afsk12.o
- .pdr           0x0000000000000100       0xc0 build/obj/local/mips/objs/decomon/pocsag.o
- .pdr           0x00000000000001c0       0x40 build/obj/local/mips/objs/decomon/demod_dtmf.o
- .pdr           0x0000000000000200       0x60 build/obj/local/mips/objs/decomon/demod_poc5.o
- .pdr           0x0000000000000260       0x60 build/obj/local/mips/objs/decomon/demod_poc12.o
- .pdr           0x00000000000002c0       0x60 build/obj/local/mips/objs/decomon/demod_poc24.o
- .pdr           0x0000000000000320        0x0 build/obj/local/mips/objs/decomon/costabf.o
- .pdr           0x0000000000000320        0x0 build/obj/local/mips/objs/decomon/costabi.o
- .pdr           0x0000000000000320       0xc0 build/obj/local/mips/objs/decomon/multimon.o
- .pdr           0x00000000000003e0        0x0 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtend_so.o
+.pdr            0x0000000000000000      0x400
+ .pdr           0x0000000000000000       0x60 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
+ .pdr           0x0000000000000060       0x40 build/obj/local/mips/objs/decomon/hdlc.o
+ .pdr           0x00000000000000a0       0x60 build/obj/local/mips/objs/decomon/demod_afsk12.o
+ .pdr           0x0000000000000100       0xe0 build/obj/local/mips/objs/decomon/pocsag.o
+ .pdr           0x00000000000001e0       0x40 build/obj/local/mips/objs/decomon/demod_dtmf.o
+ .pdr           0x0000000000000220       0x60 build/obj/local/mips/objs/decomon/demod_poc5.o
+ .pdr           0x0000000000000280       0x60 build/obj/local/mips/objs/decomon/demod_poc12.o
+ .pdr           0x00000000000002e0       0x60 build/obj/local/mips/objs/decomon/demod_poc24.o
+ .pdr           0x0000000000000340       0xc0 build/obj/local/mips/objs/decomon/multimon.o
+ .pdr           0x0000000000000400        0x0 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtend_so.o
 
 .debug
  *(.debug)
@@ -643,110 +646,133 @@ LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges  0x0000000000000000      0x1d0
+.debug_aranges
  *(.debug_aranges)
- .debug_aranges
-                0x0000000000000000       0x30 build/obj/local/mips/objs/decomon/hdlc.o
- .debug_aranges
-                0x0000000000000030       0x28 build/obj/local/mips/objs/decomon/demod_afsk12.o
- .debug_aranges
-                0x0000000000000058       0x48 build/obj/local/mips/objs/decomon/pocsag.o
- .debug_aranges
-                0x00000000000000a0       0x28 build/obj/local/mips/objs/decomon/demod_dtmf.o
- .debug_aranges
-                0x00000000000000c8       0x30 build/obj/local/mips/objs/decomon/demod_poc5.o
- .debug_aranges
-                0x00000000000000f8       0x30 build/obj/local/mips/objs/decomon/demod_poc12.o
- .debug_aranges
-                0x0000000000000128       0x30 build/obj/local/mips/objs/decomon/demod_poc24.o
- .debug_aranges
-                0x0000000000000158       0x18 build/obj/local/mips/objs/decomon/costabf.o
- .debug_aranges
-                0x0000000000000170       0x18 build/obj/local/mips/objs/decomon/costabi.o
- .debug_aranges
-                0x0000000000000188       0x48 build/obj/local/mips/objs/decomon/multimon.o
 
 .debug_pubnames
+                0x0000000000000000      0x68e
  *(.debug_pubnames)
+ .debug_pubnames
+                0x0000000000000000       0x7d build/obj/local/mips/objs/decomon/hdlc.o
+ .debug_pubnames
+                0x000000000000007d       0x99 build/obj/local/mips/objs/decomon/demod_afsk12.o
+ .debug_pubnames
+                0x0000000000000116      0x232 build/obj/local/mips/objs/decomon/pocsag.o
+ .debug_pubnames
+                0x0000000000000348       0x89 build/obj/local/mips/objs/decomon/demod_dtmf.o
+ .debug_pubnames
+                0x00000000000003d1       0x4e build/obj/local/mips/objs/decomon/demod_poc5.o
+ .debug_pubnames
+                0x000000000000041f       0x52 build/obj/local/mips/objs/decomon/demod_poc12.o
+ .debug_pubnames
+                0x0000000000000471       0x52 build/obj/local/mips/objs/decomon/demod_poc24.o
+ .debug_pubnames
+                0x00000000000004c3       0x1e build/obj/local/mips/objs/decomon/costabf.o
+ .debug_pubnames
+                0x00000000000004e1       0x1e build/obj/local/mips/objs/decomon/costabi.o
+ .debug_pubnames
+                0x00000000000004ff      0x18f build/obj/local/mips/objs/decomon/multimon.o
 
-.debug_info     0x0000000000000000     0x9af7
+.debug_info     0x0000000000000000     0x734c
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x1175 build/obj/local/mips/objs/decomon/hdlc.o
- .debug_info    0x0000000000001175      0xaf0 build/obj/local/mips/objs/decomon/demod_afsk12.o
- .debug_info    0x0000000000001c65     0x22b3 build/obj/local/mips/objs/decomon/pocsag.o
- .debug_info    0x0000000000003f18      0xadb build/obj/local/mips/objs/decomon/demod_dtmf.o
- .debug_info    0x00000000000049f3      0x7a7 build/obj/local/mips/objs/decomon/demod_poc5.o
- .debug_info    0x000000000000519a      0x7a7 build/obj/local/mips/objs/decomon/demod_poc12.o
- .debug_info    0x0000000000005941      0x78e build/obj/local/mips/objs/decomon/demod_poc24.o
- .debug_info    0x00000000000060cf       0x4e build/obj/local/mips/objs/decomon/costabf.o
- .debug_info    0x000000000000611d       0x4e build/obj/local/mips/objs/decomon/costabi.o
- .debug_info    0x000000000000616b     0x398c build/obj/local/mips/objs/decomon/multimon.o
+ .debug_info    0x0000000000000000      0x9a0 build/obj/local/mips/objs/decomon/hdlc.o
+ .debug_info    0x00000000000009a0      0x866 build/obj/local/mips/objs/decomon/demod_afsk12.o
+ .debug_info    0x0000000000001206     0x11ed build/obj/local/mips/objs/decomon/pocsag.o
+ .debug_info    0x00000000000023f3      0x8c2 build/obj/local/mips/objs/decomon/demod_dtmf.o
+ .debug_info    0x0000000000002cb5      0x6e3 build/obj/local/mips/objs/decomon/demod_poc5.o
+ .debug_info    0x0000000000003398      0x6e3 build/obj/local/mips/objs/decomon/demod_poc12.o
+ .debug_info    0x0000000000003a7b      0x6ce build/obj/local/mips/objs/decomon/demod_poc24.o
+ .debug_info    0x0000000000004149       0x4b build/obj/local/mips/objs/decomon/costabf.o
+ .debug_info    0x0000000000004194       0x4b build/obj/local/mips/objs/decomon/costabi.o
+ .debug_info    0x00000000000041df     0x316d build/obj/local/mips/objs/decomon/multimon.o
 
-.debug_abbrev   0x0000000000000000     0x123c
+.debug_abbrev   0x0000000000000000      0xc68
  *(.debug_abbrev)
- .debug_abbrev  0x0000000000000000      0x204 build/obj/local/mips/objs/decomon/hdlc.o
- .debug_abbrev  0x0000000000000204      0x262 build/obj/local/mips/objs/decomon/demod_afsk12.o
- .debug_abbrev  0x0000000000000466      0x39b build/obj/local/mips/objs/decomon/pocsag.o
- .debug_abbrev  0x0000000000000801      0x26a build/obj/local/mips/objs/decomon/demod_dtmf.o
- .debug_abbrev  0x0000000000000a6b      0x171 build/obj/local/mips/objs/decomon/demod_poc5.o
- .debug_abbrev  0x0000000000000bdc      0x171 build/obj/local/mips/objs/decomon/demod_poc12.o
- .debug_abbrev  0x0000000000000d4d      0x159 build/obj/local/mips/objs/decomon/demod_poc24.o
- .debug_abbrev  0x0000000000000ea6       0x3e build/obj/local/mips/objs/decomon/costabf.o
- .debug_abbrev  0x0000000000000ee4       0x49 build/obj/local/mips/objs/decomon/costabi.o
- .debug_abbrev  0x0000000000000f2d      0x30f build/obj/local/mips/objs/decomon/multimon.o
+ .debug_abbrev  0x0000000000000000      0x15f build/obj/local/mips/objs/decomon/hdlc.o
+ .debug_abbrev  0x000000000000015f      0x196 build/obj/local/mips/objs/decomon/demod_afsk12.o
+ .debug_abbrev  0x00000000000002f5      0x260 build/obj/local/mips/objs/decomon/pocsag.o
+ .debug_abbrev  0x0000000000000555      0x19c build/obj/local/mips/objs/decomon/demod_dtmf.o
+ .debug_abbrev  0x00000000000006f1       0xf8 build/obj/local/mips/objs/decomon/demod_poc5.o
+ .debug_abbrev  0x00000000000007e9       0xf8 build/obj/local/mips/objs/decomon/demod_poc12.o
+ .debug_abbrev  0x00000000000008e1       0xe2 build/obj/local/mips/objs/decomon/demod_poc24.o
+ .debug_abbrev  0x00000000000009c3       0x47 build/obj/local/mips/objs/decomon/costabf.o
+ .debug_abbrev  0x0000000000000a0a       0x47 build/obj/local/mips/objs/decomon/costabi.o
+ .debug_abbrev  0x0000000000000a51      0x217 build/obj/local/mips/objs/decomon/multimon.o
 
-.debug_line     0x0000000000000000     0x1e4d
+.debug_line     0x0000000000000000     0x2caa
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x0000000000000000      0x514 build/obj/local/mips/objs/decomon/hdlc.o
- .debug_line    0x0000000000000514      0x299 build/obj/local/mips/objs/decomon/demod_afsk12.o
- .debug_line    0x00000000000007ad      0x9ef build/obj/local/mips/objs/decomon/pocsag.o
- .debug_line    0x000000000000119c      0x2d3 build/obj/local/mips/objs/decomon/demod_dtmf.o
- .debug_line    0x000000000000146f      0x1ae build/obj/local/mips/objs/decomon/demod_poc5.o
- .debug_line    0x000000000000161d      0x1b5 build/obj/local/mips/objs/decomon/demod_poc12.o
- .debug_line    0x00000000000017d2      0x195 build/obj/local/mips/objs/decomon/demod_poc24.o
- .debug_line    0x0000000000001967       0x37 build/obj/local/mips/objs/decomon/costabf.o
- .debug_line    0x000000000000199e       0x37 build/obj/local/mips/objs/decomon/costabi.o
- .debug_line    0x00000000000019d5      0x478 build/obj/local/mips/objs/decomon/multimon.o
+ .debug_line    0x0000000000000000      0xb4d build/obj/local/mips/objs/decomon/hdlc.o
+ .debug_line    0x0000000000000b4d      0x3a1 build/obj/local/mips/objs/decomon/demod_afsk12.o
+ .debug_line    0x0000000000000eee      0xd60 build/obj/local/mips/objs/decomon/pocsag.o
+ .debug_line    0x0000000000001c4e      0x504 build/obj/local/mips/objs/decomon/demod_dtmf.o
+ .debug_line    0x0000000000002152      0x1f4 build/obj/local/mips/objs/decomon/demod_poc5.o
+ .debug_line    0x0000000000002346      0x1f5 build/obj/local/mips/objs/decomon/demod_poc12.o
+ .debug_line    0x000000000000253b      0x1db build/obj/local/mips/objs/decomon/demod_poc24.o
+ .debug_line    0x0000000000002716       0x37 build/obj/local/mips/objs/decomon/costabf.o
+ .debug_line    0x000000000000274d       0x37 build/obj/local/mips/objs/decomon/costabi.o
+ .debug_line    0x0000000000002784      0x526 build/obj/local/mips/objs/decomon/multimon.o
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x219e
+.debug_str      0x0000000000000000     0x20dc
  *(.debug_str)
- .debug_str     0x0000000000000000      0x687 build/obj/local/mips/objs/decomon/hdlc.o
-                                        0x764 (size before relaxing)
- .debug_str     0x0000000000000687      0x14c build/obj/local/mips/objs/decomon/demod_afsk12.o
-                                        0x7b8 (size before relaxing)
- .debug_str     0x00000000000007d3      0x333 build/obj/local/mips/objs/decomon/pocsag.o
-                                        0xb0c (size before relaxing)
- .debug_str     0x0000000000000b06       0x84 build/obj/local/mips/objs/decomon/demod_dtmf.o
-                                        0x7b2 (size before relaxing)
- .debug_str     0x0000000000000b8a       0x46 build/obj/local/mips/objs/decomon/demod_poc5.o
-                                        0x6bc (size before relaxing)
- .debug_str     0x0000000000000bd0       0x4b build/obj/local/mips/objs/decomon/demod_poc12.o
-                                        0x6c1 (size before relaxing)
- .debug_str     0x0000000000000c1b       0x4b build/obj/local/mips/objs/decomon/demod_poc24.o
-                                        0x6b9 (size before relaxing)
- .debug_str     0x0000000000000c66       0x17 build/obj/local/mips/objs/decomon/costabf.o
-                                        0x19e (size before relaxing)
- .debug_str     0x0000000000000c7d       0x1f build/obj/local/mips/objs/decomon/costabi.o
-                                        0x198 (size before relaxing)
- .debug_str     0x0000000000000c9c     0x1502 build/obj/local/mips/objs/decomon/multimon.o
-                                       0x1c77 (size before relaxing)
+ .debug_str     0x0000000000000000      0x59d build/obj/local/mips/objs/decomon/hdlc.o
+                                        0x682 (size before relaxing)
+ .debug_str     0x000000000000059d      0x154 build/obj/local/mips/objs/decomon/demod_afsk12.o
+                                        0x68d (size before relaxing)
+ .debug_str     0x00000000000006f1      0x349 build/obj/local/mips/objs/decomon/pocsag.o
+                                        0x971 (size before relaxing)
+ .debug_str     0x0000000000000a3a       0x7c build/obj/local/mips/objs/decomon/demod_dtmf.o
+                                        0x680 (size before relaxing)
+ .debug_str     0x0000000000000ab6       0x46 build/obj/local/mips/objs/decomon/demod_poc5.o
+                                        0x581 (size before relaxing)
+ .debug_str     0x0000000000000afc       0x4b build/obj/local/mips/objs/decomon/demod_poc12.o
+                                        0x586 (size before relaxing)
+ .debug_str     0x0000000000000b47       0x4b build/obj/local/mips/objs/decomon/demod_poc24.o
+                                        0x57e (size before relaxing)
+ .debug_str     0x0000000000000b92       0x1f build/obj/local/mips/objs/decomon/costabf.o
+                                         0xa1 (size before relaxing)
+ .debug_str     0x0000000000000bb1       0x1f build/obj/local/mips/objs/decomon/costabi.o
+                                         0x9f (size before relaxing)
+ .debug_str     0x0000000000000bd0     0x150c build/obj/local/mips/objs/decomon/multimon.o
+                                       0x1b73 (size before relaxing)
 
-.debug_loc      0x0000000000000000     0x40d6
+.debug_loc      0x0000000000000000     0x1473
  *(.debug_loc)
- .debug_loc     0x0000000000000000      0x5d5 build/obj/local/mips/objs/decomon/hdlc.o
- .debug_loc     0x00000000000005d5      0x452 build/obj/local/mips/objs/decomon/demod_afsk12.o
- .debug_loc     0x0000000000000a27     0x2998 build/obj/local/mips/objs/decomon/pocsag.o
- .debug_loc     0x00000000000033bf      0x465 build/obj/local/mips/objs/decomon/demod_dtmf.o
- .debug_loc     0x0000000000003824      0x150 build/obj/local/mips/objs/decomon/demod_poc5.o
- .debug_loc     0x0000000000003974      0x13e build/obj/local/mips/objs/decomon/demod_poc12.o
- .debug_loc     0x0000000000003ab2      0x105 build/obj/local/mips/objs/decomon/demod_poc24.o
- .debug_loc     0x0000000000003bb7      0x51f build/obj/local/mips/objs/decomon/multimon.o
+ .debug_loc     0x0000000000000000      0x1d2 build/obj/local/mips/objs/decomon/hdlc.o
+ .debug_loc     0x00000000000001d2      0x15f build/obj/local/mips/objs/decomon/demod_afsk12.o
+ .debug_loc     0x0000000000000331      0x9cc build/obj/local/mips/objs/decomon/pocsag.o
+ .debug_loc     0x0000000000000cfd      0x317 build/obj/local/mips/objs/decomon/demod_dtmf.o
+ .debug_loc     0x0000000000001014       0xa9 build/obj/local/mips/objs/decomon/demod_poc5.o
+ .debug_loc     0x00000000000010bd       0xa9 build/obj/local/mips/objs/decomon/demod_poc12.o
+ .debug_loc     0x0000000000001166       0x80 build/obj/local/mips/objs/decomon/demod_poc24.o
+ .debug_loc     0x00000000000011e6        0x0 build/obj/local/mips/objs/decomon/costabf.o
+ .debug_loc     0x00000000000011e6        0x0 build/obj/local/mips/objs/decomon/costabi.o
+ .debug_loc     0x00000000000011e6      0x28d build/obj/local/mips/objs/decomon/multimon.o
 
-.debug_macinfo
+.debug_macinfo  0x0000000000000000        0xa
  *(.debug_macinfo)
+ .debug_macinfo
+                0x0000000000000000        0x1 build/obj/local/mips/objs/decomon/hdlc.o
+ .debug_macinfo
+                0x0000000000000001        0x1 build/obj/local/mips/objs/decomon/demod_afsk12.o
+ .debug_macinfo
+                0x0000000000000002        0x1 build/obj/local/mips/objs/decomon/pocsag.o
+ .debug_macinfo
+                0x0000000000000003        0x1 build/obj/local/mips/objs/decomon/demod_dtmf.o
+ .debug_macinfo
+                0x0000000000000004        0x1 build/obj/local/mips/objs/decomon/demod_poc5.o
+ .debug_macinfo
+                0x0000000000000005        0x1 build/obj/local/mips/objs/decomon/demod_poc12.o
+ .debug_macinfo
+                0x0000000000000006        0x1 build/obj/local/mips/objs/decomon/demod_poc24.o
+ .debug_macinfo
+                0x0000000000000007        0x1 build/obj/local/mips/objs/decomon/costabf.o
+ .debug_macinfo
+                0x0000000000000008        0x1 build/obj/local/mips/objs/decomon/costabi.o
+ .debug_macinfo
+                0x0000000000000009        0x1 build/obj/local/mips/objs/decomon/multimon.o
 
 .debug_weaknames
  *(.debug_weaknames)
@@ -761,18 +787,41 @@ LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips
  *(.debug_varnames)
 
 .debug_pubtypes
+                0x0000000000000000     0x13c4
  *(.debug_pubtypes)
+ .debug_pubtypes
+                0x0000000000000000      0x27b build/obj/local/mips/objs/decomon/hdlc.o
+ .debug_pubtypes
+                0x000000000000027b      0x221 build/obj/local/mips/objs/decomon/demod_afsk12.o
+ .debug_pubtypes
+                0x000000000000049c      0x22c build/obj/local/mips/objs/decomon/pocsag.o
+ .debug_pubtypes
+                0x00000000000006c8      0x221 build/obj/local/mips/objs/decomon/demod_dtmf.o
+ .debug_pubtypes
+                0x00000000000008e9      0x209 build/obj/local/mips/objs/decomon/demod_poc5.o
+ .debug_pubtypes
+                0x0000000000000af2      0x209 build/obj/local/mips/objs/decomon/demod_poc12.o
+ .debug_pubtypes
+                0x0000000000000cfb      0x209 build/obj/local/mips/objs/decomon/demod_poc24.o
+ .debug_pubtypes
+                0x0000000000000f04       0x1c build/obj/local/mips/objs/decomon/costabf.o
+ .debug_pubtypes
+                0x0000000000000f20       0x1a build/obj/local/mips/objs/decomon/costabi.o
+ .debug_pubtypes
+                0x0000000000000f3a      0x48a build/obj/local/mips/objs/decomon/multimon.o
 
-.debug_ranges   0x0000000000000000      0x920
+.debug_ranges   0x0000000000000000      0x5c8
  *(.debug_ranges)
- .debug_ranges  0x0000000000000000       0x20 build/obj/local/mips/objs/decomon/hdlc.o
- .debug_ranges  0x0000000000000020       0x90 build/obj/local/mips/objs/decomon/demod_afsk12.o
- .debug_ranges  0x00000000000000b0      0x630 build/obj/local/mips/objs/decomon/pocsag.o
- .debug_ranges  0x00000000000006e0      0x118 build/obj/local/mips/objs/decomon/demod_dtmf.o
- .debug_ranges  0x00000000000007f8       0x38 build/obj/local/mips/objs/decomon/demod_poc5.o
- .debug_ranges  0x0000000000000830       0x38 build/obj/local/mips/objs/decomon/demod_poc12.o
- .debug_ranges  0x0000000000000868       0x20 build/obj/local/mips/objs/decomon/demod_poc24.o
- .debug_ranges  0x0000000000000888       0x98 build/obj/local/mips/objs/decomon/multimon.o
+ .debug_ranges  0x0000000000000000       0x50 build/obj/local/mips/objs/decomon/hdlc.o
+ .debug_ranges  0x0000000000000050       0x38 build/obj/local/mips/objs/decomon/demod_afsk12.o
+ .debug_ranges  0x0000000000000088      0x310 build/obj/local/mips/objs/decomon/pocsag.o
+ .debug_ranges  0x0000000000000398      0x168 build/obj/local/mips/objs/decomon/demod_dtmf.o
+ .debug_ranges  0x0000000000000500       0x38 build/obj/local/mips/objs/decomon/demod_poc5.o
+ .debug_ranges  0x0000000000000538       0x38 build/obj/local/mips/objs/decomon/demod_poc12.o
+ .debug_ranges  0x0000000000000570       0x20 build/obj/local/mips/objs/decomon/demod_poc24.o
+ .debug_ranges  0x0000000000000590        0x0 build/obj/local/mips/objs/decomon/costabf.o
+ .debug_ranges  0x0000000000000590        0x0 build/obj/local/mips/objs/decomon/costabi.o
+ .debug_ranges  0x0000000000000590       0x38 build/obj/local/mips/objs/decomon/multimon.o
 
 .debug_macro
  *(.debug_macro)
@@ -781,29 +830,9 @@ LOAD /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips
                 0x0000000000000000       0x10
  *(.gnu.attributes)
  .gnu.attributes
-                0x0000000000000000       0x10 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtbegin_so.o
+                0x0000000000000000       0x10 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtbegin_so.o
  .gnu.attributes
-                0x0000000000000010       0x10 build/obj/local/mips/objs/decomon/hdlc.o
- .gnu.attributes
-                0x0000000000000020       0x10 build/obj/local/mips/objs/decomon/demod_afsk12.o
- .gnu.attributes
-                0x0000000000000030       0x10 build/obj/local/mips/objs/decomon/pocsag.o
- .gnu.attributes
-                0x0000000000000040       0x10 build/obj/local/mips/objs/decomon/demod_dtmf.o
- .gnu.attributes
-                0x0000000000000050       0x10 build/obj/local/mips/objs/decomon/demod_poc5.o
- .gnu.attributes
-                0x0000000000000060       0x10 build/obj/local/mips/objs/decomon/demod_poc12.o
- .gnu.attributes
-                0x0000000000000070       0x10 build/obj/local/mips/objs/decomon/demod_poc24.o
- .gnu.attributes
-                0x0000000000000080       0x10 build/obj/local/mips/objs/decomon/costabf.o
- .gnu.attributes
-                0x0000000000000090       0x10 build/obj/local/mips/objs/decomon/costabi.o
- .gnu.attributes
-                0x00000000000000a0       0x10 build/obj/local/mips/objs/decomon/multimon.o
- .gnu.attributes
-                0x00000000000000b0       0x10 /Users/Gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/crtend_so.o
+                0x0000000000000010       0x10 /Users/gowrav/Library/Android/sdk/ndk-bundle/platforms/android-19/arch-mips/usr/lib/../lib/crtend_so.o
 
 .gptab.sdata
  *(.gptab.data)

@@ -6,6 +6,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
@@ -41,9 +44,11 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -51,6 +56,8 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class MainActivity extends AppCompatActivity implements IQSourceInterface.Callback, AnalyzerSurface.CallbackInterface, PacketCallback {
+    public String TAG = "MainActivity";
+
     public static final int RTL2832U_RESULT_CODE = 1234;    // arbitrary value, used when sending intent to RTL2832U
 
     static ArrayBlockingQueue<buffer_packet> bQueue = new ArrayBlockingQueue<buffer_packet>(1); // 1 array of short ???
@@ -532,6 +539,13 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
 
         // Handle item selection
         switch (item.getItemId()) {
+            case R.id.install_rtltcp:
+            {
+                if (appInstalledOrNot("marto.rtl_tcp_andro")) {
+                    installCardApp();
+                    return true;
+                }
+            }
             case R.id.restart_airpaper:
                 //newGame();
                 startAnalyzer();
@@ -681,6 +695,62 @@ public class MainActivity extends AppCompatActivity implements IQSourceInterface
 //            }
 //        });
 
+    }
+
+
+    private void installCardApp() {
+        AssetManager assetManager = getAssets();
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+            in = assetManager.open("RTL2832U.apk");
+            out = new FileOutputStream("/sdcard/myapk.apk");
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                out.write(buffer, 0, read);
+            }
+            in.close();
+            in = null;
+            out.flush();
+            out.close();
+            out = null;
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(Uri.fromFile(new File("/sdcard/myapk.apk")), "application/vnd.android.package-archive");
+            startActivity(intent);
+        } catch (Exception e) {
+            // deal with copying problem
+            Toast.makeText(this, "Error Occured Please Download from Playstore..", Toast.LENGTH_SHORT).show();
+            final String ezSwypePackageName = "marto.rtl_tcp_andro";
+            try {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" +
+                        ezSwypePackageName)));
+            } catch (android.content.ActivityNotFoundException
+                    anfe) {
+                startActivity(new Intent(Intent.ACTION_VIEW,
+                        Uri.parse("https://play.google.com/store/apps/details?id=" + ezSwypePackageName)));
+            }
+        }
+    }
+
+
+    private boolean appInstalledOrNot(String uri) {
+        PackageManager pm = getPackageManager();
+        boolean app_installed;
+        try {
+            PackageInfo packageInfo = pm.getPackageInfo(uri, PackageManager.GET_ACTIVITIES);
+            String version = packageInfo.versionName;
+            int versionCode = packageInfo.versionCode;
+            Log.d(TAG, "Card apk installer version Name : " + version + "\nVersion Code : " + versionCode);
+//            if (versionCode == 18) {// Fix this is strings.xml
+                app_installed = true;
+//            } else {
+//                app_installed = false;
+//            }
+        } catch (PackageManager.NameNotFoundException e) {
+            app_installed = false;
+        }
+        return app_installed;
     }
 
     @Override
