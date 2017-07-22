@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "769569654137",
+    "firebase_url": "https://airpaper-51602.firebaseio.com",
+    "project_id": "airpaper-51602",
+    "storage_bucket": "airpaper-51602.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:769569654137:android:c1ba243a1e5711d6",
+        "android_client_info": {
+          "package_name": "com.geeksynergy.airpaper"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "769569654137-3qm4b3jc0hu1prfe4kmliidofptjsido.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "769569654137-7tml2rsftdr1k4ij9kk8qe90e3oet7q1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLB3SVqIhJlmX-ij87CyzFTVFdCFeFJEA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-67266982-1"
+          }
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
